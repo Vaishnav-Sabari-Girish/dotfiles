@@ -1,0 +1,20 @@
+
+# Configuration
+home: ~/.nap
+default_language: ino
+theme: nord
+
+# Colors
+background: "#121212"
+foreground: "#E0E0E0"
+primary_color: "#0E76A8"
+primary_color_subdued: "#1B4F72"
+green: "#21C14F"
+bright_green: "#85FFC7"
+bright_red: "#FF6B6B"
+red: "#D32F2F"
+black: "#000000"
+gray: "#333333"
+white: "#F5F5F5"
+
+

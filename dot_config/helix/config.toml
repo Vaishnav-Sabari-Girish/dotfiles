@@ -1,0 +1,11 @@
+theme = "bogster"
+
+[editor]
+true-color = true
+
+[editor.cursor-shape]
+insert = "bar"
+
+[editor.lsp]
+display-messages = true
+

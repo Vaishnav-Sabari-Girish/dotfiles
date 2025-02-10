@@ -1,0 +1,7 @@
+font-family = "MesloLGSDZ Nerd Font"
+confirm-close-surface = false
+theme = catppuccin-mocha
+font-size = 16
+window-width = 96
+window-height = 60
+command = /home/vaishnav/.cargo/bin/nu
