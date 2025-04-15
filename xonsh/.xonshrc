@@ -1,0 +1,8 @@
+# XONSH WEBCONFIG START
+$XONSH_COLOR_STYLE = 'dracula'
+# XONSH WEBCONFIG END
+
+$STARSHIP_CONFIG = "/home/vaishnav/.config/starship_xonsh.toml"
+execx($(starship init xonsh))
+
+

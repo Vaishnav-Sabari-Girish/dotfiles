@@ -1,0 +1,533 @@
+{
+    "packages": [
+        {
+            "current_version": "0.1",
+            "install_timestamp": 1740540861,
+            "package": {
+                "author": {
+                    "contact": {
+                        "web": "https://2231puppy.tech"
+                    },
+                    "name": "2231puppy"
+                },
+                "description": "Purple KiCad theme. Forked from Dracula, it's dark. Try it out today!",
+                "description_full": "Vampires can't stand light. I've also heard rumors that they love pink and purple. Put those two things together, and you get a dark purple theme with pink highlights! This project is a fork of the official Dracula theme, with added PCM support. The icon used in this package is a modified version of an icon that uses the CC-BY-3.0 license. That license can be found here: https://creativecommons.org/licenses/by/3.0/ The original work can be found here: https://game-icons.net/1x1/delapouite/vampire-dracula.html",
+                "identifier": "com.github.2231puppy.kicad-vampire",
+                "license": "MIT",
+                "name": "Vampire",
+                "resources": {
+                    "homepage": "https://github.com/2231puppy/kicad-vampire"
+                },
+                "type": "colortheme",
+                "versions": [
+                    {
+                        "download_sha256": "8f6ebfa20b7366eba46d751dbd696ddd394aa40be654e5e849ff9b5d04844767",
+                        "download_size": 7088,
+                        "download_url": "https://github.com/2231puppy/kicad-vampire/releases/download/0.1/kicad-vampire.zip",
+                        "install_size": 15093,
+                        "kicad_version": "7.0",
+                        "status": "testing",
+                        "version": "0.1"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "3.0.0",
+            "install_timestamp": 1732805933,
+            "package": {
+                "author": {
+                    "contact": {
+                        "github": "https://github.com/MitjaNemec"
+                    },
+                    "name": "Mitja Nemec"
+                },
+                "description": "Arrange footprints on a line, circle or grid.",
+                "description_full": "Arrange sequentially numbered footprints or footprints from multiple hierarchical sheets in linear, circular or matrix arrangement. This plugin works on footprints already present in the layout, so that layout and schematics stay in sync.\nThe placement of footprints from multiple hierarchical sheets works well together with ReplicateLayout plugin",
+                "identifier": "com.github.MitjaNemec.PlaceFootprints",
+                "license": "GPL-2.0",
+                "name": "Place Footprints",
+                "resources": {
+                    "homepage": "https://github.com/MitjaNemec/PlaceFootprints"
+                },
+                "tags": [
+                    "pcbnew",
+                    "footprints",
+                    "arrange"
+                ],
+                "type": "plugin",
+                "versions": [
+                    {
+                        "download_sha256": "3a9a1a22369b68c83a585f096de74f5b42176fa91cbb6b7756b060d10d6ec60e",
+                        "download_size": 23871,
+                        "download_url": "https://github.com/MitjaNemec/PlaceFootprints/releases/download/3.0.0/PlaceFootprints-3.0.0-pcm.zip",
+                        "install_size": 93545,
+                        "kicad_version": "7.99",
+                        "kicad_version_max": "8.1",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "3.0.0"
+                    },
+                    {
+                        "download_sha256": "b7c63488bf8f670b3d0a1da32f7a88443ede6c83be6111a1f0d4392e2f2f32f2",
+                        "download_size": 23999,
+                        "download_url": "https://github.com/MitjaNemec/PlaceFootprints/releases/download/2.1.3/PlaceFootprints-2.1.3-pcm.zip",
+                        "install_size": 93076,
+                        "kicad_version": "7.0",
+                        "kicad_version_max": "7.1",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "2.1.3"
+                    },
+                    {
+                        "download_sha256": "a6a838d34fbe07fba0909c22d0bfeed27c5430250dc837f1348c0578237031a8",
+                        "download_size": 22668,
+                        "download_url": "https://github.com/MitjaNemec/PlaceFootprints/releases/download/1.2.12/PlaceFootprints-1.2.12-pcm.zip",
+                        "install_size": 78947,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "6.1",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.2.12"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "0.1",
+            "install_timestamp": 1732806023,
+            "package": {
+                "author": {
+                    "contact": {
+                        "web": "https://github.com/Sajitha-Aldeniya"
+                    },
+                    "name": "Sajitha Aldeniya"
+                },
+                "description": "Save circuits as blocks and reuse them later in different projects or in the same project. ",
+                "description_full": "A plug-in can be used to save circuits as blocks. Then these circuit blocks can be reused in different projects. This plug-in aims to reduce schematic drawing time significantly. \nTo create a schematic block, first, select the circuit and copy it to the clipboard (Ctrl+C). Then open up the plug-in and give it a name by writing it in the text field at the top. Click the “Save Block” Button to save it in the working directory. If you want to change the working directory, you can click the “Change Working Directory” button. All the blocks are saved in the working directory. Also, all the blocks in that directory will be listed in the List box. \nTo import a Schematic Block to the project, first, select the Block in the plugin and click “Import Selected Block to Clipboard”. Go to the schematic and paste it on the sheet. ",
+                "identifier": "com.github.Sajitha-Aldeniya.KiCAD-Schematic-Blocks-Plugin",
+                "license": "MIT",
+                "maintainer": {
+                    "contact": {
+                        "web": "https://github.com/Sajitha-Aldeniya/KiCAD-Schematic-Blocks-Plugin"
+                    },
+                    "name": "Sajitha Aldeniya"
+                },
+                "name": "Schematic Blocks Plug-In",
+                "resources": {
+                    "homepage": "https://github.com/Sajitha-Aldeniya/KiCAD-Schematic-Blocks-Plugin"
+                },
+                "type": "plugin",
+                "versions": [
+                    {
+                        "download_sha256": "fcff8020f497017db902540e9776949379cc96c30ff265f06ab83219735134ef",
+                        "download_size": 8270,
+                        "download_url": "https://github.com/Sajitha-Aldeniya/KiCAD-Schematic-Blocks-Plugin/releases/download/v0.1/Schematic_Block_Plugin_v0.1.zip",
+                        "install_size": 19326,
+                        "kicad_version": "6",
+                        "status": "testing",
+                        "version": "0.1"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "1.0.6",
+            "install_timestamp": 1732804727,
+            "package": {
+                "author": {
+                    "contact": {
+                        "web": "https://asukiaaa.blogspot.com"
+                    },
+                    "name": "Asuki Kono"
+                },
+                "description": "Create gerber files for some PCB order services.",
+                "description_full": "Create zip files which includes gerber files for each PCB services.",
+                "identifier": "com.github.asukiaaa.gerber-to-order",
+                "license": "MIT",
+                "name": "gerber to order",
+                "resources": {
+                    "homepage": "https://github.com/asukiaaa/gerber_to_order"
+                },
+                "type": "plugin",
+                "versions": [
+                    {
+                        "download_sha256": "517ac8cd2b60ae3a1dfa1351f5574c279ed82a78b881feabfb9e85b6db1a722e",
+                        "download_size": 19952,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.6/kicad-addon.zip",
+                        "install_size": 33615,
+                        "kicad_version": "7.0",
+                        "status": "stable",
+                        "version": "1.0.6"
+                    },
+                    {
+                        "download_sha256": "943989bda029953b98bc4f3bad42cb58f265298a3dbba2eb81e5c73152f00102",
+                        "download_size": 19952,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.5/kicad-addon.zip",
+                        "install_size": 33615,
+                        "kicad_version": "7.0",
+                        "status": "stable",
+                        "version": "1.0.5"
+                    },
+                    {
+                        "download_sha256": "3abede16c67eab46a21287d79571d35d262f9c770a74b2ba4215d8576364d6bb",
+                        "download_size": 19910,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.4/kicad-addon.zip",
+                        "install_size": 33447,
+                        "kicad_version": "6.0",
+                        "status": "stable",
+                        "version": "1.0.4"
+                    },
+                    {
+                        "download_sha256": "9f26171948514baa4466ed3c3a9e17f69375bc8f266fb65287d715fac80302ac",
+                        "download_size": 19910,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.3/kicad-addon.zip",
+                        "install_size": 33448,
+                        "kicad_version": "6.0",
+                        "status": "stable",
+                        "version": "1.0.3"
+                    },
+                    {
+                        "download_sha256": "c03d99400a62fa2e3ce17699af01d75ea0aca897c8e1d281fa31020b7ecb8fc8",
+                        "download_size": 19858,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.2/kicad-addon.zip",
+                        "install_size": 33329,
+                        "kicad_version": "6.0",
+                        "status": "stable",
+                        "version": "1.0.2"
+                    },
+                    {
+                        "download_sha256": "4a937d06316c02b710017d4c96d6905b824acdce993f6d7666cf9df862e91be1",
+                        "download_size": 19851,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.1/kicad-addon.zip",
+                        "install_size": 33318,
+                        "kicad_version": "6.0",
+                        "status": "stable",
+                        "version": "1.0.1"
+                    },
+                    {
+                        "download_sha256": "fbe8eeb68cd4d4c204333c9e88dabc502ab969ec1ef6beab097fa9870796a872",
+                        "download_size": 19695,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.0/kicad-addon.zip",
+                        "install_size": 32808,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "6.0",
+                        "status": "stable",
+                        "version": "1.0.0"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "1.0.1",
+            "install_timestamp": 1740312048,
+            "package": {
+                "author": {
+                    "contact": {
+                        "web": "https://github.com/clovergit"
+                    },
+                    "name": "CloverGit"
+                },
+                "description": "A theme that is rich in technology, Inspired by Altium Circuit Studio",
+                "description_full": "Designed by @CloverGit, Inspired by Altium Circuit Studio.\n Read more at https://github.com/clovergit/kicad-theme-skyline",
+                "identifier": "com.github.clovergit.kicad-theme-skyline",
+                "license": "MIT",
+                "maintainer": {
+                    "contact": {
+                        "web": "https://github.com/clovergit"
+                    },
+                    "name": "CloverGit"
+                },
+                "name": "Skyline",
+                "resources": {
+                    "Github": "https://github.com/clovergit/kicad-theme-skyline"
+                },
+                "type": "colortheme",
+                "versions": [
+                    {
+                        "download_sha256": "7525662df15bb60a26cacef26fe4effc6e7bd4ae18578cafd8fac0713c88db3d",
+                        "download_size": 10462,
+                        "download_url": "https://github.com/clovergit/kicad-theme-skyline/releases/download/v1.0.1/kicad-theme-skyline.zip",
+                        "install_size": 16183,
+                        "kicad_version": "7.0",
+                        "status": "stable",
+                        "version": "1.0.1"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "1.9.2",
+            "install_timestamp": 1740540844,
+            "package": {
+                "author": {
+                    "contact": {
+                        "support": "https://forum.kicad.info/"
+                    },
+                    "name": "Albin Dennevi"
+                },
+                "description": "Export a customized pdf of the board",
+                "description_full": "Each enabled template will result in a page in the pdf file that's created by this plugin. You can enable any number of templates to get different views and color modes of the pcb. Each template can be individually configured to give the desired output. It's completely up to you which layers to show, and which colors the layers shall have.",
+                "identifier": "com.gitlab.dennevi.Board2Pdf",
+                "license": "GPL-3.0",
+                "name": "Board2Pdf",
+                "resources": {
+                    "Gitlab": "https://gitlab.com/dennevi/Board2Pdf",
+                    "Readme": "https://gitlab.com/dennevi/Board2Pdf/-/blob/main/README.md",
+                    "Wiki": "http://board2pdf.dennevi.com"
+                },
+                "tags": [
+                    "pcbnew",
+                    "assembly",
+                    "documentation"
+                ],
+                "type": "plugin",
+                "versions": [
+                    {
+                        "download_sha256": "53749806cb263b3d96a2d133c4af619970fe3b6ae6097d3fa5c537c843581fab",
+                        "download_size": 410124,
+                        "download_url": "https://links.dennevi.com/Board2Pdf_v1.9.2.zip",
+                        "install_size": 1706242,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "9.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.9.2"
+                    },
+                    {
+                        "download_sha256": "cb2e9a1d506176e30f63ab6cf6778c6605bc731fecfc6aee467db0da89009f85",
+                        "download_size": 409593,
+                        "download_url": "https://links.dennevi.com/Board2Pdf_v1.9.1.zip",
+                        "install_size": 1703175,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "9.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.9.1"
+                    },
+                    {
+                        "download_sha256": "3def52f4273137cb43c96a2bcceafce31d64bca8bb8cad576a88a7938fab1f24",
+                        "download_size": 409586,
+                        "download_url": "https://links.dennevi.com/Board2Pdf_v1.9.0.zip",
+                        "install_size": 1703723,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "9.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.9.0"
+                    },
+                    {
+                        "download_sha256": "9c2e50dd35b568162a44411bd39a2cdf5e678e89912ef46a082683a0206cf979",
+                        "download_size": 405406,
+                        "download_url": "https://links.dennevi.com/Board2Pdf_v1.8.0.zip",
+                        "install_size": 1659671,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "9.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.8.0"
+                    },
+                    {
+                        "download_sha256": "a0d7126e1f48bb16408e4b542efba08a595900b9ce83ac57479e0b1edd943fd6",
+                        "download_size": 394471,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v1.7.2.zip",
+                        "install_size": 1633554,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.7.2"
+                    },
+                    {
+                        "download_sha256": "9be4dda36ff7d6c18a59b244be9d8d03dcb156d1f9770d01fdd86f4e0b561497",
+                        "download_size": 394333,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v1.7.1.zip",
+                        "install_size": 1632746,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.7.1"
+                    },
+                    {
+                        "download_sha256": "d09e7ec88a22537955887243fb45781d92b2ce0fd71cc59d5003d9fed4da0772",
+                        "download_size": 400266,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v1.6.zip",
+                        "install_size": 1888174,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.6"
+                    },
+                    {
+                        "download_sha256": "3cf9966dddb3d45aee338383a03bece34a5d387063e43608c038debb1f3751c0",
+                        "download_size": 354169,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v1.3.zip",
+                        "install_size": 1872902,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.3"
+                    },
+                    {
+                        "download_sha256": "a15ff0537ce436cbc2eab0c8fd3eb4f2a50d857fcbaac6372c712842e009c96f",
+                        "download_size": 129477,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v1.2.zip",
+                        "install_size": 769144,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.2"
+                    },
+                    {
+                        "download_sha256": "7f774bcad2b56d9df72fb625cefb7153c700ad65fc3f5370224251083f560606",
+                        "download_size": 61342,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v1.1.zip",
+                        "install_size": 445706,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "1.1"
+                    },
+                    {
+                        "download_sha256": "1aa55bc50f7cfbb16fa5ee8fb86a6c47dbe526b1d487d7066153e21bb2838c3b",
+                        "download_size": 108872,
+                        "download_url": "https://gitlab.com/dennevi/kicad-plugins-releases/-/raw/main/Board2Pdf/releases/Board2Pdf_v0.7.zip",
+                        "install_size": 646866,
+                        "kicad_version": "6.0",
+                        "kicad_version_max": "6.1",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "testing",
+                        "version": "0.7"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "2.9.0",
+            "install_timestamp": 1732804723,
+            "package": {
+                "author": {
+                    "contact": {
+                        "email": "mail@qu1ck.org"
+                    },
+                    "name": "qu1ck"
+                },
+                "description": "Generate interactive html BOM to assist with manual pcb assembly",
+                "description_full": "This plugin generates a convenient Bill of Materials (BOM) listing with the ability to visually correlate and easily search for components and their placements on the PCB. It is particularly useful when hand-soldering a prototype, as it allows users to quickly find locations of components groups on the board. It is also possible to reverse lookup the component group by clicking on a footprint on the board drawing.\nThe plugin utilizes Pcbnew python API to read PCB data and render silkscreen, fab layer, footprint pads, text, and drawings. BOM table fields and grouping is fully configurable, additional columns, such as a manufacturer ID, can be added in Schematic editor and imported either through the netlist file, XML file generated by Eeschema's internal BOM tool, or from board file itself.\nThere is an option to include tracks/zones data as well as netlist information allowing dynamic highlight of nets on the board.",
+                "identifier": "org.openscopeproject.InteractiveHtmlBom",
+                "keep_on_update": [
+                    ".*/config\\.ini",
+                    ".*/web/user.*"
+                ],
+                "license": "MIT",
+                "name": "Interactive Html Bom",
+                "resources": {
+                    "Demos": "https://openscopeproject.org/InteractiveHtmlBomDemo/",
+                    "Forum": "https://forum.kicad.info/t/interactive-html-bom-plugin-for-kicad-5-0/11713",
+                    "Github": "https://github.com/openscopeproject/InteractiveHtmlBom",
+                    "Wiki": "https://github.com/openscopeproject/InteractiveHtmlBom/wiki"
+                },
+                "tags": [
+                    "bom",
+                    "pcbnew",
+                    "html",
+                    "assembly",
+                    "documentation"
+                ],
+                "type": "plugin",
+                "versions": [
+                    {
+                        "download_sha256": "f9ae167076321d01d77e91c05aeba8e50522dd22433fb042ef3bb2f0bb726f11",
+                        "download_size": 149857,
+                        "download_url": "https://github.com/openscopeproject/InteractiveHtmlBom/releases/download/v2.9.0/InteractiveHtmlBom_v2.9.0_pcm.zip",
+                        "install_size": 728477,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "2.9.0"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        }
+    ]
+}
