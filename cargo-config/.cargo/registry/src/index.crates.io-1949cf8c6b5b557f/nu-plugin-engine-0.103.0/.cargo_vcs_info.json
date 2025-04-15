@@ -1,0 +1,6 @@
+{
+  "git": {
+    "sha1": "c98642647878b4f66fb7e38388a3973071b0e27b"
+  },
+  "path_in_vcs": "crates/nu-plugin-engine"
+}

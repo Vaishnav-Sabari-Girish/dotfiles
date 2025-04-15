@@ -1,0 +1,23 @@
+[package]
+name			= "doctest-file"
+version			= "1.0.0"
+edition			= "2021"
+license			= "0BSD"
+readme			= "README.md"
+authors			= ["Kotauskas <v.toncharov@gmail.com>"]
+repository		= "https://codeberg.org/Goat7658/doctest-file/"
+description		= "Procedural macro that sources doctests from dedicated files into Rustdoc documentation with support for hiding lines."
+rust-version	= "1.65"
+
+autoexamples	= false
+
+[lib]
+proc-macro	= true
+
+[[example]]
+name		= "hello_doctest_file"
+path		= "examples/library.rs"
+crate-type	= ["lib"]
+
+[profile.dev]
+opt-level	= 1

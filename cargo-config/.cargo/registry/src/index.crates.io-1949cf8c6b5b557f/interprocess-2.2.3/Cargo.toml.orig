@@ -1,0 +1,150 @@
+[package]
+name         = "interprocess"
+version      = "2.2.3"
+rust-version = "1.75"
+edition      = "2021"
+authors      = ["Goat <v.toncharov@gmail.com>"]
+license      = "MIT OR Apache-2.0"
+readme       = "README.md"
+repository   = "https://github.com/kotauskas/interprocess"
+
+description = "Interprocess communication toolkit"
+categories  = ["os", "os::unix-apis", "os::windows-apis", "asynchronous"]
+keywords    = ["ipc", "pipe"]
+
+autotests = false
+autoexamples = false
+
+exclude = [
+    "/.github/",
+    "/.gitignore",
+    "/.editorconfig",
+    "interprocess.code-workspace",
+    "/Cargo.lock",
+]
+
+[[example]]
+name = "unnamed_pipe_sync"
+path = "examples/unnamed_pipe/sync/main.rs"
+
+[[example]]
+name = "unnamed_pipe_tokio"
+path = "examples/unnamed_pipe/tokio/main.rs"
+
+[[example]]
+name = "local_socket_sync_server"
+path = "examples/local_socket/sync/listener.rs"
+
+[[example]]
+name = "local_socket_sync_client"
+path = "examples/local_socket/sync/stream.rs"
+
+[[example]]
+name = "local_socket_tokio_server"
+path = "examples/local_socket/tokio/listener.rs"
+
+[[example]]
+name = "local_socket_tokio_client"
+path = "examples/local_socket/tokio/stream.rs"
+
+[[example]]
+name = "named_pipe_sync_server"
+path = "examples/named_pipe/sync/listener.rs"
+
+[[example]]
+name = "named_pipe_sync_client_bytes"
+path = "examples/named_pipe/sync/stream/bytes.rs"
+
+[[example]]
+name = "named_pipe_sync_client_msg"
+path = "examples/named_pipe/sync/stream/msg.rs"
+
+[[example]]
+name = "named_pipe_tokio_server"
+path = "examples/named_pipe/tokio/listener.rs"
+
+[[example]]
+name = "named_pipe_tokio_client_bytes"
+path = "examples/named_pipe/tokio/stream/bytes.rs"
+
+[[example]]
+name = "named_pipe_tokio_client_msg"
+path = "examples/named_pipe/tokio/stream/msg.rs"
+
+[features]
+default = []
+async = ["futures-core"]
+tokio = ["dep:tokio", "async"]
+doc_cfg = []
+
+[dependencies]
+doctest-file = "1.0.0"
+tokio = { version = "1.36.0", features = [
+    "sync",
+    "rt",
+    "net",
+    "time",
+    "io-util",
+], optional = true }
+futures-core = { version = "0.3.28", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52.0", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+    "Win32_System_Pipes",
+    "Win32_System_Threading",
+    "Win32_System_Memory",
+    "Win32_System_SystemServices",
+    "Win32_System_LibraryLoader",
+] }
+tokio = { version = "1.36.0", features = [
+    "sync",
+    "rt-multi-thread",
+    "fs",
+    "net",
+    "time",
+    "io-util",
+], optional = true }
+recvmsg = "1.0.0"
+widestring = "1.0.2"
+
+[target.'cfg(unix)'.dependencies]
+libc = { version = "0.2.137", features = ["extra_traits"] }
+
+[dev-dependencies]
+tokio = { version = "1.36.0", features = [
+    "sync",
+    "rt-multi-thread",
+    "io-util",
+    "macros",
+] }
+color-eyre = "0.6.2"
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "forbid"
+rust_2018_idioms = { level = "deny", priority = -1 }
+dead_code = "allow"
+
+[lints.clippy]
+exit       = "forbid"
+ptr_as_ptr = "forbid"
+
+get_unwrap     = "deny"
+as_conversions = "deny"
+
+dbg_macro = "warn"
+
+tabs_in_doc_comments = "allow"
+
+[package.metadata.docs.rs]
+features = ["doc_cfg", "tokio"]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+    "aarch64-apple-darwin",
+    "x86_64-unknown-freebsd",
+]

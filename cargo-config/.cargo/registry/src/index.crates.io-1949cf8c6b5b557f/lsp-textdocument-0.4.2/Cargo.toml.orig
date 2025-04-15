@@ -1,0 +1,19 @@
+[package]
+name = "lsp-textdocument"
+version = "0.4.2"
+edition = "2021"
+authors = ["qixuan"]
+description = "A LSP text documents manager that map of text document."
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/GiveMe-A-Name/lsp-textdocument"
+repository = "https://github.com/GiveMe-A-Name/lsp-textdocument"
+
+[dependencies]
+lsp-types = "0.97.0"
+serde_json = "1.0"
+
+[dev-dependencies]
+anyhow = "1"
+lsp-server = "0.7.6"
+serde = { version = "1", features = ["derive"] }
