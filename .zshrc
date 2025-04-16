@@ -61,6 +61,7 @@ alias tm=/home/vaishnav/taskcli/tm
 alias chess=/home/vaishnav/go/bin/gambit
 alias picocom="picocom --echo"
 alias notebook="euporie-notebook"
+export ACI_GITHUB_TOKEN="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"
 export EDITOR="neovide"
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 # Configuration
@@ -122,6 +123,7 @@ export PATH=/usr/local/bin:$PATH
 hash -r
 # export LD_PRELOAD=/lib/x86_64-linux-gnu/libssh.so.4
 alias ghfetch='/home/vaishnav/go/bin/ghfetch'
+alias my_gh_repo="ghfetch -u "Vaishnav-Sabari-Girish" --access-token="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""
 alias get_pio='source ~/.platformio/penv/bin/activate'
 
 source /home/vaishnav/.config/broot/launcher/bash/br
@@ -131,6 +133,7 @@ source /home/vaishnav/.config/broot/launcher/bash/br
 alias teensy=/home/vaishnav/Teensy_Loader/teensy
 alias cutecom=/home/vaishnav/cutecom/cutecom
 
+export GROQ_API_KEY=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
 alias tree="ls --tree"
 gct() {
     if [ -z "$1" ]; then
