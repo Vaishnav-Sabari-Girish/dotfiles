@@ -25,16 +25,17 @@ eval "$(zoxide init zsh)"
 export PATH=$PATH:/usr/local/bin
 
 # Source additional scripts or configurations
-# Example: source /path/to/custom/script.sh
+# Source secrets file if it exists
+if [[ -f ~/.zsh_secrets ]]; then
+    source ~/.zsh_secrets
+fi
+
 alias anki="ANKI_WAYLAND=1 anki"
 export PATH=$PATH:/usr/local/go/bin
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export POP_SMTP_HOST=smtp.gmail.com
 export POP_SMTP_PORT=587
-export POP_SMTP_USERNAME=forgamesonly684@gmail.com
-export POP_SMTP_PASSWORD="wetd oucf kark rbml"
-
 
 nerdfetch
 printf "\n"
@@ -110,8 +111,6 @@ source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 autoload -U compinit; compinit
 source ~/fzf-tab/fzf-tab.plugin.zsh
 
-
-
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -140,7 +139,6 @@ gct() {
     git push origin "$1" && git push codeberg "$1" && git push tea "$1"
 }
 
-
 profile_update() {
     if [ -z "$1" ]; then
         echo "Usage: profile_update <branch-name>"
@@ -163,4 +161,3 @@ mojo_project() {
 }
 
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
-
