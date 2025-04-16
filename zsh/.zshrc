@@ -61,6 +61,8 @@ alias tm=/home/vaishnav/taskcli/tm
 alias chess=/home/vaishnav/go/bin/gambit
 alias picocom="picocom --echo"
 alias notebook="euporie-notebook"
+alias cshell="/home/vaishnav/TermiC.sh"
+
 export EDITOR="neovide"
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 # Configuration
