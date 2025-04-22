@@ -1,0 +1,25 @@
+[package]
+name = "snailquote"
+description = "Escape and unescape strings with shell-inspired quoting"
+version = "0.3.1"
+authors = ["Euan Kemp <euank@euank.com>"]
+homepage = "https://github.com/euank/snailquote"
+repository = "https://github.com/euank/snailquote"
+readme = "README.md"
+keywords = ["quote", "escape", "shell-escape", "unescape"]
+license = "GPL-3.0-only"
+edition = "2018"
+
+[dependencies]
+unicode_categories = "0.1.1"
+thiserror = "1.0"
+
+[dev-dependencies]
+quickcheck = "0.9"
+quickcheck_macros = "0.9"
+
+[features]
+# This feature enables executing shell commands as part of tests. It's turned
+# off by default.
+unsafe_tests = []
+

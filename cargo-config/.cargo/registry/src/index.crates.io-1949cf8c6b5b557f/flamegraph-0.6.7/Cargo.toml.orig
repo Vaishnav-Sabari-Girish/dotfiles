@@ -1,0 +1,38 @@
+[package]
+name = "flamegraph"
+version = "0.6.7"
+edition = "2021"
+rust-version = "1.64"
+description = "A simple cargo subcommand for generating flamegraphs, using inferno under the hood"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/flamegraph-rs/flamegraph"
+keywords = ["perf", "flamegraph", "profiling", "cargo", "cargo-subcommand"]
+categories = ["command-line-utilities", "development-tools::profiling", "visualization", "development-tools::cargo-plugins"]
+readme = "README.md"
+
+[[bin]]
+name = "cargo-flamegraph"
+path = "src/bin/cargo-flamegraph.rs"
+
+[[bin]]
+name = "flamegraph"
+path = "src/bin/flamegraph.rs"
+
+[dependencies]
+anyhow = "1.0.43"
+cargo_metadata = "0.19"
+clap = { version = "4.0.11", features = ["derive"] }
+clap_complete = "4.0.2"
+indicatif = "0.17.8"
+inferno = { version = "0.12", default-features = false, features = ["multithreaded", "nameattr"] }
+opener = "0.7.1"
+shlex = "1.1.0"
+
+[target.'cfg(unix)'.dependencies]
+signal-hook = "0.3.10"
+
+[target.'cfg(windows)'.dependencies]
+blondie = "0.5.2"
+
+[profile.release.build-override]
+opt-level = 0

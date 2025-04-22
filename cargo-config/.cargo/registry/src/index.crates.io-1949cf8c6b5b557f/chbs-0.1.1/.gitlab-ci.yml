@@ -1,0 +1,76 @@
+image: "rust:slim"
+
+stages:
+  - check
+  - build
+  - release
+
+# Variable defaults
+variables:
+  RUST_VERSION: stable
+
+# Install the proper Rust compiler version
+before_script:
+  - |
+    rustup install $RUST_VERSION
+    rustup default $RUST_VERSION
+  - |
+    rustc --version
+    cargo --version
+
+# Check on stable, beta and nightly 
+.check-base: &check-base
+  stage: check
+  script:
+    - cargo check --verbose
+    - cargo test --verbose
+check-stable:
+  <<: *check-base
+check-beta:
+  <<: *check-base
+  variables:
+    RUST_VERSION: beta
+check-nightly:
+  <<: *check-base
+  variables:
+    RUST_VERSION: nightly
+check-old:
+  <<: *check-base
+  variables:
+    RUST_VERSION: "1.42.0"
+check-macos-stable:
+  tags:
+    - macos
+  only:
+    - master
+    - /^v(\d+\.)*\d+$/
+  <<: *check-base
+
+# Build using Rust stable
+build:
+  stage: build
+  script:
+    - cargo build --release --verbose
+
+# Build using Rust stable on macOS
+build-macos:
+  stage: build
+  tags:
+    - macos
+  only:
+    - master
+    - /^v(\d+\.)*\d+$/
+  needs: []
+  script:
+    - cargo build --release --verbose
+
+# Cargo crate release
+crate:
+  stage: release
+  only:
+    - /^v(\d+\.)*\d+$/
+  script:
+    - echo "Creating release crate to publish on crates.io..."
+    - echo $CARGO_TOKEN | cargo login
+    - echo "Publishing crate to crates.io..."
+    - cargo publish --verbose

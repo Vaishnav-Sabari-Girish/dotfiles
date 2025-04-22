@@ -1,0 +1,34 @@
+[package]
+authors = ["PaddiM8"]
+build = "build.rs"
+categories = ["mathematics", "command-line-utilities"]
+description = "A calculator that supports user-defined functions, variables and units, and can handle fairly ambiguous syntax."
+edition = "2018"
+keywords = ["math", "calculator", "cli", "command-line"]
+license = "MIT"
+name = "kalker"
+readme = "../README.md"
+repository = "https://github.com/PaddiM8/kalker"
+version = "2.2.1"
+
+[dependencies]
+ansi_term = "0.12.1"
+kalk = { path = "../kalk", version = "^3.2.1" }
+lazy_static = "1.4.0"
+regex = "1"
+rustyline = "7.1.0"
+seahorse = "1.1.1"
+atty = "0.2.14"
+dirs = "3.0.2"
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+
+[package.metadata.bundle]
+icon = ["../res/icon*"]
+identifier = "net.strct.kalker"
+name = "kalker"
+short_description = "A calculator that supports user-defined functions, variables and units, and can handle fairly ambiguous syntax."
+
+[package.metadata.bundle.bin.kalker]
+name = "kalker"

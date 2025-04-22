@@ -161,3 +161,21 @@ mojo_project() {
 }
 
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
+
+qr() {
+  if [ -z "$1" ]; then
+    echo "Usage: qr <link_to_website>"
+    return 1
+  fi
+  curl qrenco.de/"$1"
+}
+
+file_upload() {
+  if [ -z "$1" ]; then
+    echo "Usage: file_upload <path_to_file>"
+    return 1
+  fi
+  link=$(ffsend upload "$1" | grep -o 'https://[^ ]*')
+  echo " "
+  curl qrenco.de/$link
+}

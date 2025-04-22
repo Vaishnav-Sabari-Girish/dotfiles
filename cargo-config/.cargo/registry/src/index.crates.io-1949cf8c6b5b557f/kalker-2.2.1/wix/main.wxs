@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!--
+  Please do not remove these pre-processor If-Else blocks. These are used with
+  the `cargo wix` subcommand to automatically determine the installation
+  destination for 32-bit versus 64-bit installers. Removal of these lines will
+  cause installation errors.
+-->
+<?if $(var.Platform) = x64 ?>
+    <?define Win64 = "yes" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+<?else ?>
+  <?define Win64 = "no" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+<?endif ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+    <Product Name="Kalker" Id="*" UpgradeCode="F9D116C9-E90A-4956-803E-D8A7D324D434" Language="1033" Codepage="1252" Version="$(var.Version)" Manufacturer="Kalker">
+        <Package InstallerVersion="450" Compressed="yes" InstallScope="perMachine" Platform='$(var.Platform)'/>
+        <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
+        <Icon Id="KalkerIco" SourceFile=".\kalker.ico"/>
+        <WixVariable Id="WixUILicenseRtf" Value=".\wix/License.rtf"/>
+        <Property Id="ARPPRODUCTICON" Value="KalkerIco"/>
+        <MediaTemplate EmbedCab="yes"/>
+        <UIRef Id="WixUI_Minimal"/>
+
+        <Feature Id="ProductFeature" Title="ConsoleApp" Level="1">
+            <ComponentRef Id="KalkerExe"/>
+            <ComponentRef Id="KalkerShortcut"/>
+            <ComponentRef Id="ModifyPathEnv"/>
+        </Feature>
+
+        <!-- Create directories -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="$(var.PlatformProgramFilesFolder)">
+                <Directory Id="KalkerProgramFiles" Name="Kalker"/>
+            </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="KalkerProgramMenu" Name="Kalker"/>
+            </Directory>
+        </Directory>
+
+        <!-- Application binaries -->
+        <DirectoryRef Id="KalkerProgramFiles">
+            <Component Id="KalkerExe" Guid="*" Win64='$(var.Win64)'>
+                <File Id="KalkerExeFile" Source="..\target\release\kalker.exe" Name="kalker.exe" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="KalkerProgramMenu">
+            <!-- Application shortcut -->
+                <Component Id="KalkerShortcut" Guid="b1a06364-9af2-4864-94c4-e3985906c39f" Win64='$(var.Win64)'>
+                <Shortcut Id="KalkerShortcutFile" Name="Kalker" Description="A calculator" Target="[KalkerProgramFiles]kalker.exe"/>
+                <RemoveFolder Id="KalkerProgramMenu" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\kalker" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="KalkerProgramFiles">
+            <!-- Add to PATH -->
+            <Component Id="ModifyPathEnv" Guid="732b94ae-608a-45fd-a0b3-d2896b6ef3b8" KeyPath="yes" Win64='$(var.Win64)'>
+                <Environment Id="PathEnv" Value="[KalkerProgramFiles]" Name="PATH" Permanent="no" Part="first" Action="set" System="yes"/>
+            </Component>
+        </DirectoryRef>
+    </Product>
+</Wix>
