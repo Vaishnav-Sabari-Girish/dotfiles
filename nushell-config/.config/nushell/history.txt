@@ -1,0 +1,141 @@
+config nu
+nvim ~/.config/nushell/config.nu
+exit
+cargo
+clear
+brew
+clear
+config nu
+exit
+con1
+config nu
+clear
+exit
+ls
+clear
+let-env STARSHIP_CONFIG = "~/.config/starship_nu.toml"
+$env.STARSHIP_CONFIG = "~/.config/starship_nu.toml"
+clear
+$nu.env
+$nu.env-path
+neovide ~/.config/nushell/env.nu
+source ~/.config/nushell/env.nu
+clear
+starship preset pure-preset -o ~/.config/starship_nu.toml
+clear
+echo $env.STARSHIP_CONFIG
+ls ~/.config/ | fzf
+clear
+sudo nvim /etc/shells
+config set prompt "starship prompt"
+nvim $nu.config-path
+$nu.data-dir
+nvim $nu.config-path
+nvim /home/vaishnav/.local/share/nushell/vendor/autoload/starship.nu
+clear
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+starship preset pure-preset -o ~/.config/starship_nu.toml
+clear
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+clear
+nvim ~/.config/nushell/env.nu
+nvim ~/.cache/starship/init.nu
+echo $env.STARSHIP_CONFIG
+source ~/.config/nushell/config.nu
+rm -rf ~/.cache/starship/*
+starship init nu | save --append ~/.cache/starship/init.nu
+version
+clear
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+neovide ~/.config/nushell/env.nu
+nvim $nu.config-path
+rm -rf ~/.cache/starship/*
+clear
+source ~/.config/nushell/config.nu
+starship --config ~/.config/starship_nu.toml prompt
+starship
+starship config
+starship preset pure-preset -o ~/.config/starship_nu.toml
+starship config
+sudo starship config
+source ~/.config/nushell/config.nu
+clear
+starship
+starship preset
+starship preset pure
+starship preset pure-preset
+clear
+starship
+starship init
+starship init nu
+clear
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+clear
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+clear
+starship preset pure-preset -o ~/.config/starship_nu.toml
+echo $env.STARSHIP_CONFIG
+nvim ~/.config/starship_nu.toml
+nvim $nu.config-path
+source ~/.config/nushell/config.nu
+clear
+version
+echo $nu.config-path<\n>
+source ~/.config/nushell/config.nu
+clear
+nu --config ~/.config/nushell/config.nu
+echo $nu.config-path
+nvim $nu.env-path
+echo $env.STARSHIP_CONFIG<\n>
+nvim $nu.env-path
+nu -1
+clear
+source ~/.config/nushell/config.nu
+source ~/.config/nushell/env.nu
+clear
+exit
+nu --config ~/.config/nushell/config.nu --env-config ~/.config/nushell/env.nu
+ls
+clear
+exit
+nu --config ~/.config/nushell/config.nu --env-config ~/.config/nushell/env.nu
+exit
+nu -l
+exit
+ls
+clear
+exit
+http get https://api.github.com/repos/nushell/nushell | get license
+http get https://api.github.com/repos/nushell/nushell | get releases
+http get https://api.github.com/repos/nushell/nushell | get releases_url
+clear
+http get https://api.github.com/repos/nushell/nushell | get license
+http get https://api.github.com/repos/nushell/nushell | get README.md
+http get https://api.github.com/repos/nushell/nushell
+ls -l | grep txt
+ls -la
+clear
+exit
+ls
+ls -la
+clear
+exit
+fastfetch
+exit
+config nu
+source ~/.config/nushell/config.nu
+clear
+ls
+qr https://evalancheclub.in
+file_upload flag.py
+clear
+exit

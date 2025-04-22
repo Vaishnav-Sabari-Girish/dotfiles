@@ -2,7 +2,41 @@
 $XONSH_COLOR_STYLE = 'dracula'
 # XONSH WEBCONFIG END
 
+$PATH.append($HOME + '/home/vaishnav/bin/')
+$PATH.append($HOME + '/.cargo/bin')
+
 $STARSHIP_CONFIG = "/home/vaishnav/.config/starship_xonsh.toml"
 execx($(starship init xonsh))
 
 
+# Define qr function
+def qr(args, stdin=None):
+    if not args:
+        print("Usage: qr <link_to_website>")
+        return 1
+    result = $(curl -s qrenco.de/@(args[0]))
+    if not result:
+        print("Error: Failed to generate QR code. Check network or URL.")
+        return 1
+    print(result)
+
+# Define file_upload function
+def file_upload(args, stdin=None):
+    if not args:
+        print("Usage: file_upload <path_to_file>")
+        return 1
+    link = $(ffsend upload @(args[0]) | grep -o 'https://[^ ]*').strip()
+    if not link:
+        print("Error: Failed to extract URL from ffsend output.")
+        return 1
+    print("Share link:", link)
+    print(" ")
+    result = $(curl -s qrenco.de/@(link))
+    if not result:
+        print("Error: Failed to generate QR code. Check network or URL.")
+        return 1
+    print(result)
+
+# Register functions as aliases
+aliases['qr'] = qr
+aliases['file_upload'] = file_upload

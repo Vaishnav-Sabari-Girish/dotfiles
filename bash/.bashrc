@@ -159,3 +159,46 @@ export STM32_PRG_PATH=/home/vaishnav/STMicroelectronics/STM32Cube/STM32CubeProgr
 
 export STARSHIP_CONFIG=~/.config/starship_bash.toml
 eval "$(starship init bash)"
+
+# Add ~/.cargo/bin to PATH
+export PATH="$PATH:$HOME/.cargo/bin"
+
+qr() {
+  if [ -z "$1" ]; then
+    echo "Usage: qr <link_to_website>" >&2
+    return 1
+  fi
+  local result
+  result=$(curl -s "qrenco.de/$1")
+  if [ -z "$result" ]; then
+    echo "Error: Failed to generate QR code. Check network or URL." >&2
+    return 1
+  fi
+  echo "$result"
+}
+
+file_upload() {
+  if [ -z "$1" ]; then
+    echo "Usage: file_upload <path_to_file>" >&2
+    return 1
+  fi
+  if [ ! -f "$1" ]; then
+    echo "Error: File '$1' not found" >&2
+    return 1
+  fi
+  local link
+  link=$(ffsend upload "$1" | grep -o 'https://[^ ]*' | head -n 1)
+  if [ -z "$link" ]; then
+    echo "Error: Failed to extract URL from ffsend output" >&2
+    return 1
+  fi
+  echo "Share link: $link"
+  echo
+  local result
+  result=$(curl -s "qrenco.de/$link")
+  if [ -z "$result" ]; then
+    echo "Error: Failed to generate QR code. Check network or URL." >&2
+    return 1
+  fi
+  echo "$result"
+}
