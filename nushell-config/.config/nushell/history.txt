@@ -139,3 +139,32 @@ qr https://evalancheclub.in
 file_upload flag.py
 clear
 exit
+config nu
+source ~/.config/nushell/config.nu
+clear
+df /
+duf
+clear
+config nu
+source ~/.config/nushell/config.nu
+df / | describe
+clear
+config nu
+source ~/.config/nushell/config.nu
+df -h | describe
+df -h | lines
+df -h | lines | skip 1
+df -h | lines | skip 1 | split column " "
+df -h | lines | skip 1 | split column " " --collapse-empty
+clear
+config nu
+source ~/.config/nushell/config.nu
+clear
+aci
+clear
+exit
+config nu
+clear
+config nu
+nvim ~/.config/nushell/config.nu
+source ~/.config/nushell/config.nu

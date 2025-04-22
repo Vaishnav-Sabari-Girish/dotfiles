@@ -27,3 +27,22 @@ def file_upload [file: path] {
   print ""
   curl -s $"qrenco.de/($link)" | str trim
 }
+
+let threshold = 80
+
+let usage = (
+    df -h / 
+    | lines 
+    | skip 1 
+    | split column " " --collapse-empty 
+    | get column5 
+    | str replace '%' '' 
+    | into int
+)
+
+if $usage >= $threshold {
+    print $"Warning: Disk usage is at ($usage)%!"
+} else {
+    print "Disk usage is under control."
+}
+

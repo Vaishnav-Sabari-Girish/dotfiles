@@ -179,3 +179,13 @@ file_upload() {
   echo " "
   curl qrenco.de/$link
 }
+
+
+threshold=80
+usage=$(df -h / | grep '/' | awk '{print $5}' | sed 's/%//')
+
+if [ $usage -ge $threshold ]; then
+    echo "Warning: Disk usage is at $usage%!"
+else
+    echo "Disk usage is under control."
+fi

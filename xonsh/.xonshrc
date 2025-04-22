@@ -40,3 +40,11 @@ def file_upload(args, stdin=None):
 # Register functions as aliases
 aliases['qr'] = qr
 aliases['file_upload'] = file_upload
+
+threshold = 80
+usage = $(df -h / | grep '/' | awk '{print $5}' | sed 's/%//').strip()
+
+if int(usage) >= threshold:
+    print(f"Warning: Disk usage is at {usage}%!")
+else:
+    print("Disk usage is under control.")
