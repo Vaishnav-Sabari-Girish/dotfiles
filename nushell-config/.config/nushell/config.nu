@@ -36,6 +36,7 @@ let usage = (
     | skip 1 
     | split column " " --collapse-empty 
     | get column5 
+    | first 
     | str replace '%' '' 
     | into int
 )
@@ -45,4 +46,3 @@ if $usage >= $threshold {
 } else {
     print "Disk usage is under control."
 }
-

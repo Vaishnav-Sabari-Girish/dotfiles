@@ -168,3 +168,11 @@ clear
 config nu
 nvim ~/.config/nushell/config.nu
 source ~/.config/nushell/config.nu
+config nu
+clear
+config nu
+source ~/.config/nushell/config.nu
+clear
+exit
+clear
+exit
