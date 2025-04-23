@@ -1,0 +1,112 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+
+  build:
+    name: build
+    env:
+      RUST_BACKTRACE: 1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build crate (Static Output)
+        run: cargo build --verbose --features=static_output,search
+      - name: Build crate (Tokio)
+        run: cargo build --verbose --features=dynamic_output,search
+
+  test:
+    name: test
+    env:
+      # Emit backtraces on panics.
+      RUST_BACKTRACE: 1
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      # This step helps separate buildtime and runtime errors in tests.
+      # Do not build or run doc tests
+    - name: Build tests (Static Output)
+      run: cargo test --verbose --features=static_output,search --no-run --lib
+    - name: Run Tests (Static Output)
+      run: cargo test --verbose --features=static_output,search --lib
+    - name: Build tests (Tokio)
+      run: cargo test --verbose --features=dynamic_output,search --no-run --lib
+    - name: Run Tests (Tokio)
+      run: cargo test --verbose --features=dynamic_output,search --lib
+    - name: Build tests (Search-only)
+      run: cargo test --verbose --features=search --no-run --lib
+    - name: Run Tests (Search-only)
+      run: cargo test --verbose --features=search --lib
+
+  examples:
+    name: examples
+    env:
+      # Emit backtraces on panics.
+      RUST_BACKTRACE: 1
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    # No terminal available in CI, only check the examples.
+    - name: Tokio
+      run: cargo check --example=dyn_tokio --features=dynamic_output
+    - name: Tokio Messages
+      run: cargo check --example=msg-tokio --features=dynamic_output
+    - name: Static
+      run: cargo check --example=static --features=static_output
+    - name: Less-rs
+      run: cargo check --example=less-rs --features=dynamic_output
+    - name: Color output
+      run: cargo check --example=color-output --features=static_output
+    - name: Large Lines
+      run: cargo check --example=large_lines --features=static_output
+
+  doctests:
+    name: doctests
+    env:
+      RUST_BACKTRACE: 1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Run documentation tests
+        run: cargo test --doc --all-features
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+          components: clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --features=dynamic_output,search --tests --examples
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --features=dynamic_output,search --tests --examples
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --features=static_output,search --tests --examples

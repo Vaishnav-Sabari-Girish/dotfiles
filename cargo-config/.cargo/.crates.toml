@@ -13,6 +13,7 @@
 "neovide 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["neovide"]
 "nu 0.103.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["nu"]
 "onefetch 2.23.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["onefetch"]
+"procs 0.14.10 (registry+https://github.com/rust-lang/crates.io-index)" = ["procs"]
 "sd 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["sd"]
 "serie 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = ["serie"]
 "skim 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["sk"]

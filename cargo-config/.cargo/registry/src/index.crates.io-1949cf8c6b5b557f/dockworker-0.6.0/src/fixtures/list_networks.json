@@ -1,0 +1,157 @@
+[
+  {
+    "Name": "none",
+    "Id": "05f2d3a562ec74049f2764a840e17b891893675da6853755ed710bb08c8c70fb",
+    "Created": "2018-02-06T00:08:35.592125758+09:00",
+    "Scope": "local",
+    "Driver": "null",
+    "EnableIPv6": false,
+    "IPAM": {
+      "Driver": "default",
+      "Options": null,
+      "Config": []
+    },
+    "Internal": false,
+    "Attachable": false,
+    "Ingress": false,
+    "ConfigFrom": {
+      "Network": ""
+    },
+    "ConfigOnly": false,
+    "Containers": {},
+    "Options": {},
+    "Labels": {}
+  },
+  {
+    "Name": "bridge",
+    "Id": "3a385229739add5014d3d74e37d5c87c79900215e44f698ed1a2399a33974b47",
+    "Created": "2020-02-09T21:09:24.738911076+09:00",
+    "Scope": "local",
+    "Driver": "bridge",
+    "EnableIPv6": false,
+    "IPAM": {
+      "Driver": "default",
+      "Options": null,
+      "Config": [
+        {
+          "Subnet": "172.17.0.0/16",
+          "Gateway": "172.17.0.1"
+        }
+      ]
+    },
+    "Internal": false,
+    "Attachable": false,
+    "Ingress": false,
+    "ConfigFrom": {
+      "Network": ""
+    },
+    "ConfigOnly": false,
+    "Containers": {},
+    "Options": {
+      "com.docker.network.bridge.default_bridge": "true",
+      "com.docker.network.bridge.enable_icc": "true",
+      "com.docker.network.bridge.enable_ip_masquerade": "true",
+      "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+      "com.docker.network.bridge.name": "docker0",
+      "com.docker.network.driver.mtu": "1500"
+    },
+    "Labels": {}
+  },
+  {
+    "Name": "host",
+    "Id": "8aa84b124c69c7b92d8c49bcb93a964bac1b654c7ed92cd1c4a3e24444340179",
+    "Created": "2018-02-06T00:08:35.613000321+09:00",
+    "Scope": "local",
+    "Driver": "host",
+    "EnableIPv6": false,
+    "IPAM": {
+      "Driver": "default",
+      "Options": null,
+      "Config": []
+    },
+    "Internal": false,
+    "Attachable": false,
+    "Ingress": false,
+    "ConfigFrom": {
+      "Network": ""
+    },
+    "ConfigOnly": false,
+    "Containers": {},
+    "Options": {},
+    "Labels": {}
+  },
+  {
+    "Name": "test_default",
+    "Id": "b5ce4e42975c1e19e6ac09002a865843690dc280773862fc642c7babe053f345",
+    "Created": "2020-01-01T22:16:18.860734803+09:00",
+    "Scope": "local",
+    "Driver": "bridge",
+    "EnableIPv6": false,
+    "IPAM": {
+      "Driver": "default",
+      "Options": null,
+      "Config": [
+        {
+          "Subnet": "172.18.0.0/16",
+          "Gateway": "172.18.0.1"
+        }
+      ]
+    },
+    "Internal": false,
+    "Attachable": true,
+    "Ingress": false,
+    "ConfigFrom": {
+      "Network": ""
+    },
+    "ConfigOnly": false,
+    "Containers": {},
+    "Options": {},
+    "Labels": {
+      "com.docker.compose.network": "default",
+      "com.docker.compose.project": "test"
+    }
+  },
+  {
+    "Name": "test_macvlan",
+    "Id": "032c6988efef37feb7f7c807fc66e13708bec7325bff4eed90a38815c0d1501f",
+    "Created": "2020-12-10T12:00:07.472567245-04:00",
+    "Scope": "local",
+    "Driver": "macvlan",
+    "EnableIPv6": false,
+    "IPAM": {
+        "Driver": "default",
+        "Options": {},
+        "Config": [
+            {
+                "Subnet": "172.16.0.0/16",
+                "IPRange": "172.16.64.0/24",
+                "Gateway": "172.16.0.1",
+                "AuxiliaryAddresses": {
+                  "host": "172.16.64.0",
+                  "test_device": "172.16.64.1"
+                }
+            }
+        ]
+    },
+    "Internal": false,
+    "Attachable": false,
+    "Ingress": false,
+    "ConfigFrom": {
+        "Network": ""
+    },
+    "ConfigOnly": false,
+    "Containers": {
+        "042116c93520a9e1cd37999db08691a3ab343ac95947b3518d38293f026fc7cb": {
+            "Name": "macvlan_container",
+            "EndpointID": "8a54b40ee98d6918b26c5fdeecb3cc748f89782f0e7e3dc2f4b0ec990b5b0319",
+            "MacAddress": "02:42:ac:1b:27:6f",
+            "IPv4Address": "172.16.64.100/16",
+            "IPv6Address": ""
+        }
+    },
+    "Options": {
+        "parent": "eno1"
+    },
+    "Labels": {}
+  }
+]

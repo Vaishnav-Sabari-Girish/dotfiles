@@ -1,0 +1,75 @@
+[package]
+name = "dockworker"
+description = "Docker daemon API client. (a fork of Faraday's boondock)"
+version = "0.6.0"
+authors = ["takayuki goto <takayuki@idein.jp>"]
+license = "Apache-2.0"
+homepage = "https://github.com/Idein/dockworker"
+repository = "https://github.com/Idein/dockworker"
+documentation = "https://docs.rs/dockworker"
+readme = "README.md"
+keywords = ["docker"]
+edition = "2021"
+
+[badges]
+appveyor = { repository = "eldesh/dockworker", branch = "master", service = "github" }
+circle-ci = { repository = "Idein/dockworker" }
+maintenance = { status = "actively-developed" }
+
+[features]
+# OpenSSL is fairly hard to build on certain platforms, especially if you
+# want to produce release binaries. So we disable it by default.
+default = []
+experimental = []
+
+# Enable OpenSSL both directly and for Hyper.
+ssl = ["openssl", "native-tls", "hyper-tls"]
+ssl-rustls = ["rustls", "hyper-rustls", "rustls-pemfile"]
+
+[dependencies]
+async-trait = "0.1"
+async-stream = "0.3"
+bytes = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+futures = { version = "0.3", default-features = false, features = ["std"] }
+http = "0.2"
+hyper = { version = "0.14", features = ["client", "http1", "stream", "tcp"] }
+openssl = { version = "0.10", optional = true }
+rustls = { version = "0.21", optional = true }
+rustls-pemfile = { version = "1.0.0", optional = true }
+hyper-tls = { version = "0.5", optional = true }
+hyper-rustls = { version = "0.24", optional = true, features = ["http2"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+byteorder = "1"
+tar = "0.4"
+tokio = { version = "1", features = [
+    "time",
+    "fs",
+    "net",
+    "io-util",
+    "io-std",
+    "test-util",
+    "macros",
+    "rt",
+    "rt-multi-thread",
+] }
+tokio-stream = { version = "0.1", features = ["io-util"] }
+tokio-util = { version = "0.7", features = ["io"] }
+log = "0.4"
+native-tls = { version = "0.2", optional = true }
+nix = "0.26"
+base64 = "0.21"
+dirs = "5.0"
+thiserror = "1"
+
+[dev-dependencies]
+rand = "0.8"
+reqwest = "0.11.24"
+
+[target.'cfg(unix)'.dependencies]
+hyperlocal = "0.8"
+
+[target.'cfg(windows)'.dependencies]
+named_pipe = "0.4"
