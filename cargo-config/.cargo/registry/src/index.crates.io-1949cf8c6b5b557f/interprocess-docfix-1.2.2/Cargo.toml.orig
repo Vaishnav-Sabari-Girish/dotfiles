@@ -1,0 +1,71 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "interprocess-docfix"
+version = "1.2.2"
+authors = [
+    "Kotauskas <v.toncharov@gmail.com>",
+    "Jonathan Kelley <jon@dioxuslabs.com>",
+]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+documentation = "https://docs.rs/interprocess"
+repository = "https://github.com/kotauskas/interprocess"
+
+description = "Interprocess communication toolkit. Docs fixed."
+categories = ["os", "os::unix-apis", "os::windows-apis", "asynchronous"]
+keywords = ["ipc", "shared_memory", "pipe", "unix_domain_socket"]
+
+exclude = ["/.github/", "/README.tpl", "/Cargo.lock", "/.gitignore"]
+
+[features]
+default = ["signals", "nonblocking"]
+signals = ["thiserror", "spinning", "intmap", "once_cell"]
+nonblocking = ["blocking", "futures-core", "futures-io"]
+tokio_support = ["tokio", "futures-core", "futures-io"]
+doc_cfg = []
+
+[dependencies]
+libc = { version = "0.2.137", features = ["extra_traits"] }
+tokio = { version = "1.8", features = [
+    "net",
+    "time",
+    "io-util",
+], optional = true }
+thiserror = { version = "1.0", optional = true }
+spinning = { version = "0.1", optional = true }
+intmap = { version = "0.7", optional = true }
+once_cell = { version = "1.7", optional = true }
+blocking = { version = "1.0", optional = true }
+futures-core = { version = "0.3", optional = true }
+futures-io = { version = "0.3", optional = true }
+to_method = "1.1"
+cfg-if = "1.0"
+
+[build-dependencies]
+rustc_version = "0.4"
+
+[dev-dependencies]
+tokio = { version = "1.8", features = [
+    "rt-multi-thread",
+    "io-util",
+    "sync",
+    "macros",
+] }
+futures = "0.3"
+anyhow = "1.0.32"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = [
+    "std",
+    "winbase",
+    "winerror",
+    "processthreadsapi",
+    "fileapi",
+    "handleapi",
+    "namedpipeapi",
+] }
+
+[package.metadata.docs.rs]
+features = ["doc_cfg", "tokio_support"]

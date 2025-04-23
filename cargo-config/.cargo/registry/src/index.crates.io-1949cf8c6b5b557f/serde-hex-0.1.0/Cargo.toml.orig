@@ -1,0 +1,19 @@
+[package]
+name = "serde-hex"
+version = "0.1.0"
+authors = ["Forrest Marshall <fourthetrees@gmail.com>"]
+description = "Hexadecimal encoding/decoding with serde."
+documentation = "https://docs.rs/serde-hex"
+repository = "https://github.com/forrest-marshall/serde-hex.git"
+keywords = ["serde","hex","hexadecimal"]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+array-init = "0.0.4"
+smallvec = "0.6"
+serde = "1.0"
+
+[dev-dependencies]
+serde_derive = "1.0"
+serde_json = "1.0"

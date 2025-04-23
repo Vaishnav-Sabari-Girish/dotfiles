@@ -1,0 +1,47 @@
+[package]
+name = "atspi-proxies"
+version = "0.3.0"
+description = "AT-SPI2 proxies to query or manipulate UI objects"
+license = "Apache-2.0 OR MIT"
+readme = "README.md"
+repository = "https://github.com/odilia-app/atspi"
+homepage = "https://github.com/odilia-app/atspi"
+keywords = ["screen-reader", "accessibility", "a11y", "tts", "linux"]
+categories = ["accessibility", "api-bindings"]
+edition = "2021"
+rust-version = "1.68.2"
+include = ["src/**/*", "README.md"]
+
+[package.metadata.release]
+release = true
+publish = true
+
+[features]
+default = ["async-std"]
+async-std = ["zbus/async-io", "atspi-common/async-std"]
+gvariant = ["zbus/gvariant"]
+tokio = ["zbus/tokio", "atspi-common/tokio"]
+
+[dependencies]
+atspi-common = { path = "../atspi-common", version = "0.3.0", default-features = false }
+serde = { version = "^1.0", default-features = false, features = ["derive"] }
+zbus = { workspace = true, default-features = false } 
+# optional dependencies
+async-trait = { version = "^0.1.59", optional = true }
+futures-lite = { version = "1.12", default-features = false, optional = true }
+
+[dev-dependencies]
+atspi-common = { path = "../atspi-common", version = "0.3.0", features = ["async-std"] }
+byteorder = "1.4"
+serde_plain = "1.0.1"
+lazy_static = "1.0"
+tokio-stream = "0.1"
+tokio = { version = "1", default_features = false, features = ["macros", "rt-multi-thread"] }
+async-std = { version = "1", features = ["attributes"] }
+futures-lite = { version = "1.12", default-features = false }
+tokio-test = "0.4.2"
+rename-item = "0.1.0"
+fantoccini = "0.19"
+serde_json = "1.0.96"
+serial_test = "2.0.0"
+tracing = "0.1.37"

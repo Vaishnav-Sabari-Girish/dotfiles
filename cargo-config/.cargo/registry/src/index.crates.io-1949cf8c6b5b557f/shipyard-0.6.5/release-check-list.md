@@ -1,0 +1,9 @@
+- make sure there is no debugging left
+- make sure the bunny demo and square eater are working
+- duplicate the guide
+    - make links point to the right version
+- bump version
+- create new branch
+- release the version
+- make a git tag and release
+- check the doc publishing went ok

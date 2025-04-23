@@ -1,0 +1,41 @@
+[package]
+name = "espmonitor"
+version = "0.10.0"
+description = "Monitors ESP8266 and ESP32 execution over serial"
+license = "GPL-3.0"
+authors = [
+    "Brian J. Tarricone <brian@tarricone.org>",
+]
+homepage = "https://github.com/esp-rs/espmonitor"
+repository = "https://github.com/esp-rs/espmonitor"
+edition = "2018"
+readme = "../README.md"
+categories = [
+    "command-line-utilities",
+    "development-tools",
+    "development-tools::debugging",
+    "embedded",
+]
+keywords = [
+    "esp32",
+    "esp8266",
+]
+
+[[bin]]
+name = "espmonitor"
+path = "src/main.rs"
+
+[lib]
+
+[dependencies]
+addr2line = "0.17"
+clap = { version = "3.1", features = ["derive"] }
+crossterm = "0.23"
+gimli = "0.26"
+lazy_static = "1"
+object = "0.27"
+regex = "1"
+serial = "0.4"
+
+[target.'cfg(unix)'.dependencies]
+nix = "0.24"
