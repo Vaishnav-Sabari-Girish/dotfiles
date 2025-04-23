@@ -133,7 +133,7 @@ alias cutecom=/home/vaishnav/cutecom/cutecom
 alias tree="ls --tree"
 gct() {
     if [ -z "$1" ]; then
-        echo "Usage: grct <branch-name>"
+        echo "Usage: gct <branch-name>"
         return 1
     fi
     git push origin "$1" && git push codeberg "$1" && git push tea "$1"

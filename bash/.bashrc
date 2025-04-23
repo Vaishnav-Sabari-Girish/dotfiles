@@ -63,6 +63,9 @@ else
 fi
 unset color_prompt force_color_prompt
 
+if [[ -f ~/.zsh_secrets ]]; then
+  source ~/.zsh_secrets
+fi
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm* | rxvt*)
@@ -123,11 +126,6 @@ export PATH=$PATH:/usr/local/go/bin
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-export POP_SMTP_HOST=smtp.gmail.com
-export POP_SMTP_PORT=587
-export POP_SMTP_USERNAME=forgamesonly684@gmail.com
-export POP_SMTP_PASSWORD="wetd oucf kark rbml"
 
 nerdfetch
 printf "\n"
