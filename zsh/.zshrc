@@ -179,3 +179,4 @@ fi
 
 eval "$(starship init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /home/vaishnav/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
