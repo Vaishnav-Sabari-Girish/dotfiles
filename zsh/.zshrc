@@ -19,7 +19,6 @@ alias nap='/home/vaishnav/go/bin/nap' # Your custom alias
 # Load Starship prompt
 eval "$(starship init zsh)"
 
-eval "$(zoxide init zsh)"
 
 # Environment variables
 export PATH=$PATH:/usr/local/bin
@@ -30,14 +29,12 @@ if [[ -f ~/.zsh_secrets ]]; then
     source ~/.zsh_secrets
 fi
 
-alias anki="ANKI_WAYLAND=1 anki"
 export PATH=$PATH:/usr/local/go/bin
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export POP_SMTP_HOST=smtp.gmail.com
 export POP_SMTP_PORT=587
 
-nerdfetch
 printf "\n"
 
 export EDITOR=nvim
