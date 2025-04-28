@@ -16,9 +16,6 @@ alias gs='git status'     # Git status shortcut
 alias ga='git add'        # Git add shortcut
 alias nap='/home/vaishnav/go/bin/nap' # Your custom alias
 
-# Load Starship prompt
-eval "$(starship init zsh)"
-
 
 # Environment variables
 export PATH=$PATH:/usr/local/bin
@@ -30,7 +27,6 @@ if [[ -f ~/.zsh_secrets ]]; then
 fi
 
 export PATH=$PATH:/usr/local/go/bin
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export POP_SMTP_HOST=smtp.gmail.com
 export POP_SMTP_PORT=587
@@ -59,7 +55,6 @@ alias tm=/home/vaishnav/taskcli/tm
 alias chess=/home/vaishnav/go/bin/gambit
 alias picocom="picocom --echo"
 alias notebook="euporie-notebook"
-export EDITOR="neovide"
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 # Configuration
 export NAP_CONFIG="~/.nap/config.yaml"
@@ -103,10 +98,7 @@ alias wo="pomodoro 'work'"
 alias br="pomodoro 'break'"
 
 export PATH="$PATH:$HOME/.cargo/bin"
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 autoload -U compinit; compinit
-source ~/fzf-tab/fzf-tab.plugin.zsh
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -120,7 +112,6 @@ hash -r
 alias ghfetch='/home/vaishnav/go/bin/ghfetch'
 alias get_pio='source ~/.platformio/penv/bin/activate'
 
-source /home/vaishnav/.config/broot/launcher/bash/br
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
@@ -145,7 +136,6 @@ profile_update() {
 }
 
 export PATH="$HOME/.basher/bin:$PATH"   ##basher5ea843
-eval "$(basher init - zsh)"             ##basher5ea843
 
 export PATH="$PATH:/home/vaishnav/.modular/bin"
 
@@ -186,3 +176,6 @@ if [ $usage -ge $threshold ]; then
 else
     echo "Disk usage is under control."
 fi
+
+eval "$(starship init zsh)"
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh

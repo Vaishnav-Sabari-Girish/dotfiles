@@ -3,12 +3,6 @@ $env.config.buffer_editor = "neovide"
 
 $env.path ++= ["~/.local/bin"]
 $env.path ++= ["~/.cargo/bin"]
-$env.path ++= ["/home/linuxbrew/.linuxbrew/bin/"]
-
-echo "Starship is loading with custom config..."
-$env.STARSHIP_CONFIG = "~/.config/starship_nu.toml"
-
-source ~/.cache/starship/init.nu
 
 # Define qr command
 def qr [url: string] {
