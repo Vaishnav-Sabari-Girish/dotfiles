@@ -181,3 +181,10 @@ eval "$(starship init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /home/vaishnav/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export PATH=/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/.local/bin:/home/vaishnav/.local/lib/hyde::/usr/local/bin:/usr/bin:/var/lib/snapd/snap/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.radicle/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.radicle/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.radicle/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/opt/nvim-linux-x86_64/bin
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+export GTK_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+export QT_IM_MODULE=ibus
+ibus-daemon -d -x
