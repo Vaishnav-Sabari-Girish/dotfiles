@@ -127,6 +127,8 @@ gct() {
     git push origin "$1" && git push codeberg "$1" && git push tea "$1"
 }
 
+
+
 profile_update() {
     if [ -z "$1" ]; then
         echo "Usage: profile_update <branch-name>"
