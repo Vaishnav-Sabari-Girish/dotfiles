@@ -1,5 +1,5 @@
 # XONSH WEBCONFIG START
-$XONSH_COLOR_STYLE = 'dracula'
+#$XONSH_COLOR_STYLE = 'dracula'
 # XONSH WEBCONFIG END
 
 $PATH.append($HOME + '/home/vaishnav/bin/')
