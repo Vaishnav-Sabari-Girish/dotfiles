@@ -386,6 +386,7 @@ eeschema.SymbolLibraryControl.deleteSymbol
 eeschema.SymbolLibraryControl.deriveFromExistingSymbol		
 eeschema.SymbolLibraryControl.duplicateSymbol		
 eeschema.SymbolLibraryControl.editSymbol		
+eeschema.SymbolLibraryControl.exportSymbol		
 eeschema.SymbolLibraryControl.exportSymbolAsSVG		
 eeschema.SymbolLibraryControl.exportSymbolView		
 eeschema.SymbolLibraryControl.importSymbol		
@@ -438,6 +439,28 @@ gerbview.InteractiveSelection
 gerbview.InteractiveSelection.Clear		
 gerbview.InteractiveSelection.SelectItem		
 gerbview.InteractiveSelection.UnselectItem		
+kicad.Control.closeProject		
+kicad.Control.convertImage	Ctrl+B	
+kicad.Control.editDrawingSheet	Ctrl+Y	
+kicad.Control.editFootprints	Ctrl+F	
+kicad.Control.editOtherPCB		
+kicad.Control.editOtherSch		
+kicad.Control.editPCB	Ctrl+P	
+kicad.Control.editSchematic	Ctrl+E	
+kicad.Control.editSymbols	Ctrl+L	
+kicad.Control.loadProject		
+kicad.Control.newFromRepository		
+kicad.Control.newFromTemplate	Ctrl+T	
+kicad.Control.newJobs		
+kicad.Control.newProject	Ctrl+N	
+kicad.Control.openDemoProject		
+kicad.Control.openJobset		
+kicad.Control.openProject	Ctrl+O	
+kicad.Control.openTextEditor		
+kicad.Control.pluginContentManager	Ctrl+M	
+kicad.Control.showCalculator		
+kicad.Control.viewDroppedGerbers		
+kicad.Control.viewGerbers	Ctrl+G	
 pcbnew.AlignAndDistribute.alignBottom		
 pcbnew.AlignAndDistribute.alignCenterX		
 pcbnew.AlignAndDistribute.alignCenterY		
@@ -532,6 +555,7 @@ pcbnew.EditorControl.boardSetup
 pcbnew.EditorControl.clearHighlight	~	
 pcbnew.EditorControl.drillOrigin		
 pcbnew.EditorControl.drillResetOrigin		
+pcbnew.EditorControl.drillSetOrigin		
 pcbnew.EditorControl.exportSpecctraDSN		
 pcbnew.EditorControl.generateBOM		
 pcbnew.EditorControl.generateD356File		

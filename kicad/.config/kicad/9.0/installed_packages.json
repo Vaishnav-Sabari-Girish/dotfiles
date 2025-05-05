@@ -2,7 +2,7 @@
     "packages": [
         {
             "current_version": "0.1",
-            "install_timestamp": 1740544388,
+            "install_timestamp": 1746448943,
             "package": {
                 "author": {
                     "contact": {
@@ -96,6 +96,24 @@
                 },
                 "type": "plugin",
                 "versions": [
+                    {
+                        "download_sha256": "69ac0d0d54dfe9653c74c4eb7d6c946533fe0a11b8a9f7de054b836bcee1560e",
+                        "download_size": 20124,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.8/kicad-addon.zip",
+                        "install_size": 34295,
+                        "kicad_version": "7.0",
+                        "status": "stable",
+                        "version": "1.0.8"
+                    },
+                    {
+                        "download_sha256": "17bcd2fad6ed7bc902b8aebd7ab66ac974ed70ae7fffea55f291221a06ad8052",
+                        "download_size": 20163,
+                        "download_url": "https://github.com/asukiaaa/gerber_to_order/releases/download/1.0.7/kicad-addon.zip",
+                        "install_size": 34426,
+                        "kicad_version": "7.0",
+                        "status": "stable",
+                        "version": "1.0.7"
+                    },
                     {
                         "download_sha256": "517ac8cd2b60ae3a1dfa1351f5574c279ed82a78b881feabfb9e85b6db1a722e",
                         "download_size": 19952,
@@ -392,6 +410,20 @@
                 ],
                 "type": "plugin",
                 "versions": [
+                    {
+                        "download_sha256": "f40d509ba74bc2c879d1c39e3535f1551bb63dd4014ca28242632fb12a107c55",
+                        "download_size": 150310,
+                        "download_url": "https://github.com/openscopeproject/InteractiveHtmlBom/releases/download/v2.10.0/InteractiveHtmlBom_v2.10.0_pcm.zip",
+                        "install_size": 733010,
+                        "kicad_version": "6.0",
+                        "platforms": [
+                            "linux",
+                            "macos",
+                            "windows"
+                        ],
+                        "status": "stable",
+                        "version": "2.10.0"
+                    },
                     {
                         "download_sha256": "f9ae167076321d01d77e91c05aeba8e50522dd22433fb042ef3bb2f0bb726f11",
                         "download_size": 149857,
