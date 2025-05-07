@@ -186,3 +186,6 @@ export PATH=/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/v
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+autoload -U compinit; compinit
+source /home/vaishnav/fzf-tab/fzf-tab.plugin.zsh
+
