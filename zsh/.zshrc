@@ -189,3 +189,4 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 autoload -U compinit; compinit
 source /home/vaishnav/fzf-tab/fzf-tab.plugin.zsh
 
+alias acp="/home/vaishnav/git_acp.sh"
