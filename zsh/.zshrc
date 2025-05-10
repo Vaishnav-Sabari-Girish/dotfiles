@@ -119,24 +119,6 @@ alias teensy=/home/vaishnav/Teensy_Loader/teensy
 alias cutecom=/home/vaishnav/cutecom/cutecom
 
 alias tree="ls --tree"
-gct() {
-    if [ -z "$1" ]; then
-        echo "Usage: gct <branch-name>"
-        return 1
-    fi
-    git push origin "$1" && git push codeberg "$1" && git push tea "$1"
-}
-
-
-
-profile_update() {
-    if [ -z "$1" ]; then
-        echo "Usage: profile_update <branch-name>"
-        return 1
-    fi
-    git push origin "$1" && git push codeberg "$1" && git push tea "$1"
-}
-
 export PATH="$HOME/.basher/bin:$PATH"   ##basher5ea843
 
 export PATH="$PATH:/home/vaishnav/.modular/bin"
