@@ -212,8 +212,12 @@ acp() {
     # Get all remote names
     remotes=$(git remote)
 
+    
+    # Get all remote names into an array
+    remotes=($(git remote))
+
     # Push to all remotes
-    for remote in $remotes; do
+    for remote in "${remotes[@]}"; do
         echo "Debug: Pushing to remote - $remote"
         git push "$remote" "$branch"
     done
