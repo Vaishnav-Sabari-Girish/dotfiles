@@ -171,4 +171,53 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 autoload -U compinit; compinit
 source /home/vaishnav/fzf-tab/fzf-tab.plugin.zsh
 
-alias acp="/home/vaishnav/git_acp.sh"
+
+# Function to add, commit, and push to all Git remotes with gum for input
+acp() {
+    # Check if gum is installed
+    if ! command -v gum >/dev/null 2>&1; then
+        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+        return 1
+    fi
+
+    # Stage all changes
+    git add .
+
+    # Prompt for commit message using gum
+    commit_msg=$(gum input --placeholder 'commit message')
+    if [ -z "$commit_msg" ]; then
+        echo 'Error: Commit message cannot be empty'
+        return 1
+    fi
+
+    # Commit changes
+    git commit -m "$commit_msg"
+
+    # Prompt for branch name using gum
+    branch=$(gum input --placeholder 'Enter branch name')
+    if [ -z "$branch" ]; then
+        echo 'Error: Branch name cannot be empty'
+        return 1
+    fi
+
+    # Verify branch exists
+    if ! git rev-parse --verify "$branch" >/dev/null 2>&1; then
+        echo "Error: Branch $branch does not exist"
+        return 1
+    fi
+
+    # Checkout the specified branch
+    git checkout "$branch"
+
+    # Get all remote names
+    remotes=$(git remote)
+
+    # Push to all remotes
+    for remote in $remotes; do
+        echo "Pushing to $remote..."
+        git push "$remote" "$branch"
+    done
+
+    echo 'Changes added, committed, and pushed to all remotes'
+}
+
