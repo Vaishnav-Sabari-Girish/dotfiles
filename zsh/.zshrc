@@ -214,7 +214,7 @@ acp() {
 
     # Push to all remotes
     for remote in $remotes; do
-        echo "Pushing to $remote..."
+        echo "Debug: Pushing to remote - $remote"
         git push "$remote" "$branch"
     done
 
