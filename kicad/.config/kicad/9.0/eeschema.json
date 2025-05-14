@@ -314,6 +314,7 @@
     "use_theme": true
   },
   "search_pane": {
+    "search_hidden_fields": true,
     "selection_zoom": 1
   },
   "selection": {
