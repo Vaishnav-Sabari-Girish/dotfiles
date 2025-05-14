@@ -106,7 +106,7 @@
     "zoom_to_fit": true
   },
   "design_block_chooser": {
-    "height": 827,
+    "height": 819,
     "keep_annotations": false,
     "lib_tree": {
       "column_widths": {
@@ -117,7 +117,7 @@
     "place_as_sheet": false,
     "repeated_placement": false,
     "sash_pos_h": 660,
-    "sash_pos_v": 568,
+    "sash_pos_v": 564,
     "sort_mode": 0,
     "width": 240
   },
@@ -430,7 +430,7 @@
     "pos_x": 0,
     "pos_y": 0,
     "size_x": 768,
-    "size_y": 936,
+    "size_y": 928,
     "zoom_factors": [
       0.05,
       0.07,
