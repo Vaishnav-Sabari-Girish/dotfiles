@@ -225,3 +225,6 @@ acp() {
     echo 'Changes added, committed, and pushed to all remotes'
 }
 
+export ZEIT_DB=/home/vaishnav/zeit_db/zeit.db
+
+export RUSTONIG_SYSTEM_LIBONIG=1
