@@ -25,3 +25,4 @@ g = { g = [":g 1"] }
 G = "goto_last_line"
 V = "extend_to_line_bounds"
 p = "paste_clipboard_after"
+x = []                                                   # Unbind x and xy
