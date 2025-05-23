@@ -234,3 +234,5 @@ export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 
 [ -z "$(pgrep fcitx5)" ] && fcitx5 &
+
+alias hx=helix

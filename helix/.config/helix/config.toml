@@ -1,11 +1,27 @@
-theme = "bogster"
+theme = "everforest_dark"
 
-[editor]
-true-color = true
 
 [editor.cursor-shape]
 insert = "bar"
+normal = "block"
+select = "underline"
 
-[editor.lsp]
-display-messages = true
+[editor.file-picker]
+hidden = false
 
+[editor.statusline]
+left = ["mode", "spinner", "version-control", "file-name"]
+center = ["file-name"]
+right = ["version-control", "diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+separator = "│"
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
+
+[keys.normal]
+d = { d = ["extend_to_line_bounds", "delete_selection"] }
+y = { y = ["extend_to_line_bounds", "yank"] }
+g = { g = [":g 1"] }
+G = "goto_last_line"
+V = "extend_to_line_bounds"
+p = "paste_clipboard_after"
