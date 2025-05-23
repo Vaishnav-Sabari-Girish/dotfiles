@@ -228,3 +228,9 @@ acp() {
 export ZEIT_DB=/home/vaishnav/zeit_db/zeit.db
 
 export RUSTONIG_SYSTEM_LIBONIG=1
+
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+
+[ -z "$(pgrep fcitx5)" ] && fcitx5 &
