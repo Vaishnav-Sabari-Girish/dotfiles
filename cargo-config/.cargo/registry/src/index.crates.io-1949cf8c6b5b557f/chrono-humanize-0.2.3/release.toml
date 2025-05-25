@@ -1,8 +1,0 @@
-allow-branch = ["main", "master"]
-push = true
-tag = true
-publish = true
-verify = true
-pre-release-commit-message = "Bump version to {{version}}"
-tag-message = "{{version}}"
-tag-name = "{{version}}"

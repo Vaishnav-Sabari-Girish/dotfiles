@@ -1,3 +1,0 @@
-# Mark generated completion files as vendored
-contrib/completions/* linguist-vendored
-contrib/completions/gen_completions linguist-vendored=false

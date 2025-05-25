@@ -1,3 +1,0 @@
-[submodule "flamegraph"]
-	path = flamegraph
-	url = https://github.com/jonhoo/FlameGraph.git

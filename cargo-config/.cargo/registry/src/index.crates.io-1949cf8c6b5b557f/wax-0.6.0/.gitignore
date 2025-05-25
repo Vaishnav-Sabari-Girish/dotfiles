@@ -1,5 +1,0 @@
-.idea/
-target/
-**/*.rs.bk
-*.iml
-Cargo.lock
