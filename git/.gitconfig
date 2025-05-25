@@ -5,7 +5,5 @@
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
 [user]
-	name = vaishnav_sabari_girish
 	email = forgamesonly684@gmail.com
-[init]
-	defaultBranch = main
+	name = Vaishnav-Sabari-Girish
