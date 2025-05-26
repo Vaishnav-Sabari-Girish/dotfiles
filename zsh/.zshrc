@@ -230,3 +230,4 @@ pomodoro () {
 
 alias wo="pomodoro 'work'"
 alias br="pomodoro 'break'"
+[ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
