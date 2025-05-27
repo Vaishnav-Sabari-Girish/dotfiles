@@ -7,3 +7,5 @@
 [user]
 	email = forgamesonly684@gmail.com
 	name = Vaishnav-Sabari-Girish
+[init]
+	defaultBranch = main
