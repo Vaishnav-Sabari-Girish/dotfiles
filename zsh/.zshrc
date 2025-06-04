@@ -231,3 +231,10 @@ pomodoro () {
 alias wo="pomodoro 'work'"
 alias br="pomodoro 'break'"
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
+
+alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
+
+tere() {
+    local result=$(command tere "$@")
+    [ -n "$result" ] && cd -- "$result"
+}
