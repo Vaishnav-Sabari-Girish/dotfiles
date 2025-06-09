@@ -21,7 +21,6 @@ HISTFILE=~/.zsh_history   # File where history is saved
 alias ll='ls -lah'        # List with human-readable sizes
 alias gs='git status'     # Git status shortcut
 alias ga='git add'        # Git add shortcut
-alias nap='/home/vaishnav/go/bin/nap' # Your custom alias
 
 
 # Environment variables
@@ -47,7 +46,6 @@ export PATH="$PATH:/home/vaishnav/.radicle/bin"
 export PATH="$PATH:/home/vaishnav/.cargo/bin"
 export PATH="$PATH:/usr/local/go/bin"
 
-alias nap="/home/vaishnav/nap-0.1.1/nap"
 alias type_test=/home/vaishnav/typer/typer
 alias confetty=/home/vaishnav/go/bin/confetty
 alias draw=/home/vaishnav/go/bin/draw
