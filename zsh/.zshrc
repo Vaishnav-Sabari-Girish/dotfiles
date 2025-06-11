@@ -175,7 +175,7 @@ acp() {
     git commit -m "$commit_msg"
 
     # Prompt for branch name using gum
-    branch=$(git branch --list | gum choose | sed 's/^* //')
+    branch=$(git branch -a | gum choose | sed 's/^* //')
     if [ -z "$branch" ]; then
         echo 'Error: Branch name cannot be empty'
         return 1
