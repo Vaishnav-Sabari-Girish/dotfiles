@@ -61,21 +61,21 @@ alias chess=/home/vaishnav/go/bin/gambit
 alias picocom="picocom --echo"
 alias notebook="euporie-notebook"
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-# Configuration
-export NAP_CONFIG="~/.nap/config.yaml"
-export NAP_HOME="~/.nap"
-export NAP_DEFAULT_LANGUAGE="ino"
-export NAP_THEME="nord"
+export NAP_CONFIG="~/.nap/config.yaml" 
+export NAP_HOME="~/.nap" 
+export NAP_DEFAULT_LANGUAGE="ino" 
+export NAP_THEME="catppuccin-mocha"
 
-# Colors
-export NAP_PRIMARY_COLOR="#AFBEE1"
-export NAP_RED="#A46060"
-export NAP_GREEN="#527251"
-export NAP_FOREGROUND="7"
-export NAP_BACKGROUND="0"
-export NAP_BLACK="#373B41"
-export NAP_GRAY="240"
-export NAP_WHITE="#FFFFFF"
+#Colors
+
+export NAP_PRIMARY_COLOR="#CBA6F7" # Mauve: Pastel purple for primary highlights 
+export NAP_RED="#EBA0AC" # Maroon: Deeper red for errors or warnings 
+export NAP_GREEN="#A6E3A1" # Green: Minty green for success or accents 
+export NAP_FOREGROUND="#CDD6F4" # Text: Light off-white for primary text 
+export NAP_BACKGROUND="#1E1E2E" # Base: Dark purple-gray for background 
+export NAP_BLACK="#181825" # Mantle: Near-black for dark elements 
+export NAP_GRAY="#585B70" # Surface2: Medium-dark gray for neutral elements 
+export NAP_WHITE="#F5E0DC" # Rosewater: Soft pinkish-beige for white accents
 
 
 export PATH="$PATH:$HOME/.cargo/bin"

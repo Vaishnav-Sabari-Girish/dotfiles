@@ -1,0 +1,17 @@
+# Configuration
+home: ~/.nap
+default_language: ino
+theme: catppuccin-mocha
+
+# Colors
+background: "#1E1E2E"         # Base: Dark purple-gray for background
+foreground: "#CDD6F4"         # Text: Light off-white for primary text
+primary_color: "#CBA6F7"      # Mauve: Pastel purple for primary highlights
+primary_color_subdued: "#6C7086" # Overlay0: Subtle gray for subdued highlights
+green: "#A6E3A1"              # Green: Light minty green for success or accents
+bright_green: "#94E2D5"       # Teal: Bright teal for vibrant green accents
+bright_red: "#F38BA8"         # Red: Rosy red for errors or warnings
+red: "#EBA0AC"                # Maroon: Deeper red for secondary red accents
+black: "#181825"              # Mantle: Near-black for dark elements
+gray: "#585B70"               # Surface2: Medium-dark gray for neutral elements
+white: "#F5E0DC"              # Rosewater: Soft pinkish-beige for white accents
