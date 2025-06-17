@@ -9,7 +9,7 @@
     "icon_theme": 1,
     "show_scrollbars": false,
     "text_editor_zoom": 0,
-    "toolbar_icon_size": 24,
+    "toolbar_icon_size": 32,
     "use_icons_in_menus": true
   },
   "auto_backup": {
@@ -31,8 +31,8 @@
     "vars": null
   },
   "git": {
-    "authorEmail": "",
-    "authorName": "",
+    "authorEmail": "forgamesonly684@gmail.com",
+    "authorName": "Vaishnav-Sabari-Girish",
     "enableGit": true,
     "repositories": null,
     "updatInterval": 5,
