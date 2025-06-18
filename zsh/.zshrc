@@ -103,6 +103,7 @@ alias tree="ls --tree"
 export PATH="$HOME/.basher/bin:$PATH"   ##basher5ea843
 
 export PATH="$PATH:/home/vaishnav/.modular/bin"
+export PATH="$PATH:/home/vaishnav/.deno/bin/deno"
 
 mojo_project() {
   if [ -z "$1" ]; then 
@@ -236,3 +237,4 @@ tere() {
     local result=$(command tere "$@")
     [ -n "$result" ] && cd -- "$result"
 }
+. "/home/vaishnav/.deno/env"
