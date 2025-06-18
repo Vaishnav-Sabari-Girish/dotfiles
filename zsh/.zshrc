@@ -238,3 +238,5 @@ tere() {
     [ -n "$result" ] && cd -- "$result"
 }
 . "/home/vaishnav/.deno/env"
+
+alias preview_md="gh markdown-preview"
