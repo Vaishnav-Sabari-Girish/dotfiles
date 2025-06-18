@@ -89,6 +89,7 @@ alias jid=/home/vaishnav/go/bin/jid
 export PATH=~/bin:$PATH
 export PATH=$PATH:/home/vaishnav/go/bin
 export PATH=/usr/local/bin:$PATH
+export PATH="$PATH:$HOME/.local/lib/python3.13/"
 hash -r
 # export LD_PRELOAD=/lib/x86_64-linux-gnu/libssh.so.4
 alias ghfetch='/home/vaishnav/go/bin/ghfetch'
