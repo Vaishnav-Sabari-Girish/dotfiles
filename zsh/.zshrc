@@ -79,6 +79,7 @@ export NAP_WHITE="#F5E0DC" # Rosewater: Soft pinkish-beige for white accents
 
 
 export PATH="$PATH:$HOME/.cargo/bin"
+export PATH="$PATH:$HOME/.nimble/bin/"
 autoload -U compinit; compinit
 
 export NVM_DIR="$HOME/.nvm"
