@@ -242,3 +242,47 @@ tere() {
 . "/home/vaishnav/.deno/env"
 
 alias preview_md="gh markdown-preview"
+
+form_create() {
+    local num_questions code
+    # Prompt for number of questions
+    num_questions=$(gum input --prompt "Enter number of questions: " --placeholder "e.g., 5")
+    
+    # Validate number of questions is a positive integer
+    if [[ ! "$num_questions" =~ ^[0-9]+$ ]] || [ "$num_questions" -le 0 ]; then
+        echo "Error: Please enter a valid positive number"
+        return 1
+    fi
+    
+    # Prompt for code
+    code=$(gum input --prompt "Enter form code: " --placeholder "e.g., myform123")
+    
+    # Validate code is not empty
+    if [ -z "$code" ]; then
+        echo "Error: Code cannot be empty"
+        return 1
+    fi
+    
+    # Execute ssh command to create bashform
+    ssh -t bashform.me create "$num_questions" "$code"
+}
+
+function ans_form() {
+    local code
+    # Prompt for form code using gum input
+    code=$(gum input --prompt "Enter form code: " --placeholder "e.g., myform123")
+    
+    # Validate code is not empty
+    if [ -z "$code" ]; then
+        echo "Error: Code cannot be empty"
+        return 1
+    fi
+    
+    # Execute ssh command to answer the form
+    ssh -t bashform.me form "$code"
+}
+
+function view_forms() {
+    # Execute ssh command to view all form answers
+    ssh -t bashform.me forms
+}
