@@ -1,6 +1,6 @@
 {
   "appearance": {
-    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_2231puppy_kicad-vampire/vampire.json"
+    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_pointhi_kicad-color-schemes_nord/nord.json"
   },
   "aui": {
     "properties_panel_width": -1,
@@ -58,9 +58,7 @@
       "Item",
       "Description"
     ],
-    "open_libs": [
-      "Cansat_components"
-    ]
+    "open_libs": []
   },
   "library": {
     "sort_mode": 0
@@ -168,9 +166,9 @@
     },
     "maximized": true,
     "mru_path": "/home/vaishnav/kicad_libs/teensy/teensy_library",
-    "perspective": "layout2|name=InfoBar;caption=;state=131454;dir=1;layer=1;row=0;pos=0;prop=100000;bestw=20;besth=30;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=MainToolbar;caption=;state=139644;dir=1;layer=6;row=0;pos=0;prop=100000;bestw=1047;besth=36;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=MsgPanel;caption=;state=131452;dir=3;layer=6;row=0;pos=0;prop=100000;bestw=400;besth=50;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=LibraryTree;caption=Libraries;state=1996;dir=4;layer=3;row=0;pos=0;prop=100000;bestw=250;besth=-1;minw=250;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=PropertiesManager;caption=Properties;state=2099148;dir=4;layer=3;row=0;pos=1;prop=100000;bestw=300;besth=200;minw=240;minh=60;maxw=-1;maxh=-1;floatx=50;floaty=200;floatw=300;floath=400|name=SelectionFilter;caption=Selection Filter;state=2098636;dir=4;layer=3;row=0;pos=2;prop=0;bestw=180;besth=-1;minw=180;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=OptToolbar;caption=;state=139596;dir=4;layer=2;row=0;pos=0;prop=100000;bestw=34;besth=382;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=ToolsToolbar;caption=;state=139596;dir=2;layer=2;row=0;pos=0;prop=100000;bestw=34;besth=403;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=DrawFrame;caption=;state=768;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=400;besth=133;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|dock_size(1,6,0)=36|dock_size(3,6,0)=50|dock_size(4,3,0)=302|dock_size(4,2,0)=34|dock_size(2,2,0)=34|dock_size(5,0,0)=384|",
-    "pos_x": 0,
-    "pos_y": 0,
+    "perspective": "layout2|name=InfoBar;caption=;state=131454;dir=1;layer=1;row=0;pos=0;prop=100000;bestw=20;besth=30;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=MainToolbar;caption=;state=139644;dir=1;layer=6;row=0;pos=0;prop=100000;bestw=1287;besth=42;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=MsgPanel;caption=;state=131452;dir=3;layer=6;row=0;pos=0;prop=100000;bestw=400;besth=66;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=LibraryTree;caption=Libraries;state=1996;dir=4;layer=3;row=0;pos=0;prop=100000;bestw=250;besth=-1;minw=250;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=PropertiesManager;caption=Properties;state=2099148;dir=4;layer=3;row=0;pos=1;prop=100000;bestw=300;besth=200;minw=240;minh=60;maxw=-1;maxh=-1;floatx=50;floaty=200;floatw=300;floath=400|name=SelectionFilter;caption=Selection Filter;state=2098636;dir=4;layer=3;row=0;pos=2;prop=0;bestw=180;besth=-1;minw=180;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=OptToolbar;caption=;state=139596;dir=4;layer=2;row=0;pos=0;prop=100000;bestw=42;besth=470;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=ToolsToolbar;caption=;state=139596;dir=2;layer=2;row=0;pos=0;prop=100000;bestw=42;besth=499;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=DrawFrame;caption=;state=768;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=400;besth=98;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|dock_size(1,6,0)=42|dock_size(3,6,0)=66|dock_size(4,3,0)=302|dock_size(4,2,0)=42|dock_size(2,2,0)=42|dock_size(5,0,0)=384|",
+    "pos_x": 236,
+    "pos_y": 217,
     "size_x": 1280,
     "size_y": 720,
     "zoom_factors": [

@@ -2,7 +2,7 @@
     "packages": [
         {
             "current_version": "0.1",
-            "install_timestamp": 1746448943,
+            "install_timestamp": 1750406411,
             "package": {
                 "author": {
                     "contact": {
@@ -177,6 +177,47 @@
                         "kicad_version_max": "6.0",
                         "status": "stable",
                         "version": "1.0.0"
+                    }
+                ]
+            },
+            "pinned": false,
+            "repository_id": "46f88614eade3439",
+            "repository_name": "KiCad official repository"
+        },
+        {
+            "current_version": "1.1",
+            "install_timestamp": 1750406320,
+            "package": {
+                "author": {
+                    "contact": {
+                        "web": "https://github.com/jordiorlando"
+                    },
+                    "name": "Jordi Pakey-Rodriguez"
+                },
+                "description": "Designed by @0xdec",
+                "description_full": "Designed by @0xdec.",
+                "identifier": "com.github.pointhi.kicad-color-schemes.nord",
+                "license": "CC0-1.0",
+                "maintainer": {
+                    "contact": {
+                        "web": "https://github.com/pointhi/kicad-color-schemes/"
+                    },
+                    "name": "Thomas Pointhuber"
+                },
+                "name": "Nord Theme",
+                "resources": {
+                    "Github": "https://github.com/pointhi/kicad-color-schemes"
+                },
+                "type": "colortheme",
+                "versions": [
+                    {
+                        "download_sha256": "3d8d949e366e33c73d53e199d62aeafecd58c497e2a15d4b972fda8a18a03a11",
+                        "download_size": 6733,
+                        "download_url": "https://github.com/pointhi/kicad-color-schemes/releases/download/2021-12-05/com.github.pointhi.kicad-color-schemes.nord_v1.1_pcm.zip",
+                        "install_size": 10342,
+                        "kicad_version": "5.99",
+                        "status": "stable",
+                        "version": "1.1"
                     }
                 ]
             },
