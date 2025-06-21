@@ -286,3 +286,5 @@ function view_forms() {
     # Execute ssh command to view all form answers
     ssh -t bashform.me forms
 }
+
+alias img="loupe"
