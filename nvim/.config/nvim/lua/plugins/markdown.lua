@@ -11,11 +11,15 @@ return {
   {
     "OXY2DEV/markview.nvim",
     lazy = false,
-
-    -- For blink.cmp's completion
-    -- source
-    -- dependencies = {
-    --     "saghen/blink.cmp"
-    -- },
+    priority = 1000,
+    config = function()
+      require("markview").setup({
+        -- Add your markview configuration here if needed
+        experimental = {
+          check_rtp = false,
+          check_rtp_message = false,
+        },
+      })
+    end,
   },
 }

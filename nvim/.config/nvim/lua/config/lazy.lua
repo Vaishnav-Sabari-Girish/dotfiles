@@ -1,3 +1,7 @@
+-- Disable experimental treesitter checks BEFORE any plugin loading
+vim.g.experimental_check_rtp = false
+vim.g.experimental_check_rtp_message = false
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
