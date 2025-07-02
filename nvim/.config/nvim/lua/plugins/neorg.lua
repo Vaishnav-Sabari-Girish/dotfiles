@@ -5,8 +5,32 @@ return {
   config = true,
   require("neorg").setup({
     load = {
+      ["core.keybinds"] = {
+        config = {
+          hook = function(keybinds)
+            -- Presenter keybinds
+            keybinds.map("presenter", "n", "<CR>", "neorg.presenter.next-page")
+            keybinds.map("presenter", "n", "<BS>", "neorg.presenter.previous-page")
+            -- Or use arrow keys
+            keybinds.map("presenter", "n", "<Right>", "neorg.presenter.next-page")
+            keybinds.map("presenter", "n", "<Left>", "neorg.presenter.previous-page")
+          end,
+        },
+      },
       ["core.defaults"] = {},
       ["core.concealer"] = {},
+      ["core.export"] = {},
+      ["core.looking-glass"] = {},
+      ["core.export.markdown"] = {
+        config = {
+          extensions = "all",
+        },
+      },
+      ["core.presenter"] = {
+        config = {
+          zen_mode = "zen-mode",
+        },
+      },
       ["core.dirman"] = {
         config = {
           workspaces = {
