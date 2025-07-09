@@ -17,6 +17,8 @@ return {
           end,
         },
       },
+      ["core.qol.todo_items"] = {},
+      ["core.todo-introspector"] = {},
       ["core.defaults"] = {},
       ["core.concealer"] = {},
       ["core.export"] = {},
@@ -24,11 +26,6 @@ return {
       ["core.export.markdown"] = {
         config = {
           extensions = "all",
-        },
-      },
-      ["core.presenter"] = {
-        config = {
-          zen_mode = "zen-mode",
         },
       },
       ["core.dirman"] = {
