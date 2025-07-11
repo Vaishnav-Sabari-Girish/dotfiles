@@ -239,7 +239,7 @@
     },
     "maximized": true,
     "mru_path": "/home/vaishnav/Desktop/Team_Avadhi_Cansat/PCB/Team_Avadhi_Cansat_PCB/Team_Avadhi_Cansat/",
-    "perspective": "layout2|name=ProjectTree;caption=Project Files;state=1532;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=250;besth=-1;minw=250;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Editors;caption=Editors;state=508;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=1104;besth=590;minw=1104;minh=590;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=MainToolbar;caption=;state=139596;dir=4;layer=2;row=0;pos=0;prop=100000;bestw=42;besth=281;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|dock_size(4,2,0)=42|dock_size(4,1,0)=250|dock_size(5,0,0)=1104|",
+    "perspective": "layout2|name=MainToolbar;caption=;state=139596;dir=4;layer=2;row=0;pos=0;prop=100000;bestw=42;besth=281;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=ProjectTree;caption=Project Files;state=1532;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=250;besth=-1;minw=250;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Editors;caption=Editors;state=508;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=1104;besth=590;minw=1104;minh=590;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|dock_size(4,2,0)=42|dock_size(4,1,0)=250|dock_size(5,0,0)=1104|",
     "pos_x": 0,
     "pos_y": 59,
     "size_x": 1752,

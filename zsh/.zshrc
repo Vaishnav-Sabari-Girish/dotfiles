@@ -288,3 +288,4 @@ function view_forms() {
 }
 
 alias img="loupe"
+export PATH="$HOME/zig-x86_64-linux-0.15.0-dev.936+fc2c1883b:$PATH"
