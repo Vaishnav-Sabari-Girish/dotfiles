@@ -2,12 +2,12 @@
 require("config.lazy")
 
 vim.opt.termguicolors = true
-vim.cmd("colorscheme catppuccin-macchiato")
+vim.cmd("colorscheme nord")
 
 if vim.g.neovide then
   vim.opt.guifont = "Fira Code:h20"
   vim.opt.termguicolors = true
-  vim.cmd("colorscheme catppuccin-macchiato")
+  vim.cmd("colorscheme nord")
 end
 
 vim.opt.relativenumber = false -- Disable relative line numbers
