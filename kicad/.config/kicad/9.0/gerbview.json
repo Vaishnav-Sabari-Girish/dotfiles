@@ -1,6 +1,6 @@
 {
   "appearance": {
-    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_2231puppy_kicad-vampire/vampire.json",
+    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_pointhi_kicad-color-schemes_nord/nord.json",
     "mode_opacity_value": 0.6,
     "page_type": "GERBER",
     "show_border_and_titleblock": false,

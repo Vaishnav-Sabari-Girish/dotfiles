@@ -1,3 +1,8 @@
 [[language]]
 name = "markdown"
 formatter = { command = "dprint", args = ["fmt", "--stdin", "md"]}
+
+[[language]]
+name = "c"
+language-servers = [ "clangd" ]
+auto-format = true # Optional: Enable auto-formatting if desired
