@@ -1,5 +1,6 @@
 [[language]]
 name = "markdown"
+language-servers = ["marksman"]
 formatter = { command = "dprint", args = ["fmt", "--stdin", "md"]}
 
 [[language]]
