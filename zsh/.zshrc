@@ -290,3 +290,240 @@ export PATH="$HOME/zig-x86_64-linux-0.15.0-dev.936+fc2c1883b:$PATH"
 
 export PATH="/home/vaishnav/.rustup/toolchains/esp/xtensa-esp-elf/esp-14.2.0_20240906/xtensa-esp-elf/bin:$PATH"
 export LIBCLANG_PATH="/home/vaishnav/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-19.1.2_20250225/esp-clang/lib"
+
+
+pdf_manager() {
+    # Check if gum is installed
+    if ! command -v gum &> /dev/null; then
+        echo "Error: gum is not installed. Install it with: brew install gum"
+        return 1
+    fi
+
+    # Main menu
+    local action=$(gum choose "Merge PDFs" "Separate PDF" "Remove Pages from PDF")
+    
+    case $action in
+        "Merge PDFs")
+            merge_pdfs
+            ;;
+        "Separate PDF")
+            separate_pdf
+            ;;
+        "Remove Pages from PDF")
+            remove_pages
+            ;;
+        *)
+            echo "Operation cancelled"
+            return 0
+            ;;
+    esac
+}
+
+merge_pdfs() {
+    echo "📚 Merging PDFs"
+    
+    # Get list of PDF files in current directory
+    local pdf_files=(*.pdf)
+    
+    if [[ ${#pdf_files[@]} -eq 0 ]] || [[ "${pdf_files[1]}" == "*.pdf" ]]; then
+        echo "❌ No PDF files found in current directory"
+        return 1
+    fi
+    
+    # Multi-select PDF files to merge
+    local selected_files=$(gum choose --no-limit "${pdf_files[@]}")
+    
+    if [[ -z "$selected_files" ]]; then
+        echo "❌ No files selected"
+        return 1
+    fi
+    
+    # Get output filename
+    local output_file=$(gum input --placeholder "Enter output filename (e.g., merged.pdf)")
+    
+    if [[ -z "$output_file" ]]; then
+        echo "❌ No output filename provided"
+        return 1
+    fi
+    
+    # Ensure .pdf extension
+    if [[ "$output_file" != *.pdf ]]; then
+        output_file="${output_file}.pdf"
+    fi
+    
+    # Confirm before merging
+    echo "Selected files:"
+    echo "$selected_files" | while read -r file; do
+        echo "  - $file"
+    done
+    echo "Output: $output_file"
+    
+    if gum confirm "Proceed with merge?"; then
+        # Convert newline-separated string to array for pdfunite
+        local files_array=()
+        while IFS= read -r file; do
+            files_array+=("$file")
+        done <<< "$selected_files"
+        
+        pdfunite "${files_array[@]}" "$output_file"
+        echo "✅ PDFs merged successfully: $output_file"
+    else
+        echo "❌ Merge cancelled"
+    fi
+}
+
+separate_pdf() {
+    echo "📄 Separating PDF"
+    
+    # Get list of PDF files
+    local pdf_files=(*.pdf)
+    
+    if [[ ${#pdf_files[@]} -eq 0 ]] || [[ "${pdf_files[1]}" == "*.pdf" ]]; then
+        echo "❌ No PDF files found in current directory"
+        return 1
+    fi
+    
+    # Select PDF to separate
+    local input_file=$(gum choose "${pdf_files[@]}")
+    
+    if [[ -z "$input_file" ]]; then
+        echo "❌ No file selected"
+        return 1
+    fi
+    
+    # Get base name for output files
+    local base_name=$(gum input --placeholder "Enter base name for output files (default: page)" --value "page")
+    
+    if [[ -z "$base_name" ]]; then
+        base_name="page"
+    fi
+    
+    if gum confirm "Separate $input_file into individual pages?"; then
+        pdfseparate "$input_file" "${base_name}-%d.pdf"
+        echo "✅ PDF separated successfully with pattern: ${base_name}-%d.pdf"
+    else
+        echo "❌ Separation cancelled"
+    fi
+}
+
+remove_pages() {
+    echo "✂️  Removing Pages from PDF"
+    
+    # Get list of PDF files
+    local pdf_files=(*.pdf)
+    
+    if [[ ${#pdf_files[@]} -eq 0 ]] || [[ "${pdf_files[1]}" == "*.pdf" ]]; then
+        echo "❌ No PDF files found in current directory"
+        return 1
+    fi
+    
+    # Select PDF file
+    local input_file=$(gum choose "${pdf_files[@]}")
+    
+    if [[ -z "$input_file" ]]; then
+        echo "❌ No file selected"
+        return 1
+    fi
+    
+    # Get total page count (requires pdfinfo from poppler-utils)
+    local total_pages
+    if command -v pdfinfo &> /dev/null; then
+        total_pages=$(pdfinfo "$input_file" | grep "Pages:" | awk '{print $2}')
+        echo "📊 Total pages in $input_file: $total_pages"
+    else
+        echo "⚠️  pdfinfo not available. Cannot show page count."
+        total_pages=$(gum input --placeholder "Enter total number of pages in the PDF")
+    fi
+    
+    # Get pages to remove
+    local pages_to_remove=$(gum input --placeholder "Enter page numbers to remove (e.g., 2,5,7-9)")
+    
+    if [[ -z "$pages_to_remove" ]]; then
+        echo "❌ No pages specified"
+        return 1
+    fi
+    
+    # Get output filename
+    local output_file=$(gum input --placeholder "Enter output filename" --value "${input_file%.*}_modified.pdf")
+    
+    if [[ -z "$output_file" ]]; then
+        echo "❌ No output filename provided"
+        return 1
+    fi
+    
+    # Ensure .pdf extension
+    if [[ "$output_file" != *.pdf ]]; then
+        output_file="${output_file}.pdf"
+    fi
+    
+    echo "Input: $input_file"
+    echo "Pages to remove: $pages_to_remove"
+    echo "Output: $output_file"
+    
+    if gum confirm "Proceed with page removal?"; then
+        # Create temporary directory
+        local temp_dir=$(mktemp -d)
+        local base_name="temp_page"
+        
+        # Separate all pages
+        echo "🔄 Separating pages..."
+        pdfseparate "$input_file" "$temp_dir/${base_name}-%d.pdf"
+        
+        # Build array of pages to keep
+        local pages_to_keep=()
+        local pages_to_remove_array=()
+        
+        # Parse pages to remove (handle ranges and individual pages)
+        # Use zsh-specific array splitting to fix the read -ra issue
+        local remove_parts=(${(s:,:)pages_to_remove})
+        
+        for part in "${remove_parts[@]}"; do
+            part=$(echo "$part" | tr -d ' ')  # Remove spaces
+            if [[ "$part" == *-* ]]; then
+                # Handle range (e.g., 7-9)
+                local start=${part%-*}
+                local end=${part#*-}
+                for ((i=start; i<=end; i++)); do
+                    pages_to_remove_array+=($i)
+                done
+            else
+                # Handle individual page
+                pages_to_remove_array+=($part)
+            fi
+        done
+        
+        # Build list of pages to keep
+        for ((i=1; i<=total_pages; i++)); do
+            local should_remove=false
+            for remove_page in "${pages_to_remove_array[@]}"; do
+                if [[ $i -eq $remove_page ]]; then
+                    should_remove=true
+                    break
+                fi
+            done
+            if [[ $should_remove == false ]]; then
+                if [[ -f "$temp_dir/${base_name}-$i.pdf" ]]; then
+                    pages_to_keep+=("$temp_dir/${base_name}-$i.pdf")
+                fi
+            fi
+        done
+        
+        if [[ ${#pages_to_keep[@]} -eq 0 ]]; then
+            echo "❌ No pages would remain after removal"
+            rm -rf "$temp_dir"
+            return 1
+        fi
+        
+        # Merge remaining pages
+        echo "🔄 Merging remaining pages..."
+        pdfunite "${pages_to_keep[@]}" "$output_file"
+        
+        # Clean up temporary files
+        rm -rf "$temp_dir"
+        
+        echo "✅ Pages removed successfully: $output_file"
+        echo "📊 Kept $(( total_pages - ${#pages_to_remove_array[@]} )) of $total_pages pages"
+    else
+        echo "❌ Operation cancelled"
+    fi
+}
