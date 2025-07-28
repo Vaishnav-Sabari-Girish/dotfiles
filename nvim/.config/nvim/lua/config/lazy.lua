@@ -55,3 +55,14 @@ require("lazy").setup({
     },
   },
 })
+
+-- Override LazyVim's cmdheight=0 default AFTER lazy setup
+vim.o.cmdheight = 1
+
+-- Backup: Ensure it persists after all plugins load
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LazyVimStarted",
+  callback = function()
+    vim.o.cmdheight = 1
+  end,
+})
