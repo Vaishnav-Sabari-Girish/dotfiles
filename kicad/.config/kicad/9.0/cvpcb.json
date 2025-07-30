@@ -187,9 +187,44 @@
     "select_factor": 0.75
   },
   "lib_tree": {
-    "column_widths": null,
-    "columns": [],
-    "open_libs": []
+    "column_widths": {
+      "Description": 600,
+      "Item": 300
+    },
+    "columns": [
+      "Item",
+      "Description"
+    ],
+    "open_libs": [
+      "Connector_Coaxial",
+      "Connector_Dsub",
+      "Connector_Phoenix_GMSTB",
+      "Connector_Phoenix_MC",
+      "Connector_Phoenix_MC_HighVoltage",
+      "Connector_Phoenix_MSTB",
+      "Connector_PinHeader_1.00mm",
+      "Connector_PinHeader_1.27mm",
+      "Connector_PinHeader_2.00mm",
+      "Connector_PinHeader_2.54mm",
+      "Connector_PinSocket_1.00mm",
+      "Connector_PinSocket_1.27mm",
+      "Connector_PinSocket_2.00mm",
+      "Connector_PinSocket_2.54mm",
+      "Connector_USB",
+      "Converter_ACDC",
+      "Diode_SMD",
+      "Display",
+      "Fuse",
+      "Inductor_SMD",
+      "Inductor_THT",
+      "LED_SMD",
+      "Module",
+      "MountingHole",
+      "Mounting_Wuerth",
+      "Relay_SMD",
+      "Rotary_Encoder",
+      "TestPoint"
+    ]
   },
   "libraries_pane_width": 256,
   "meta": {

@@ -67,15 +67,15 @@
     "check_for_kicad_updates": true,
     "file_history": [
       "/home/vaishnav/Desktop/Team_Avadhi_Cansat/PCB/Team_Avadhi_Cansat_PCB/Team_Avadhi_Cansat/Team_Avadhi_Cansat.kicad_pro",
-      "/home/vaishnav/Desktop/Kicad PCB's/My Projects/Smart_door_lock/Smart_door_lock.kicad_pro",
-      "/home/vaishnav/Desktop/Team_Avadhi_Cansat/PCB/Team_Avadhi_Cansat_PCB/Team_Avadhi_Cansat_Xbee_PCB/Xbee_motor_pcb/Xbee_motor_pcb.kicad_pro"
+      "/home/vaishnav/Desktop/Team_Avadhi_Cansat/PCB/Team_Avadhi_Cansat_PCB/Team_Avadhi_Cansat_Xbee_PCB/Xbee_motor_pcb/Xbee_motor_pcb.kicad_pro",
+      "/home/vaishnav/Desktop/Kicad PCB's/My Projects/Smart_door_lock/Smart_door_lock.kicad_pro"
     ],
     "first_run_shown": false,
     "last_design_block_lib_dir": "",
     "last_imperial_units": 5,
     "last_metric_units": 1,
     "last_received_update": "",
-    "last_update_check_time": "2025-07-28T18:04:57",
+    "last_update_check_time": "2025-07-30T22:04:35",
     "max_undo_items": 0,
     "open_projects": [
       "/home/vaishnav/Desktop/Team_Avadhi_Cansat/PCB/Team_Avadhi_Cansat_PCB/Team_Avadhi_Cansat/Team_Avadhi_Cansat.kicad_pro"
