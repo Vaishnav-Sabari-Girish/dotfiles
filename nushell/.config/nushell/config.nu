@@ -1,4 +1,3 @@
-
 # Environment variables
 $env.EDITOR = "nvim"
 $env.POP_SMTP_HOST = "smtp.gmail.com"
