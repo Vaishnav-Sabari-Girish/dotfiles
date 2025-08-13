@@ -178,7 +178,7 @@ def --env tere [...args] {
     }
 }
 
-# Form management functions
+# Create Bashform (Forms in Terminal)
 def form_create [] {
     if not (which gum | is-not-empty) {
         print "Error: gum is not installed"
@@ -200,6 +200,7 @@ def form_create [] {
     ssh -t bashform.me create $num_questions $code
 }
 
+# Answer a Bashform (Forms in Terminal)
 def ans_form [] {
     if not (which gum | is-not-empty) {
         print "Error: gum is not installed"
@@ -215,6 +216,7 @@ def ans_form [] {
     ssh -t bashform.me form $code
 }
 
+# View all your Bashforms (Forms in Terminal)
 def view_forms [] {
     ssh -t bashform.me forms
 }
