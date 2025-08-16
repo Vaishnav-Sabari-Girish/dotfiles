@@ -143,6 +143,8 @@ else
     echo "Disk usage is under control."
 fi
 
+echo "# Check addae regularly" | glow -
+
 eval "$(starship init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /home/vaishnav/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
