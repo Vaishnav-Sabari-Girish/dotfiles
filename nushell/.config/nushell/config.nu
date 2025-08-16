@@ -417,8 +417,8 @@ if $usage >= $threshold {
 }
 
 # Print newline for spacing
+echo "# Check addae regularly" | glow -
 print ""
-
 
 $env.config.show_banner = false
 $env.config.buffer_editor = "nvim"
