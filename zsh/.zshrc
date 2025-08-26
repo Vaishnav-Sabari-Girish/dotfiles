@@ -145,6 +145,8 @@ fi
 
 echo "# Check addae regularly" | /home/linuxbrew/.linuxbrew/bin/glow -
 
+gh contribs
+
 eval "$(starship init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /home/vaishnav/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
