@@ -9,6 +9,7 @@ config.color_scheme = "nordfox"
 config.enable_tab_bar = false
 config.font = wezterm.font("JetBrains Mono")
 config.default_cursor_style = "BlinkingBar"
+config.use_ime = true
 
 wezterm.on("gui-startup", function(cmd)
 	local tab, pane, window = mux.spawn_window(cmd or {})
