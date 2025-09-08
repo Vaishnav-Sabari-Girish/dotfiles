@@ -45,11 +45,12 @@ $env.LIBCLANG_PATH = "/home/vaishnav/.rustup/toolchains/esp/xtensa-esp32-elf-cla
 
 # Note: Conditional sourcing needs to be handled differently in Nushell
 # You can manually source these files if they exist:
-# source ~/.zsh_secrets
 # source ~/.deno/env
 
 # For dynamic loading, you might need to use a startup script or
 # check these files manually
+
+source ~/.nu_secrets.nu
 
 # Aliases
 alias ll = ls -la
