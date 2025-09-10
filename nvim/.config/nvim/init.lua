@@ -2,7 +2,7 @@
 require("config.lazy")
 
 vim.opt.termguicolors = true
-vim.cmd("colorscheme nord")
+vim.cmd("colorscheme catppuccin")
 
 if vim.g.neovide then
   vim.opt.guifont = "Fira Code:h20"
