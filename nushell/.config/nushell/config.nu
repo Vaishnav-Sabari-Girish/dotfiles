@@ -407,20 +407,9 @@ def remove_pages [] {
     }
 }
 
-# Disk usage warning
-let threshold = 80
-let usage = (df -h / | lines | skip 1 | first | split row " " | where $it != "" | get 4 | str replace "%" "" | into int)
-
-if $usage >= $threshold {
-    print $"Warning: Disk usage is at ($usage)%!"
-} else {
-    print "Disk usage is under control."
-}
-
 # Print newline for spacing
 echo "# Check addae regularly" | glow -
 print ""
-gh contribs
 
 $env.config.show_banner = false
 $env.config.buffer_editor = "nvim"
