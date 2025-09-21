@@ -19,6 +19,7 @@ alias ll='ls -lah'        # List with human-readable sizes
 alias gs='git status'     # Git status shortcut
 alias ga='git add'        # Git add shortcut
 
+fpath=($HOME/completition_zsh/ $fpath)
 
 # Environment variables
 export PATH=$PATH:/usr/local/bin
