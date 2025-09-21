@@ -411,6 +411,7 @@ def remove_pages [] {
 echo "# Check addae regularly" | glow -
 print ""
 
+source ~/catppuccin_macchiato.nu
 $env.config.show_banner = false
 $env.config.buffer_editor = "nvim"
 mkdir ($nu.data-dir | path join "vendor/autoload")

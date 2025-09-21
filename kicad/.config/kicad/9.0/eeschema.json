@@ -9,7 +9,7 @@
     "sort_order": 0
   },
   "appearance": {
-    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_2231puppy_kicad-vampire/vampire.json",
+    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_waterlilly-lilly_catppuccin-kicad/catppuccin-macchiato.json",
     "default_font": "KiCad Font",
     "edit_label_height": 458,
     "edit_label_visible_columns": "0 1 2 3 4 5 6 7",

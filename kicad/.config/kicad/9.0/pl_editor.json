@@ -1,6 +1,6 @@
 {
   "appearance": {
-    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_2231puppy_kicad-vampire/vampire.json"
+    "color_theme": "/home/vaishnav/.local/share/kicad/9.0/3rdparty/colors/com_github_waterlilly-lilly_catppuccin-kicad/catppuccin-macchiato.json"
   },
   "black_background": false,
   "color_picker": {

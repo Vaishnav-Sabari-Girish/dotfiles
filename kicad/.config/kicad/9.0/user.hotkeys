@@ -223,7 +223,9 @@ eeschema.EditorControl.lineModeFree
 eeschema.EditorControl.lineModeNext	Shift+Space	
 eeschema.EditorControl.lineModeOrthonal		
 eeschema.EditorControl.markSimExclusions		
+eeschema.EditorControl.nextNetItem	Tab	
 eeschema.EditorControl.nextUnit		
+eeschema.EditorControl.previousNetItem	Shift+Tab	
 eeschema.EditorControl.previousUnit		
 eeschema.EditorControl.remapSymbols		
 eeschema.EditorControl.repairSchematic		
