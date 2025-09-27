@@ -43,6 +43,6 @@ font-family = FiraCode
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
 
-theme = "nordfox"
+theme = "Catppuccin Macchiato"
 font-size = 18
 maximize = true

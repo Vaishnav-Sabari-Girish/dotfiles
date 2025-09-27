@@ -527,3 +527,14 @@ function y() {
 	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
 }
+
+wshare() {
+    local script_path="$HOME/dotfiles/zsh/send_file.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: Script not found or not executable at $script_path"
+        return 1
+    fi
+}
