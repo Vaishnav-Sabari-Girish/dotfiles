@@ -528,7 +528,7 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-wshare() {
+wsend() {
     local script_path="$HOME/dotfiles/zsh/send_file.sh"
     
     if [[ -x "$script_path" ]]; then
@@ -538,3 +538,16 @@ wshare() {
         return 1
     fi
 }
+
+
+wreceive() {
+    local script_path="$HOME/dotfiles/zsh/receive_file.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: receive_file.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
