@@ -551,3 +551,15 @@ wreceive() {
     fi
 }
 
+
+gist_manager() {
+    local script_path="$HOME/dotfiles/zsh/gist_manager.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: gist_manager.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
