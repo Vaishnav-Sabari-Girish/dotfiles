@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Gist Manager - Interactive gist creation and management using gum
+# Uses git workflow instead of gh gist edit for maximum flexibility
 # Requires: gh CLI, gum, git
 
 set -e
@@ -12,12 +13,77 @@ export GUM_INPUT_CURSOR_FOREGROUND="#8BD5CA"
 export GUM_INPUT_PROMPT_FOREGROUND="#F4DBD6"
 export GUM_CONFIRM_PROMPT_FOREGROUND="#A6DA95"
 
+# Your custom acp function integrated
+acp() {
+  # Check if gum is installed
+  if ! command -v gum >/dev/null 2>&1; then
+    echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+    return 1
+  fi
+
+  # Stage all changes
+  git add .
+
+  # Prompt for commit message using gum
+  commit_msg=$(gum input --placeholder 'commit message')
+  if [ -z "$commit_msg" ]; then
+    echo 'Error: Commit message cannot be empty'
+    return 1
+  fi
+
+  # Commit changes
+  git commit -m "$commit_msg"
+
+  # Prompt for branch name using gum
+  branch=$(git branch | gum choose | sed 's/^* //')
+  if [ -z "$branch" ]; then
+    echo 'Error: Branch name cannot be empty'
+    return 1
+  fi
+
+  # Verify branch exists
+  if ! git rev-parse --verify "$branch" >/dev/null 2>&1; then
+    echo "Error: Branch $branch does not exist"
+    return 1
+  fi
+
+  # Checkout the specified branch
+  git checkout "$branch"
+
+  # Get all remote names
+  remotes=$(git remote)
+
+  # Get all remote names into an array
+  remotes=($(git remote))
+
+  # Push to all remotes
+  for remote in "${remotes[@]}"; do
+    echo "Debug: Pushing to remote - $remote"
+    git push "$remote" "$branch"
+  done
+
+  echo 'Changes added, committed, and pushed to all remotes'
+}
+
 # Functions
 show_header() {
   gum style \
     --foreground 212 --border-foreground 212 --border double \
     --align center --width 50 --margin "1 2" --padding "1 2" \
-    "🎀 Gist Manager 🎀" "Interactive GitHub Gist Workflow"
+    "🎀 Gist Manager 🎀" "Interactive GitHub Gist Workflow (Git-based)"
+}
+
+# Function to get files currently in gist (clean display)
+get_gist_files() {
+  local gist_id="$1"
+
+  # Get files from gist view
+  gh gist view "$gist_id" --files 2>/dev/null | while IFS= read -r line; do
+    # Clean up the output - just show filenames
+    if [[ -n "$line" && "$line" != "no files" ]]; then
+      echo "$line"
+    fi
+  done
 }
 
 create_new_gist() {
@@ -68,7 +134,6 @@ create_new_gist() {
       echo ""
 
       # Use gum choose with --no-limit for multiple selection
-      # Note: gum choose with --no-limit allows space/tab to select multiple items
       SELECTED_FILES=$(printf '%s\n' "${ALL_FILES[@]}" | gum choose --no-limit --header "Select files (use SPACE to select multiple, ENTER to confirm):")
 
       # Convert selected files to array
@@ -225,6 +290,274 @@ clone_gist() {
   fi
 }
 
+update_gist_with_git() {
+  local gist_id="$1"
+  echo ""
+  gum style --foreground 99 "Update gist using Git workflow: $gist_id"
+
+  # Show current gist files in a clean format
+  echo ""
+  gum style --foreground 147 "Files currently in gist:"
+  CURRENT_FILES=$(get_gist_files "$gist_id")
+  if [[ -n "$CURRENT_FILES" ]]; then
+    echo "$CURRENT_FILES" | while IFS= read -r file; do
+      echo " • $file"
+    done
+  else
+    echo " (no files found)"
+  fi
+  echo ""
+
+  # Check if we're already in a gist directory
+  if [[ -d ".git" ]] && git remote -v | grep -q "gist.github.com.*$gist_id"; then
+    gum style --foreground 147 "Already in gist directory. Ready to update!"
+    UPDATE_IN_PLACE=true
+    GIST_DIR="."
+  else
+    UPDATE_IN_PLACE=false
+
+    # Clone the gist to work with it
+    GIST_DIR="temp_gist_$gist_id"
+    if [[ -d "$GIST_DIR" ]]; then
+      rm -rf "$GIST_DIR"
+    fi
+
+    echo ""
+    gum style --foreground 147 "Cloning gist to temporary directory..."
+    if ! gum spin --spinner dot --title "Cloning gist..." -- gh gist clone "$gist_id" "$GIST_DIR"; then
+      gum style --foreground 196 "❌ Failed to clone gist"
+      return 1
+    fi
+  fi
+
+  # Change to gist directory
+  if [[ "$UPDATE_IN_PLACE" == false ]]; then
+    cd "$GIST_DIR" || return 1
+  fi
+
+  # Choose what to update
+  UPDATE_ACTION=$(gum choose --header "What would you like to update?" \
+    "Add new files from current directory" \
+    "Create new files" \
+    "Edit existing files" \
+    "Remove files" \
+    "Update and push changes" \
+    "Cancel")
+
+  case "$UPDATE_ACTION" in
+  "Add new files from outside directory")
+    add_existing_files_to_gist
+    ;;
+  "Create new files")
+    create_new_files_in_gist
+    ;;
+  "Edit existing files")
+    edit_files_in_gist
+    ;;
+  "Remove files")
+    remove_files_from_gist
+    ;;
+  "Update and push changes")
+    push_gist_changes
+    ;;
+  "Cancel")
+    cleanup_temp_dir
+    return 0
+    ;;
+  esac
+
+  # Ask if user wants to continue making changes
+  echo ""
+  if gum confirm "Make additional changes?"; then
+    update_gist_with_git "$gist_id"
+  else
+    # Final push option
+    echo ""
+    if gum confirm "Push all changes now?"; then
+      push_gist_changes
+    fi
+    cleanup_temp_dir
+  fi
+}
+
+add_existing_files_to_gist() {
+  echo ""
+  gum style --foreground 147 "Add existing files from current directory"
+
+  # Go back to parent directory to select files
+  cd .
+
+  # Get all files excluding the gist directory
+  ALL_FILES=()
+  while IFS= read -r -d '' file; do
+    if [[ "$file" != "./." && "$file" != "./.." ]]; then
+      clean_file="${file#./}"
+      # Skip the temporary gist directory
+      if [[ ! "$clean_file" =~ ^temp_gist_ ]]; then
+        ALL_FILES+=("$clean_file")
+      fi
+    fi
+  done < <(find . -maxdepth 1 -type f -print0 2>/dev/null)
+
+  if [[ ${#ALL_FILES[@]} -eq 0 ]]; then
+    gum style --foreground 196 "No files found to add."
+    cd "$GIST_DIR" || return 1
+    return 1
+  fi
+
+  echo ""
+  gum style --foreground 147 "Found ${#ALL_FILES[@]} files available to add:"
+  printf ' • %s\n' "${ALL_FILES[@]}"
+  echo ""
+
+  # Multiple file selection
+  SELECTED_FILES=$(printf '%s\n' "${ALL_FILES[@]}" | gum choose --no-limit --header "Select files to add (use SPACE to select multiple):")
+
+  if [[ -n "$SELECTED_FILES" ]]; then
+    cd "$GIST_DIR" || return 1
+    echo ""
+    while IFS= read -r file; do
+      if [[ -f "../$file" ]]; then
+        cp "../$file" .
+        echo "✅ Added: $file"
+      fi
+    done <<<"$SELECTED_FILES"
+    echo ""
+    gum style --foreground 147 "Files added. Use 'Update and push changes' to save to gist."
+  else
+    cd "$GIST_DIR" || return 1
+    gum style --foreground 147 "No files selected."
+  fi
+}
+
+create_new_files_in_gist() {
+  echo ""
+  gum style --foreground 147 "Create new files in gist"
+
+  # Create new files in gist directory
+  while true; do
+    FILENAME=$(gum input --placeholder "filename.ext" --prompt "New file name: ")
+    if [[ -n "$FILENAME" ]]; then
+      echo ""
+      gum style --foreground 147 "Enter content for $FILENAME:"
+      CONTENT=$(gum write --placeholder "Enter file content..." --height 10)
+      echo "$CONTENT" >"$FILENAME"
+      echo "✅ Created: $FILENAME"
+
+      ADD_MORE=$(gum confirm "Create another file?" && echo "yes" || echo "no")
+      if [[ "$ADD_MORE" == "no" ]]; then
+        break
+      fi
+    else
+      break
+    fi
+  done
+
+  echo ""
+  gum style --foreground 147 "Files created. Use 'Update and push changes' to save to gist."
+}
+
+edit_files_in_gist() {
+  echo ""
+  gum style --foreground 147 "Edit files in gist"
+
+  # Get list of files in current directory (excluding .git and directories)
+  FILES=(*)
+  ACTUAL_FILES=()
+  for file in "${FILES[@]}"; do
+    if [[ -f "$file" && "$file" != ".git" ]]; then
+      ACTUAL_FILES+=("$file")
+    fi
+  done
+
+  if [[ ${#ACTUAL_FILES[@]} -eq 0 ]]; then
+    gum style --foreground 196 "No editable files found."
+    return 1
+  fi
+
+  echo ""
+  FILE_TO_EDIT=$(gum choose --header "Select file to edit:" "${ACTUAL_FILES[@]}")
+
+  if [[ -n "$FILE_TO_EDIT" ]]; then
+    echo ""
+    gum style --foreground 147 "Opening $FILE_TO_EDIT in your default editor..."
+    ${EDITOR:-nano} "$FILE_TO_EDIT"
+    echo ""
+    echo "✅ File edited. Use 'Update and push changes' to save to gist."
+  fi
+}
+
+remove_files_from_gist() {
+  echo ""
+  gum style --foreground 147 "Remove files from gist"
+
+  # Get list of files in current directory (excluding .git and directories)
+  FILES=(*)
+  ACTUAL_FILES=()
+  for file in "${FILES[@]}"; do
+    if [[ -f "$file" && "$file" != ".git" ]]; then
+      ACTUAL_FILES+=("$file")
+    fi
+  done
+
+  if [[ ${#ACTUAL_FILES[@]} -eq 0 ]]; then
+    gum style --foreground 196 "No files found to remove."
+    return 1
+  fi
+
+  echo ""
+  FILES_TO_REMOVE=$(printf '%s\n' "${ACTUAL_FILES[@]}" | gum choose --no-limit --header "Select files to remove (use SPACE to select multiple):")
+
+  if [[ -n "$FILES_TO_REMOVE" ]]; then
+    echo ""
+    gum style --foreground 196 "Files to remove:"
+    echo "$FILES_TO_REMOVE" | while IFS= read -r file; do
+      echo " • $file"
+    done
+    echo ""
+
+    if gum confirm "⚠️  Are you sure you want to remove these files?"; then
+      echo ""
+      while IFS= read -r file; do
+        if [[ -f "$file" ]]; then
+          rm "$file"
+          echo "✅ Removed: $file"
+        fi
+      done <<<"$FILES_TO_REMOVE"
+    fi
+  fi
+}
+
+push_gist_changes() {
+  echo ""
+  gum style --foreground 147 "Pushing changes to gist using your custom acp function..."
+
+  # Check if there are any changes
+  if ! git diff --quiet || ! git diff --cached --quiet || [[ -n $(git ls-files --others --exclude-standard) ]]; then
+    echo ""
+    gum style --foreground 147 "Changes detected. Using your acp function to commit and push..."
+    echo ""
+
+    # Call your custom acp function
+    if acp; then
+      echo ""
+      gum style --foreground 46 "✅ Gist updated successfully using Git workflow!"
+    else
+      echo ""
+      gum style --foreground 196 "❌ Failed to push changes"
+    fi
+  else
+    gum style --foreground 147 "No changes detected in gist."
+  fi
+}
+
+cleanup_temp_dir() {
+  if [[ "$UPDATE_IN_PLACE" == false && -d "../$GIST_DIR" ]]; then
+    cd ..
+    rm -rf "$GIST_DIR"
+  fi
+}
+
 manage_existing_gist() {
   echo ""
   gum style --foreground 99 "Manage existing gists"
@@ -276,8 +609,12 @@ manage_existing_gist() {
   SELECTED_GIST=$(gum choose --header "Select a gist to manage:" --height 10 "${GIST_OPTIONS[@]}")
   SELECTED_GIST_ID=$(echo "$SELECTED_GIST" | cut -d':' -f1 | tr -d '[:space:]')
 
-  # Choose action
-  ACTION=$(gum choose --header "What would you like to do?" "Clone locally" "Edit gist" "View gist" "Delete gist")
+  # Choose action - USING GIT WORKFLOW
+  ACTION=$(gum choose --header "What would you like to do?" \
+    "Clone locally" \
+    "Update with Git" \
+    "View gist" \
+    "Delete gist")
 
   case "$ACTION" in
   "Clone locally")
@@ -294,8 +631,8 @@ manage_existing_gist() {
       gum style --foreground 196 "❌ Failed to clone gist"
     fi
     ;;
-  "Edit gist")
-    gh gist edit "$SELECTED_GIST_ID"
+  "Update with Git")
+    update_gist_with_git "$SELECTED_GIST_ID"
     ;;
   "View gist")
     echo ""
@@ -382,14 +719,23 @@ main() {
 
 # Handle arguments
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-  echo "Gist Manager - Interactive GitHub Gist Workflow"
+  echo "Gist Manager - Interactive GitHub Gist Workflow (Git-based)"
   echo ""
   echo "Usage: $0 [--help]"
   echo ""
   echo "This script provides an interactive TUI for:"
   echo "- Creating new gists with multiple files (use SPACE to select multiple)"
   echo "- Cloning gists by URL or ID"
-  echo "- Managing existing gists"
+  echo "- Managing existing gists using Git workflow (supports ALL file types)"
+  echo "- Using your custom acp() function for commits and pushes"
+  echo ""
+  echo "Features:"
+  echo "- Clean file display (no ugly ls output)"
+  echo "- Add existing files from outside directory option"
+  echo "- No file type restrictions (supports binary files, images, etc.)"
+  echo "- Uses Git directly for maximum flexibility"
+  echo "- Integrates your custom commit/push workflow"
+  echo "- Interactive file editing with your preferred editor"
   echo ""
   echo "Requirements: gh, gum, git, find"
   exit 0
