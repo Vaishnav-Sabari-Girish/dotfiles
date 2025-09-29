@@ -336,134 +336,6 @@ clone_gist() {
   fi
 }
 
-update_gist_with_git() {
-  local gist_id="$1"
-  echo ""
-  gum style --foreground 99 "Update gist using Git workflow: $gist_id"
-
-  # Show current gist files in a clean format
-  echo ""
-  gum style --foreground 147 "Files currently in gist:"
-  CURRENT_FILES=$(get_gist_files "$gist_id")
-  if [[ -n "$CURRENT_FILES" ]]; then
-    echo "$CURRENT_FILES" | while IFS= read -r file; do
-      echo " • $file"
-    done
-  else
-    echo " (no files found)"
-  fi
-  echo ""
-
-  # Check if we're already in a gist directory
-  if [[ -d ".git" ]] && git remote -v | grep -q "gist.github.com.*$gist_id"; then
-    gum style --foreground 147 "Already in gist directory. Ready to update!"
-    UPDATE_IN_PLACE=true
-    GIST_DIR="."
-  else
-    UPDATE_IN_PLACE=false
-
-    # Clone the gist to work with it
-    GIST_DIR="temp_gist_$gist_id"
-    if [[ -d "$GIST_DIR" ]]; then
-      rm -rf "$GIST_DIR"
-    fi
-
-    echo ""
-    gum style --foreground 147 "Cloning gist to temporary directory..."
-    if ! gum spin --spinner dot --title "Cloning gist..." -- gh gist clone "$gist_id" "$GIST_DIR"; then
-      gum style --foreground 196 "❌ Failed to clone gist"
-      return 1
-    fi
-  fi
-
-  # Change to gist directory
-  if [[ "$UPDATE_IN_PLACE" == false ]]; then
-    cd "$GIST_DIR" || return 1
-  fi
-
-  # Go back to original directory to check for new files
-  if [[ "$UPDATE_IN_PLACE" == false ]]; then
-    cd ..
-  fi
-
-  # Detect new files
-  NEW_FILE_INFO=$(detect_new_files)
-  NEW_FILE_COUNT=$(echo "$NEW_FILE_INFO" | head -n1)
-  NEW_FILES_LIST=$(echo "$NEW_FILE_INFO" | tail -n +2)
-
-  # Go back to gist directory
-  if [[ "$UPDATE_IN_PLACE" == false ]]; then
-    cd "$GIST_DIR" || return 1
-  fi
-
-  # Build menu options based on detected new files
-  MENU_OPTIONS=()
-
-  if [[ $NEW_FILE_COUNT -gt 0 ]]; then
-    MENU_OPTIONS+=("Add new files ($NEW_FILE_COUNT files)")
-  fi
-
-  MENU_OPTIONS+=("Create new files")
-  MENU_OPTIONS+=("Edit existing files")
-  MENU_OPTIONS+=("Remove files")
-  MENU_OPTIONS+=("Update and push changes")
-  MENU_OPTIONS+=("Cancel")
-
-  # Show new files summary
-  if [[ $NEW_FILE_COUNT -gt 0 ]]; then
-    echo ""
-    gum style --foreground 147 "New files detected in directory:"
-    echo "$NEW_FILES_LIST" | while IFS= read -r file; do
-      if [[ -n "$file" ]]; then
-        echo " • $file"
-      fi
-    done
-    echo ""
-  else
-    echo ""
-    gum style --foreground 147 "No new files detected in current directory."
-    echo ""
-  fi
-
-  # Choose what to update
-  UPDATE_ACTION=$(gum choose --header "What would you like to update?" "${MENU_OPTIONS[@]}")
-
-  case "$UPDATE_ACTION" in
-  "Add new files"*)
-    add_new_files "$NEW_FILES_LIST"
-    ;;
-  "Create new files")
-    create_new_files_in_gist
-    ;;
-  "Edit existing files")
-    edit_files_in_gist
-    ;;
-  "Remove files")
-    remove_files_from_gist
-    ;;
-  "Update and push changes")
-    push_gist_changes
-    ;;
-  "Cancel")
-    cleanup_temp_dir
-    return 0
-    ;;
-  esac
-
-  # Ask if user wants to continue making changes
-  echo ""
-  if gum confirm "Make additional changes?"; then
-    update_gist_with_git "$gist_id"
-  else
-    # Final push option
-    echo ""
-    if gum confirm "Push all changes now?"; then
-      push_gist_changes
-    fi
-    cleanup_temp_dir
-  fi
-}
-
 add_new_files() {
   local new_files_list="$1"
   echo ""
@@ -641,13 +513,6 @@ push_gist_changes() {
   fi
 }
 
-cleanup_temp_dir() {
-  if [[ "$UPDATE_IN_PLACE" == false && -d "../$GIST_DIR" ]]; then
-    cd ..
-    rm -rf "$GIST_DIR"
-  fi
-}
-
 manage_existing_gist() {
   echo ""
   gum style --foreground 99 "Manage existing gists"
@@ -702,7 +567,6 @@ manage_existing_gist() {
   # Choose action - USING GIT WORKFLOW
   ACTION=$(gum choose --header "What would you like to do?" \
     "Clone locally" \
-    "Update with Git" \
     "View gist" \
     "Delete gist")
 
@@ -720,9 +584,6 @@ manage_existing_gist() {
     else
       gum style --foreground 196 "❌ Failed to clone gist"
     fi
-    ;;
-  "Update with Git")
-    update_gist_with_git "$SELECTED_GIST_ID"
     ;;
   "View gist")
     echo ""

@@ -41,6 +41,7 @@ get_wormhole_code() {
     gum style --foreground 46 "📋 Found wormhole code in clipboard: $clipboard_content"
 
     if gum confirm "Use code from clipboard?"; then
+      # Return ONLY the clipboard content, not the display message
       echo "$clipboard_content"
       return 0
     fi
@@ -63,6 +64,8 @@ get_wormhole_code() {
       gum style --foreground 196 "No content found in clipboard"
       return 1
     fi
+    # Clean the code - remove any extra whitespace
+    code=$(echo "$code" | tr -d '[:space:]')
     ;;
   "Scan QR code (if available)")
     gum style --foreground 214 "QR code scanning not implemented yet"
@@ -71,9 +74,13 @@ get_wormhole_code() {
     ;;
   esac
 
+  # Clean the code - remove any extra whitespace and newlines
+  code=$(echo "$code" | tr -d '[:space:]')
+
   # Validate code format
   if [[ ! "$code" =~ ^[0-9]+-[a-zA-Z]+-[a-zA-Z]+$ ]]; then
     gum style --foreground 196 "Invalid code format! Expected: number-word-word"
+    gum style --foreground 196 "Received: '$code'"
     return 1
   fi
 
@@ -143,6 +150,9 @@ main() {
     exit 1
   fi
 
+  # Debug: Show the exact code we're using
+  gum style --foreground 245 "Debug: Using code: '$wormhole_code'"
+
   # Choose download location
   local download_path
   download_path=$(choose_download_location)
@@ -178,7 +188,7 @@ main() {
   gum style --foreground 46 "📁 Download location: $(pwd)"
   echo ""
 
-  # Start receiving
+  # Start receiving - make sure we pass only the clean code
   wormhole receive "$wormhole_code"
   local exit_code=$?
 
