@@ -86,6 +86,52 @@ get_gist_files() {
   done
 }
 
+# Function to detect new files in current directory
+detect_new_files() {
+  echo ""
+  gum style --foreground 147 "Checking for new files in current directory..."
+
+  # Get all files in current directory
+  ALL_FILES=()
+  while IFS= read -r -d '' file; do
+    if [[ "$file" != "./." && "$file" != "./.." ]]; then
+      clean_file="${file#./}"
+      # Skip hidden files and directories, and exclude common temp/system files
+      if [[ ! "$clean_file" =~ ^\. && ! "$clean_file" =~ ^temp_gist_ && -f "$clean_file" ]]; then
+        ALL_FILES+=("$clean_file")
+      fi
+    fi
+  done < <(find . -maxdepth 1 -type f -print0 2>/dev/null)
+
+  # Get files already in gist (from current working directory)
+  EXISTING_FILES=()
+  if [[ -d ".git" ]]; then
+    while IFS= read -r file; do
+      if [[ -n "$file" ]]; then
+        EXISTING_FILES+=("$file")
+      fi
+    done < <(git ls-files 2>/dev/null)
+  fi
+
+  # Find new files (files that exist but are not tracked)
+  NEW_FILES=()
+  for file in "${ALL_FILES[@]}"; do
+    local is_tracked=false
+    for existing in "${EXISTING_FILES[@]}"; do
+      if [[ "$file" == "$existing" ]]; then
+        is_tracked=true
+        break
+      fi
+    done
+    if [[ "$is_tracked" == false ]]; then
+      NEW_FILES+=("$file")
+    fi
+  done
+
+  echo "${#NEW_FILES[@]}"
+  printf '%s\n' "${NEW_FILES[@]}"
+}
+
 create_new_gist() {
   echo ""
   gum style --foreground 99 "Creating a new gist..."
@@ -335,18 +381,56 @@ update_gist_with_git() {
     cd "$GIST_DIR" || return 1
   fi
 
+  # Go back to original directory to check for new files
+  if [[ "$UPDATE_IN_PLACE" == false ]]; then
+    cd ..
+  fi
+
+  # Detect new files
+  NEW_FILE_INFO=$(detect_new_files)
+  NEW_FILE_COUNT=$(echo "$NEW_FILE_INFO" | head -n1)
+  NEW_FILES_LIST=$(echo "$NEW_FILE_INFO" | tail -n +2)
+
+  # Go back to gist directory
+  if [[ "$UPDATE_IN_PLACE" == false ]]; then
+    cd "$GIST_DIR" || return 1
+  fi
+
+  # Build menu options based on detected new files
+  MENU_OPTIONS=()
+
+  if [[ $NEW_FILE_COUNT -gt 0 ]]; then
+    MENU_OPTIONS+=("Add new files ($NEW_FILE_COUNT files)")
+  fi
+
+  MENU_OPTIONS+=("Create new files")
+  MENU_OPTIONS+=("Edit existing files")
+  MENU_OPTIONS+=("Remove files")
+  MENU_OPTIONS+=("Update and push changes")
+  MENU_OPTIONS+=("Cancel")
+
+  # Show new files summary
+  if [[ $NEW_FILE_COUNT -gt 0 ]]; then
+    echo ""
+    gum style --foreground 147 "New files detected in directory:"
+    echo "$NEW_FILES_LIST" | while IFS= read -r file; do
+      if [[ -n "$file" ]]; then
+        echo " • $file"
+      fi
+    done
+    echo ""
+  else
+    echo ""
+    gum style --foreground 147 "No new files detected in current directory."
+    echo ""
+  fi
+
   # Choose what to update
-  UPDATE_ACTION=$(gum choose --header "What would you like to update?" \
-    "Add new files from current directory" \
-    "Create new files" \
-    "Edit existing files" \
-    "Remove files" \
-    "Update and push changes" \
-    "Cancel")
+  UPDATE_ACTION=$(gum choose --header "What would you like to update?" "${MENU_OPTIONS[@]}")
 
   case "$UPDATE_ACTION" in
-  "Add new files from outside directory")
-    add_existing_files_to_gist
+  "Add new files"*)
+    add_new_files "$NEW_FILES_LIST"
     ;;
   "Create new files")
     create_new_files_in_gist
@@ -380,52 +464,58 @@ update_gist_with_git() {
   fi
 }
 
-add_existing_files_to_gist() {
+add_new_files() {
+  local new_files_list="$1"
   echo ""
-  gum style --foreground 147 "Add existing files from current directory"
+  gum style --foreground 147 "Add new files to gist"
 
-  # Go back to parent directory to select files
-  cd .
+  if [[ -z "$new_files_list" ]]; then
+    gum style --foreground 196 "No new files to add."
+    return 1
+  fi
 
-  # Get all files excluding the gist directory
-  ALL_FILES=()
-  while IFS= read -r -d '' file; do
-    if [[ "$file" != "./." && "$file" != "./.." ]]; then
-      clean_file="${file#./}"
-      # Skip the temporary gist directory
-      if [[ ! "$clean_file" =~ ^temp_gist_ ]]; then
-        ALL_FILES+=("$clean_file")
-      fi
+  # Convert to array for selection
+  NEW_FILES_ARRAY=()
+  while IFS= read -r file; do
+    if [[ -n "$file" ]]; then
+      NEW_FILES_ARRAY+=("$file")
     fi
-  done < <(find . -maxdepth 1 -type f -print0 2>/dev/null)
+  done <<<"$new_files_list"
 
-  if [[ ${#ALL_FILES[@]} -eq 0 ]]; then
-    gum style --foreground 196 "No files found to add."
-    cd "$GIST_DIR" || return 1
+  if [[ ${#NEW_FILES_ARRAY[@]} -eq 0 ]]; then
+    gum style --foreground 196 "No new files available."
     return 1
   fi
 
   echo ""
-  gum style --foreground 147 "Found ${#ALL_FILES[@]} files available to add:"
-  printf ' • %s\n' "${ALL_FILES[@]}"
+  gum style --foreground 147 "Available new files:"
+  printf ' • %s\n' "${NEW_FILES_ARRAY[@]}"
   echo ""
 
-  # Multiple file selection
-  SELECTED_FILES=$(printf '%s\n' "${ALL_FILES[@]}" | gum choose --no-limit --header "Select files to add (use SPACE to select multiple):")
+  # Allow user to select which new files to add
+  SELECTED_FILES=$(printf '%s\n' "${NEW_FILES_ARRAY[@]}" | gum choose --no-limit --header "Select new files to add (use SPACE to select multiple):")
 
   if [[ -n "$SELECTED_FILES" ]]; then
-    cd "$GIST_DIR" || return 1
     echo ""
-    while IFS= read -r file; do
-      if [[ -f "../$file" ]]; then
-        cp "../$file" .
-        echo "✅ Added: $file"
-      fi
-    done <<<"$SELECTED_FILES"
+    gum style --foreground 147 "Selected files to add:"
+    echo "$SELECTED_FILES" | while IFS= read -r file; do
+      echo " • $file"
+    done
     echo ""
-    gum style --foreground 147 "Files added. Use 'Update and push changes' to save to gist."
+
+    if gum confirm "Add these files to the gist?"; then
+      echo ""
+      # Copy selected files from parent directory
+      while IFS= read -r file; do
+        if [[ -n "$file" && -f "../$file" ]]; then
+          cp "../$file" .
+          echo "✅ Added: $file"
+        fi
+      done <<<"$SELECTED_FILES"
+      echo ""
+      gum style --foreground 147 "Files added. Use 'Update and push changes' to save to gist."
+    fi
   else
-    cd "$GIST_DIR" || return 1
     gum style --foreground 147 "No files selected."
   fi
 }
@@ -636,7 +726,7 @@ manage_existing_gist() {
     ;;
   "View gist")
     echo ""
-    gh gist view "$SELECTED_GIST_ID"
+    gh gist view "$SELECTED_GIST_ID" | gum pager
     ;;
   "Delete gist")
     if gum confirm "Are you sure you want to delete this gist?"; then
@@ -728,10 +818,10 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   echo "- Cloning gists by URL or ID"
   echo "- Managing existing gists using Git workflow (supports ALL file types)"
   echo "- Using your custom acp() function for commits and pushes"
+  echo "- Simple new file detection"
   echo ""
   echo "Features:"
-  echo "- Clean file display (no ugly ls output)"
-  echo "- Add existing files from outside directory option"
+  echo "- Automatic detection of new files in current directory"
   echo "- No file type restrictions (supports binary files, images, etc.)"
   echo "- Uses Git directly for maximum flexibility"
   echo "- Integrates your custom commit/push workflow"
