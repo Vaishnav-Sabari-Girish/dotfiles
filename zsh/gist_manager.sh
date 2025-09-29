@@ -40,32 +40,69 @@ create_new_gist() {
   FILES=()
 
   if [[ "$FILE_METHOD" == "Select existing files" ]]; then
-    # Multi-select existing files
-    while true; do
-      FILE=$(gum file --all --file --directory . 2>/dev/null || true)
-      if [[ -n "$FILE" ]]; then
-        FILES+=("$FILE")
-        echo "Added: $FILE"
+    # Get all files in current directory (including hidden files)
+    ALL_FILES=()
 
-        ADD_MORE=$(gum confirm "Add another file?" && echo "yes" || echo "no")
-        if [[ "$ADD_MORE" == "no" ]]; then
-          break
-        fi
-      else
-        break
+    # Use find to get all files in current directory
+    while IFS= read -r -d '' file; do
+      # Skip . and .. directories
+      if [[ "$file" != "./." && "$file" != "./.." ]]; then
+        # Remove the ./ prefix for cleaner display
+        clean_file="${file#./}"
+        ALL_FILES+=("$clean_file")
       fi
-    done
-  else
+    done < <(find . -maxdepth 1 -type f -print0 2>/dev/null)
+
+    if [[ ${#ALL_FILES[@]} -eq 0 ]]; then
+      gum style --foreground 196 "No files found in current directory."
+      echo "Current directory: $(pwd)"
+      echo ""
+      if gum confirm "Continue with creating new files instead?"; then
+        FILE_METHOD="Create new files"
+      else
+        return 1
+      fi
+    else
+      echo ""
+      gum style --foreground 147 "Found ${#ALL_FILES[@]} files in current directory"
+      echo ""
+
+      # Use gum choose with --no-limit for multiple selection
+      # Note: gum choose with --no-limit allows space/tab to select multiple items
+      SELECTED_FILES=$(printf '%s\n' "${ALL_FILES[@]}" | gum choose --no-limit --header "Select files (use SPACE to select multiple, ENTER to confirm):")
+
+      # Convert selected files to array
+      if [[ -n "$SELECTED_FILES" ]]; then
+        while IFS= read -r file; do
+          if [[ -f "$file" ]]; then
+            FILES+=("$file")
+            echo "✅ Selected: $file"
+          fi
+        done <<<"$SELECTED_FILES"
+      fi
+
+      if [[ ${#FILES[@]} -eq 0 ]]; then
+        gum style --foreground 196 "No files selected."
+        if gum confirm "Continue with creating new files instead?"; then
+          FILE_METHOD="Create new files"
+        else
+          return 1
+        fi
+      fi
+    fi
+  fi
+
+  if [[ "$FILE_METHOD" == "Create new files" ]]; then
     # Create new files interactively
     while true; do
       FILENAME=$(gum input --placeholder "filename.ext" --prompt "New file name: ")
       if [[ -n "$FILENAME" ]]; then
         echo ""
-        gum style --foreground 147 "Enter content for $FILENAME (Ctrl+D to finish):"
-        CONTENT=$(gum write --placeholder "Enter file content...")
+        gum style --foreground 147 "Enter content for $FILENAME:"
+        CONTENT=$(gum write --placeholder "Enter file content..." --height 10)
         echo "$CONTENT" >"$FILENAME"
         FILES+=("$FILENAME")
-        echo "Created: $FILENAME"
+        echo "✅ Created: $FILENAME"
 
         ADD_MORE=$(gum confirm "Create another file?" && echo "yes" || echo "no")
         if [[ "$ADD_MORE" == "no" ]]; then
@@ -79,7 +116,19 @@ create_new_gist() {
 
   if [[ ${#FILES[@]} -eq 0 ]]; then
     gum style --foreground 196 "No files selected. Exiting."
-    exit 1
+    return 1
+  fi
+
+  # Show selected files
+  echo ""
+  gum style --foreground 147 "Selected files (${#FILES[@]}):"
+  printf ' • %s\n' "${FILES[@]}"
+  echo ""
+
+  # Confirm before creating
+  if ! gum confirm "Create gist with these files?"; then
+    gum style --foreground 147 "Cancelled."
+    return 1
   fi
 
   # Build gh command
@@ -99,8 +148,7 @@ create_new_gist() {
   done
 
   echo ""
-  gum style --foreground 147 "Creating gist with command:"
-  echo "$GH_CMD"
+  gum style --foreground 147 "Creating gist..."
   echo ""
 
   # Create the gist
@@ -111,11 +159,11 @@ create_new_gist() {
     # Show created gist URL
     GIST_URL=$(gh gist list --limit 1 | head -n1 | awk '{print "https://gist.github.com/" $1}')
     if [[ -n "$GIST_URL" ]]; then
-      echo "URL: $GIST_URL"
+      echo "🔗 URL: $GIST_URL"
     fi
   else
     gum style --foreground 196 "❌ Failed to create gist"
-    exit 1
+    return 1
   fi
 }
 
@@ -164,7 +212,7 @@ clone_gist() {
       TARGET_DIR="$GIST_ID"
     fi
 
-    echo "Location: ./$TARGET_DIR"
+    echo "📁 Location: ./$TARGET_DIR"
     echo ""
 
     # Ask if user wants to cd into directory
@@ -181,11 +229,9 @@ manage_existing_gist() {
   echo ""
   gum style --foreground 99 "Manage existing gists"
 
-  # List user gists
   echo ""
   gum style --foreground 147 "Fetching your gists..."
 
-  # Get gists
   GISTS_OUTPUT=$(gh gist list --limit 50 2>/dev/null)
 
   if [[ -z "$GISTS_OUTPUT" ]]; then
@@ -198,28 +244,22 @@ manage_existing_gist() {
     return
   fi
 
-  # Parse gist list with better description handling
   GIST_OPTIONS=()
   while IFS= read -r line; do
     if [[ "$line" =~ ^[a-f0-9]{32} ]]; then
       gist_id="${line:0:32}"
 
-      # Better description extraction - get everything between ID and "X files"
-      rest_of_line="${line:33}" # Everything after the ID and spaces
+      # USE POSITION 33 (not 34!) - this preserves the first character
+      rest="${line:33}"
 
-      # Remove the trailing metadata (files count, visibility, date)
-      # Look for pattern: "X files" or "X file" followed by visibility and date
-      description=$(echo "$rest_of_line" | sed -E 's/[[:space:]]+[0-9]+[[:space:]]+files?[[:space:]]+[a-z]+[[:space:]]+.*$//')
-
-      # Clean up whitespace
-      description=$(echo "$description" | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+      # Clean description by removing trailing metadata
+      description=$(echo "$rest" | sed -E 's/[[:space:]]+[0-9]+[[:space:]]+files?[[:space:]]+[a-z]+[[:space:]]+.*$//' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
 
       # Handle empty descriptions
       if [[ -z "$description" ]]; then
         description="(no description)"
       fi
 
-      # Don't truncate - let gum handle the display width
       GIST_OPTIONS+=("$gist_id: $description")
     fi
   done <<<"$GISTS_OUTPUT"
@@ -232,8 +272,8 @@ manage_existing_gist() {
   echo ""
   gum style --foreground 147 "Found ${#GIST_OPTIONS[@]} gist(s)"
 
-  # Let user choose a gist with better formatting
-  SELECTED_GIST=$(gum choose --header "Select a gist to manage:" --height 15 "${GIST_OPTIONS[@]}")
+  # Better display options
+  SELECTED_GIST=$(gum choose --header "Select a gist to manage:" --height 10 "${GIST_OPTIONS[@]}")
   SELECTED_GIST_ID=$(echo "$SELECTED_GIST" | cut -d':' -f1 | tr -d '[:space:]')
 
   # Choose action
@@ -247,24 +287,19 @@ manage_existing_gist() {
       CLONE_CMD="$CLONE_CMD $CLONE_DIR"
     fi
     echo ""
-    gum style --foreground 147 "Executing: $CLONE_CMD"
     if gum spin --spinner dot --title "Cloning gist..." -- bash -c "$CLONE_CMD"; then
       gum style --foreground 46 "✅ Gist cloned successfully!"
-      if [[ -n "$CLONE_DIR" ]]; then
-        echo "Location: ./$CLONE_DIR"
-      else
-        echo "Location: ./$SELECTED_GIST_ID"
-      fi
+      [[ -n "$CLONE_DIR" ]] && echo "📁 Location: ./$CLONE_DIR" || echo "📁 Location: ./$SELECTED_GIST_ID"
     else
       gum style --foreground 196 "❌ Failed to clone gist"
     fi
     ;;
   "Edit gist")
-    gum spin --spinner dot --title "Opening gist for editing..." -- gh gist edit "$SELECTED_GIST_ID"
+    gh gist edit "$SELECTED_GIST_ID"
     ;;
   "View gist")
     echo ""
-    gh gist view "$SELECTED_GIST_ID" | gum pager
+    gh gist view "$SELECTED_GIST_ID"
     ;;
   "Delete gist")
     if gum confirm "Are you sure you want to delete this gist?"; then
@@ -285,6 +320,7 @@ check_dependencies() {
   command -v gh >/dev/null 2>&1 || missing+=("gh (GitHub CLI)")
   command -v gum >/dev/null 2>&1 || missing+=("gum")
   command -v git >/dev/null 2>&1 || missing+=("git")
+  command -v find >/dev/null 2>&1 || missing+=("find")
 
   if [[ ${#missing[@]} -gt 0 ]]; then
     gum style --foreground 196 "Missing dependencies:"
@@ -351,11 +387,11 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   echo "Usage: $0 [--help]"
   echo ""
   echo "This script provides an interactive TUI for:"
-  echo "- Creating new gists with multiple files"
+  echo "- Creating new gists with multiple files (use SPACE to select multiple)"
   echo "- Cloning gists by URL or ID"
   echo "- Managing existing gists"
   echo ""
-  echo "Requirements: gh, gum, git"
+  echo "Requirements: gh, gum, git, find"
   exit 0
 fi
 
