@@ -1,0 +1,10 @@
+{
+    "server_name": "eko.kyren.codes",
+    "private_key_path": "/home/vaishnav/.ssh/id_25519_eko",
+    "insert_mode_tab_to_space": true,
+    "insert_mode_spaces_per_tab": 4,
+    "insecure_debug_mode": false,
+    "colors": null,
+    "anonymous_device_analytics": true,
+    "screen_borders": true
+}
