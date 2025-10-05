@@ -4,29 +4,13 @@
 
 -- Step 2: Try this updated configuration with better error handling
 return {
-  "shaunsingh/nord.nvim",
-  priority = 1000,
+  "AlexvZyl/nordic.nvim",
   lazy = false,
+  priority = 1000,
   config = function()
-    -- Enable termguicolors for better color support
-    vim.opt.termguicolors = true
-
-    -- Optional: Configure nord settings before loading
-    vim.g.nord_contrast = true
-    vim.g.nord_borders = false
-    vim.g.nord_disable_background = false
-    vim.g.nord_italic = false
-    vim.g.nord_uniform_diff_background = true
-    vim.g.nord_bold = false
-
-    -- Load the colorscheme
-    require("nord").set()
-
-    -- Alternative method if above doesn't work:
-    vim.cmd([[colorscheme nord]])
+    require("nordic").load()
   end,
 }
-
 -- Step 3: If still not working, try this simpler version:
 -- return {
 --   "shaunsingh/nord.nvim",
