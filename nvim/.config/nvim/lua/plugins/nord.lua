@@ -23,7 +23,7 @@ return {
     require("nord").set()
 
     -- Alternative method if above doesn't work:
-    -- vim.cmd([[colorscheme nord]])
+    vim.cmd([[colorscheme nord]])
   end,
 }
 
