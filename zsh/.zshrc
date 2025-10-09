@@ -199,6 +199,58 @@ acp() {
     echo 'Changes added, committed, and pushed to all remotes'
 }
 
+acpf() {
+    # Check if gum is installed
+    if ! command -v gum >/dev/null 2>&1; then
+        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+        return 1
+    fi
+
+    # Stage all changes
+    git add .
+
+    # Prompt for commit message using gum
+    commit_msg=$(gum input --placeholder 'commit message')
+    if [ -z "$commit_msg" ]; then
+        echo 'Error: Commit message cannot be empty'
+        return 1
+    fi
+
+    # Commit changes
+    git commit -m "$commit_msg"
+
+    # Prompt for branch name using gum
+    branch=$(git branch | gum choose | sed 's/^* //')
+    if [ -z "$branch" ]; then
+        echo 'Error: Branch name cannot be empty'
+        return 1
+    fi
+
+    # Verify branch exists
+    if ! git rev-parse --verify "$branch" >/dev/null 2>&1; then
+        echo "Error: Branch $branch does not exist"
+        return 1
+    fi
+
+    # Checkout the specified branch
+    git checkout "$branch"
+
+    # Get all remote names
+    remotes=$(git remote)
+
+    
+    # Get all remote names into an array
+    remotes=($(git remote))
+
+    # Push to all remotes
+    for remote in "${remotes[@]}"; do
+        echo "Debug: Pushing to remote - $remote"
+        git push "$remote" "$branch" --force
+    done
+
+    echo 'Changes added, committed, and pushed to all remotes'
+}
+
 export ZEIT_DB=/home/vaishnav/zeit_db/zeit.db
 
 export RUSTONIG_SYSTEM_LIBONIG=1
