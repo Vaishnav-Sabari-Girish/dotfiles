@@ -47,11 +47,11 @@ build:
 
 # Run rule
 run:
-    ./{{OUT}}
+    ./{{OUT}} + just clean
 
-# Build + Run together
+# Build + Run + Clean together
 br:
-    just build && just run
+    just build && just run && just clean
 
 # Remove built binary
 clean:
