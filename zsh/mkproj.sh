@@ -43,19 +43,19 @@ OUT := "main.out"
 
 # Build rule
 build:
-    gcc {{SRC}} -o {{OUT}} {{CFLAGS}}
+    @gcc {{SRC}} -o {{OUT}} {{CFLAGS}}
 
 # Run rule
 run:
-    ./{{OUT}} + just clean
+    @./{{OUT}} + just clean
 
 # Build + Run + Clean together
 br:
-    just build && just run && just clean
+    @just build && just run && just clean
 
 # Remove built binary
 clean:
-    rm {{OUT}}
+    @rm {{OUT}}
 EOF
 
   echo "✅ C project '$project_name' created successfully!"
