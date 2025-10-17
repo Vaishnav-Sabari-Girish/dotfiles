@@ -597,6 +597,17 @@ wreceive() {
 }
 
 
+mkproj() {
+    local script_path="$HOME/dotfiles/zsh/mkproj.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: mkproj.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
 gist_manager() {
     local script_path="$HOME/dotfiles/zsh/gist_manager.sh"
     
