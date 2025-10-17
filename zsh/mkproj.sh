@@ -61,6 +61,7 @@ EOF
   echo "✅ C project '$project_name' created successfully!"
   echo "📝 Files created: main.c, Justfile"
   echo "🔨 Run 'just build' to compile, 'just run' to execute, or 'just br' to build and run"
+  echo "🔨 Use 'just --list' to view all the available commands"
   ;;
 
 "Rust")
