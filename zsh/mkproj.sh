@@ -116,7 +116,7 @@ EOF
   # Create main.go with Hello World
   cat >main.go <<'EOF'
 //Your Golang Code goes here
-  EOF
+EOF
 
   # Create Justfile for consistency
   cat >Justfile <<'EOF'
