@@ -622,3 +622,40 @@ gist_manager() {
 bindkey "^[[H" beginning-of-line    # Home
 bindkey "^[[F" end-of-line          # End  
 bindkey "^[[3~" delete-char         # Delete
+
+_just_fzf() {
+  local justfile
+  if [[ -f Justfile ]]; then
+    justfile="Justfile"
+  elif [[ -f justfile ]]; then
+    justfile="justfile"
+  else
+    return 1
+  fi
+
+  # Get recipe list, clean formatting
+  local cmds
+  cmds=$(just --list --unsorted 2>/dev/null | tail -n +2 | sed 's/^[ \t]*//')
+
+  [[ -z "$cmds" ]] && return 1
+
+  # Use fzf for fuzzy selection
+  if [[ -z "$words[2]" ]]; then
+    local selected
+    selected=$(
+      echo "$cmds" | fzf \
+        --prompt="just> " \
+        --height=40% \
+        --reverse \
+        --ansi \
+        --bind "tab:down,btab:up" \
+    )
+
+    # Extract only the recipe name
+    selected=$(echo "$selected" | awk '{print $1}')
+    [[ -n "$selected" ]] && compadd "$selected"
+  else
+    compadd ${(f)"$(echo "$cmds" | awk '{print $1}')"}
+  fi
+}
+compdef _just_fzf just
