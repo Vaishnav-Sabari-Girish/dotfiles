@@ -115,14 +115,8 @@ EOF
 
   # Create main.go with Hello World
   cat >main.go <<'EOF'
-package main
-
-import "fmt"
-
-func main() {
-    fmt.Println("Hello, World!")
-}
-EOF
+//Your Golang Code goes here
+  EOF
 
   # Create Justfile for consistency
   cat >Justfile <<'EOF'
