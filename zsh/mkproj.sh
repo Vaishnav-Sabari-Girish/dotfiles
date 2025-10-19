@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, and Python
+# Creates project templates for C, Rust, Python, and Go
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language
 echo "🚀 Project Creator"
-language=$(gum choose "C" "Rust" "Python")
+language=$(gum choose "C" "Rust" "Python" "Go")
 
 case $language in
 "C")
@@ -29,8 +29,8 @@ case $language in
 #include <stdio.h>
 
 int main() {
-    printf("Hello, World!\n");
-    return 0;
+  printf("Hello, World!\n");
+  return 0;
 }
 EOF
 
@@ -94,6 +94,75 @@ EOF
   echo "✅ Python project '$project_name' created successfully!"
   echo "📝 Project created with pyproject.toml, main.py, and other files"
   echo "🔨 Run 'uv run main.py' to execute"
+  ;;
+
+"Go")
+  echo "🐹 Creating Go project..."
+  project_name=$(gum input --prompt "Enter project name: ")
+
+  # Check if go is installed
+  if ! command -v go &>/dev/null; then
+    echo "Error: go is not installed. Please install Go from https://golang.org/dl/"
+    exit 1
+  fi
+
+  # Create project directory
+  mkdir -p "$project_name"
+  cd "$project_name"
+
+  # Initialize Go module
+  go mod init "$project_name"
+
+  # Create main.go with Hello World
+  cat >main.go <<'EOF'
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+}
+EOF
+
+  # Create Justfile for consistency
+  cat >Justfile <<'EOF'
+# Variables
+BINARY := "main"
+
+# Build rule
+build:
+    @go build -o {{BINARY}} .
+
+# Run rule
+run:
+    @go run .
+
+# Build + Run together
+br:
+    @just build && ./{{BINARY}} && just clean
+
+# Test rule
+test:
+    @go test ./...
+
+# Format code
+fmt:
+    @go fmt ./...
+
+# Clean build artifacts
+clean:
+    @rm -f {{BINARY}}
+
+# Tidy modules
+tidy:
+    @go mod tidy
+EOF
+
+  echo "✅ Go project '$project_name' created successfully!"
+  echo "📝 Files created: go.mod, main.go, Justfile"
+  echo "🔨 Run 'go run .' or 'just run' to execute"
+  echo "🔨 Run 'go build' or 'just build' to compile"
+  echo "🔨 Use 'just --list' to view all the available commands"
   ;;
 esac
 
