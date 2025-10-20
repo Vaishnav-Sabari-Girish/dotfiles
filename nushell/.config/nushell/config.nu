@@ -406,6 +406,8 @@ def remove_pages [] {
         print "❌ Operation cancelled"
     }
 }
+# Display random anime quote at startup
+bash $"($env.HOME)/dotfiles/zsh/anime_quote.sh"
 
 # Print newline for spacing
 echo "# Check addae regularly" | glow -
