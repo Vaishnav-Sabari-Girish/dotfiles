@@ -132,7 +132,7 @@ file_upload() {
 }
 
 
-bash /home/vaishnav/dotfiles/zsh/anime_quote.sh
+bash $HOME/dotfiles/zsh/anime_quote.sh
 
 echo "# Check addae regularly" | /home/linuxbrew/.linuxbrew/bin/glow -
 

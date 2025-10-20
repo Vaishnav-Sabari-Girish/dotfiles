@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Path to your quotes.json file - update this path as needed
-QUOTES_FILE="/home/vaishnav/dotfiles/zsh/quotes.json"
+QUOTES_FILE="$HOME/dotfiles/zsh/quotes.json"
 
 # Function to display a random anime quote
 function display_random_quote() {
