@@ -804,3 +804,5 @@ _just "$@"
 else
     compdef _just just
 fi
+
+. $HOME/go/pkg/mod/github.com/asdf-vm/asdf@v0.18.0/asdf.sh
