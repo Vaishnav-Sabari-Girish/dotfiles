@@ -81,7 +81,7 @@ def get_pio [] {
 }
 alias teensy = /home/vaishnav/Teensy_Loader/teensy
 alias cutecom = /home/vaishnav/cutecom/cutecom
-alias tree = eza --icons --hyperlink --tree
+alias tree = wisu -g --icons --hyperlinks
 alias img = loupe
 alias preview_md = gh markdown-preview
 # temp_share_local function (ssh with complex arguments)

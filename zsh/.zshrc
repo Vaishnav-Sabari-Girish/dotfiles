@@ -97,7 +97,7 @@ alias get_pio='source ~/.platformio/penv/bin/activate'
 alias teensy=/home/vaishnav/Teensy_Loader/teensy
 alias cutecom=/home/vaishnav/cutecom/cutecom
 
-alias tree="eza --icons --hyperlink --tree"
+alias tree="wisu -g --icons --hyperlinks"
 export PATH="$HOME/.basher/bin:$PATH"   ##basher5ea843
 
 export PATH="$PATH:/home/vaishnav/.modular/bin"
