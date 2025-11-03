@@ -82,7 +82,6 @@ def get_pio [] {
 alias teensy = /home/vaishnav/Teensy_Loader/teensy
 alias cutecom = /home/vaishnav/cutecom/cutecom
 alias tree = wisu -g --icons --hyperlinks
-alias img = loupe
 alias preview_md = gh markdown-preview
 # temp_share_local function (ssh with complex arguments)
 def temp_share_local [] {
@@ -412,6 +411,17 @@ bash $"($env.HOME)/dotfiles/zsh/anime_quote.sh"
 # Print newline for spacing
 echo "# Check addae regularly" | glow -
 print ""
+
+def img [filename: string] {
+    if ($env.WEZTERM_EXECUTABLE? | is-not-empty) {
+        wezterm imgcat $filename
+    } else if ($env.TERM_PROGRAM? == "ghostty" or $env.TERM_PROGRAM? == "kitty") {
+        kitten icat $filename
+    } else {
+        loupe $filename
+    }
+}
+
 
 source ~/catppuccin_macchiato.nu
 $env.config.show_banner = false
