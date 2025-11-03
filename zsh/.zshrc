@@ -48,7 +48,7 @@ alias draw=/home/vaishnav/go/bin/draw
 alias glyph=/home/vaishnav/go/bin/glyphs
 alias fuck=thefuck $"(history | last 1 | get command | get 0)"
 alias cat=bat
-alias pdf=evince
+alias pdf="fancy-cat"
 alias pic=eog
 alias japanese="/home/vaishnav/japanese_class.sh"
 alias ls="eza --icons --hyperlink"
@@ -312,7 +312,6 @@ function view_forms() {
     ssh -t bashform.me forms
 }
 
-alias img="loupe"
 export PATH="$HOME/zig-x86_64-linux-0.15.0-dev.936+fc2c1883b:$PATH"
 
 export LIBCLANG_PATH="/home/vaishnav/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-20.1.1_20250829/esp-clang/lib"
@@ -788,3 +787,14 @@ else
 fi
 
 . $HOME/go/pkg/mod/github.com/asdf-vm/asdf@v0.18.0/asdf.sh
+
+function img() {
+    
+    if [[ -n "$WEZTERM_EXECUTABLE" ]]; then
+        wezterm imgcat "$@"
+    elif [[ "$TERM_PROGRAM" == "ghostty" ]] || [[ "$TERM_PROGRAM" == "kitty" ]]; then
+        kitten icat "$@"
+    else
+        loupe "$@"
+    fi
+}

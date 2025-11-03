@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 local mux = wezterm.mux
 local config = wezterm.config_builder()
 
+config.term = "wezterm"
 config.initial_cols = 80
 config.initial_rows = 30
 config.font_size = 18
