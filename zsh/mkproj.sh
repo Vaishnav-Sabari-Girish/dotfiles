@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, and Go
+# Creates project templates for C, Rust, Python, Go, and ESP32-Std
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language
 echo "🚀 Project Creator"
-language=$(gum choose "C" "Rust" "Python" "Go")
+language=$(gum choose "C" "Rust" "Python" "Go" "ESP32-Std")
 
 case $language in
 "C")
@@ -157,6 +157,33 @@ EOF
   echo "🔨 Run 'go run .' or 'just run' to execute"
   echo "🔨 Run 'go build' or 'just build' to compile"
   echo "🔨 Use 'just --list' to view all the available commands"
+  ;;
+
+"ESP32-Std")
+  echo "🔧 Creating ESP32 Rust (std) project..."
+
+  # Check if cargo is installed
+  if ! command -v cargo &>/dev/null; then
+    echo "Error: cargo is not installed. Please install Rust from https://rustup.rs/"
+    exit 1
+  fi
+
+  # Check if cargo-generate is installed
+  if ! command -v cargo-generate &>/dev/null; then
+    echo "⚠️  cargo-generate is not installed. Installing now..."
+    cargo install cargo-generate
+  fi
+
+  # Generate project using esp-idf-template
+  # The template will prompt for project name and configuration
+  cargo generate esp-rs/esp-idf-template cargo
+
+  echo "✅ ESP32-Std project created successfully!"
+  echo "📝 Project created with ESP-IDF template (std support)"
+  echo "🔨 Run 'cargo build' to compile for your selected ESP32 target"
+  echo "🔨 Run 'cargo run' to build, flash, and monitor"
+  echo "💡 Make sure you have the ESP-IDF prerequisites installed"
+  echo "📚 See: https://docs.esp-rs.org/book/"
   ;;
 esac
 
