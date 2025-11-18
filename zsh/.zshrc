@@ -601,6 +601,17 @@ gist_manager() {
     fi
 }
 
+mp4_to_gif() {
+    local script_path="$HOME/dotfiles/zsh/mp4_to_gif.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: mp4_to_gif.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
 bindkey "^[[H" beginning-of-line    # Home
 bindkey "^[[F" end-of-line          # End  
 bindkey "^[[3~" delete-char         # Delete
