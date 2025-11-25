@@ -199,7 +199,7 @@ test:
 
 # Clean build artifacts
 clean:
-    @rm -rf zig-out zig-cache
+    @rm -rf zig-out .zig-cache
 EOF
 
   # Replace placeholder in Justfile with actual project name
