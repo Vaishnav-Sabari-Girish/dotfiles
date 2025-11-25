@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, and ESP32-Std
+# Creates project templates for C, Rust, Python, Go, Zig, and ESP32-Std
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language
 echo "🚀 Project Creator"
-language=$(gum choose "C" "Rust" "Python" "Go" "ESP32-Std")
+language=$(gum choose "C" "Rust" "Python" "Go" "Zig" "ESP32-Std")
 
 case $language in
 "C")
@@ -156,6 +156,59 @@ EOF
   echo "📝 Files created: go.mod, main.go, Justfile"
   echo "🔨 Run 'go run .' or 'just run' to execute"
   echo "🔨 Run 'go build' or 'just build' to compile"
+  echo "🔨 Use 'just --list' to view all the available commands"
+  ;;
+
+"Zig")
+  echo "⚡ Creating Zig project..."
+  project_name=$(gum input --prompt "Enter project name: ")
+
+  # Check if zig is installed
+  if ! command -v zig &>/dev/null; then
+    echo "Error: zig is not installed. Please install Zig from https://ziglang.org/download/"
+    exit 1
+  fi
+
+  # Create project directory
+  mkdir -p "$project_name"
+  cd "$project_name"
+
+  # Initialize Zig project
+  zig init
+
+  # Create Justfile for consistency with C workflow
+  cat >Justfile <<'EOF'
+# Variables
+BINARY := "zig-out/bin/{{PROJECT_NAME}}"
+
+# Build rule
+build:
+    @zig build
+
+# Run rule (using zig build run)
+run:
+    @zig build run
+
+# Build + Run together
+br:
+    @just build && just run
+
+# Test rule
+test:
+    @zig build test
+
+# Clean build artifacts
+clean:
+    @rm -rf zig-out zig-cache
+EOF
+
+  # Replace placeholder in Justfile with actual project name
+  sed -i "s/{{PROJECT_NAME}}/$project_name/g" Justfile
+
+  echo "✅ Zig project '$project_name' created successfully!"
+  echo "📝 Files created: build.zig, src/main.zig, Justfile"
+  echo "🔨 Run 'just build' to compile, 'just run' to execute, or 'just br' to build and run"
+  echo "🔨 Run 'zig build' or 'just build' to compile"
   echo "🔨 Use 'just --list' to view all the available commands"
   ;;
 
