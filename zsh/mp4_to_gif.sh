@@ -13,7 +13,7 @@ command -v ffmpeg >/dev/null 2>&1 || {
 }
 
 gum style --foreground 212 "📁 Select input video file"
-infile="$(gum file)"
+infile="$(ls *.mp4 2>/dev/null | gum choose)"
 [ -z "${infile}" ] && {
   gum style --foreground 196 "No file selected."
   exit 1
