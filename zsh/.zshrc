@@ -816,3 +816,351 @@ export ZVM_INSTALL="$HOME/.zvm/self"
 export PATH="$PATH:$HOME/.zvm/bin"
 export PATH="$PATH:$ZVM_INSTALL/"
 
+#compdef arv
+
+autoload -U is-at-least
+
+_arv() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_arv_commands" \
+"*::: :->arrive" \
+&& ret=0
+    case $state in
+    (arrive)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:arv-command-$line[1]:"
+        case $line[1] in
+            (token)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+":: :_arv__token_commands" \
+"*::: :->token" \
+&& ret=0
+
+    case $state in
+    (token)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:arv-token-command-$line[1]:"
+        case $line[1] in
+            (set)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+':token -- Session token to be stored:_default' \
+&& ret=0
+;;
+(show)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_arv__token__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:arv-token-help-command-$line[1]:"
+        case $line[1] in
+            (set)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(show)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(input)
+_arguments "${_arguments_options[@]}" : \
+'-y+[Year to fetch input for]:YEAR:_default' \
+'--year=[Year to fetch input for]:YEAR:_default' \
+'-d+[Day to fetch input for]:DAY:_default' \
+'--day=[Day to fetch input for]:DAY:_default' \
+'-f[Force fetch over the web and cache overwrite]' \
+'--force[Force fetch over the web and cache overwrite]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(submit)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'::solution -- Solution string to be submitted:_default' \
+&& ret=0
+;;
+(select)
+_arguments "${_arguments_options[@]}" : \
+'-y+[Year to select]:YEAR:_default' \
+'--year=[Year to select]:YEAR:_default' \
+'-d+[Day to select]:DAY:_default' \
+'--day=[Day to select]:DAY:_default' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+&& ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(completion)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+':shell -- Shell to print completion for:(bash elvish fish powershell zsh)' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_arv__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:arv-help-command-$line[1]:"
+        case $line[1] in
+            (token)
+_arguments "${_arguments_options[@]}" : \
+":: :_arv__help__token_commands" \
+"*::: :->token" \
+&& ret=0
+
+    case $state in
+    (token)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:arv-help-token-command-$line[1]:"
+        case $line[1] in
+            (set)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(show)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(input)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(submit)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(select)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(completion)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_arv_commands] )) ||
+_arv_commands() {
+    local commands; commands=(
+'token:Manage AOC session token' \
+'input:Print selected input file' \
+'submit:Submit solution for pending task' \
+'select:Select advent day' \
+'status:Show current selection, solution status etc' \
+'completion:Print shell completion script' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'arv commands' commands "$@"
+}
+(( $+functions[_arv__completion_commands] )) ||
+_arv__completion_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv completion commands' commands "$@"
+}
+(( $+functions[_arv__help_commands] )) ||
+_arv__help_commands() {
+    local commands; commands=(
+'token:Manage AOC session token' \
+'input:Print selected input file' \
+'submit:Submit solution for pending task' \
+'select:Select advent day' \
+'status:Show current selection, solution status etc' \
+'completion:Print shell completion script' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'arv help commands' commands "$@"
+}
+(( $+functions[_arv__help__completion_commands] )) ||
+_arv__help__completion_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help completion commands' commands "$@"
+}
+(( $+functions[_arv__help__help_commands] )) ||
+_arv__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help help commands' commands "$@"
+}
+(( $+functions[_arv__help__input_commands] )) ||
+_arv__help__input_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help input commands' commands "$@"
+}
+(( $+functions[_arv__help__select_commands] )) ||
+_arv__help__select_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help select commands' commands "$@"
+}
+(( $+functions[_arv__help__status_commands] )) ||
+_arv__help__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help status commands' commands "$@"
+}
+(( $+functions[_arv__help__submit_commands] )) ||
+_arv__help__submit_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help submit commands' commands "$@"
+}
+(( $+functions[_arv__help__token_commands] )) ||
+_arv__help__token_commands() {
+    local commands; commands=(
+'set:Set session token to be used' \
+'show:Print currently stored token' \
+    )
+    _describe -t commands 'arv help token commands' commands "$@"
+}
+(( $+functions[_arv__help__token__set_commands] )) ||
+_arv__help__token__set_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help token set commands' commands "$@"
+}
+(( $+functions[_arv__help__token__show_commands] )) ||
+_arv__help__token__show_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv help token show commands' commands "$@"
+}
+(( $+functions[_arv__input_commands] )) ||
+_arv__input_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv input commands' commands "$@"
+}
+(( $+functions[_arv__select_commands] )) ||
+_arv__select_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv select commands' commands "$@"
+}
+(( $+functions[_arv__status_commands] )) ||
+_arv__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv status commands' commands "$@"
+}
+(( $+functions[_arv__submit_commands] )) ||
+_arv__submit_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv submit commands' commands "$@"
+}
+(( $+functions[_arv__token_commands] )) ||
+_arv__token_commands() {
+    local commands; commands=(
+'set:Set session token to be used' \
+'show:Print currently stored token' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'arv token commands' commands "$@"
+}
+(( $+functions[_arv__token__help_commands] )) ||
+_arv__token__help_commands() {
+    local commands; commands=(
+'set:Set session token to be used' \
+'show:Print currently stored token' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'arv token help commands' commands "$@"
+}
+(( $+functions[_arv__token__help__help_commands] )) ||
+_arv__token__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv token help help commands' commands "$@"
+}
+(( $+functions[_arv__token__help__set_commands] )) ||
+_arv__token__help__set_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv token help set commands' commands "$@"
+}
+(( $+functions[_arv__token__help__show_commands] )) ||
+_arv__token__help__show_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv token help show commands' commands "$@"
+}
+(( $+functions[_arv__token__set_commands] )) ||
+_arv__token__set_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv token set commands' commands "$@"
+}
+(( $+functions[_arv__token__show_commands] )) ||
+_arv__token__show_commands() {
+    local commands; commands=()
+    _describe -t commands 'arv token show commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_arv" ]; then
+    _arv "$@"
+else
+    compdef _arv arv
+fi
