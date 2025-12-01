@@ -1164,3 +1164,15 @@ if [ "$funcstack[1]" = "_arv" ]; then
 else
     compdef _arv arv
 fi
+
+aoci() {
+    local script_path="$HOME/dotfiles/zsh/aoci.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: aoci.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
