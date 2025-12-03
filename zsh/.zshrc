@@ -259,6 +259,7 @@ export RUSTONIG_SYSTEM_LIBONIG=1
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
+alias project="cd $HOME/Desktop/My_Projects/"
 
 tere() {
     local result=$(command tere "$@")
