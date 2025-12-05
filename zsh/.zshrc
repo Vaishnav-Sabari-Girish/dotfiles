@@ -9,10 +9,18 @@ setopt autocd             # Change to a directory by typing its name
 setopt correct            # Correct command spelling
 setopt share_history      # Share command history between sessions
 
-# Set history options
-HISTSIZE=1000             # Number of commands to remember in the current session
-SAVEHIST=1000             # Number of commands to save in the history file
-HISTFILE=~/.zsh_history   # File where history is saved
+# History file configuration
+HISTFILE=~/.zsh_history
+HISTSIZE=10000           # Number of commands in memory
+SAVEHIST=10000          # Number of commands saved to file
+
+# History options
+setopt EXTENDED_HISTORY          # Record timestamp of command
+setopt INC_APPEND_HISTORY        # Write to history file immediately
+setopt HIST_EXPIRE_DUPS_FIRST    # Delete duplicates first when trimming
+setopt HIST_IGNORE_DUPS          # Don't record duplicate commands
+setopt HIST_IGNORE_SPACE         # Ignore commands starting with space
+setopt HIST_VERIFY               # Show command before running with history expansion
 
 # Alias definitions
 alias ll='ls -lah'        # List with human-readable sizes
