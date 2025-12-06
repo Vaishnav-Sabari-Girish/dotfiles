@@ -142,7 +142,7 @@ file_upload() {
 
 bash $HOME/dotfiles/zsh/anime_quote.sh
 
-echo "# Check addae regularly" | /home/linuxbrew/.linuxbrew/bin/glow -
+echo "# Check addae regularly" | $HOME/go/bin/glow -
 
 eval "$(starship init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
