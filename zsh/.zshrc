@@ -1185,3 +1185,14 @@ aoci() {
     fi
 }
 
+notes() {
+    local script_path="$HOME/dotfiles/zsh/notes.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: notes.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
