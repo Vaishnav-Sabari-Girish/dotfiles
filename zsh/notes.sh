@@ -99,6 +99,32 @@ create_note() {
   ${EDITOR:-vim} "$note_path"
 }
 
+# Open existing notes for editing
+open_notes() {
+  local notes=($(ls "$NOTES_DIR"/*.md 2>/dev/null))
+
+  if [[ ${#notes[@]} -eq 0 ]]; then
+    if [[ "$TUI" == "gum" ]]; then
+      gum style --foreground 196 "No notes found."
+    else
+      echo "No notes found."
+    fi
+    return
+  fi
+
+  # Show list of notes to open
+  local selected_note
+  if [[ "$TUI" == "gum" ]]; then
+    selected_note=$(printf '%s\n' "${notes[@]##*/}" | gum choose)
+  else
+    selected_note=$(printf '%s\n' "${notes[@]##*/}" | fzf --prompt="Select note to open: ")
+  fi
+
+  if [[ -n "$selected_note" ]]; then
+    ${EDITOR:-vim} "$NOTES_DIR/$selected_note"
+  fi
+}
+
 # Preview notes
 preview_notes() {
   local notes=($(ls "$NOTES_DIR"/*.md 2>/dev/null))
@@ -217,11 +243,14 @@ main_menu() {
       echo "=== Note Taking App ==="
     fi
 
-    choice=$(show_menu "Create New Note" "Preview Notes" "Delete Notes" "Search Notes" "Quit")
+    choice=$(show_menu "Create New Note" "Open Notes" "Preview Notes" "Delete Notes" "Search Notes" "Quit")
 
     case "$choice" in
     "Create New Note")
       create_note
+      ;;
+    "Open Notes")
+      open_notes
       ;;
     "Preview Notes")
       preview_notes
