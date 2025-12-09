@@ -378,7 +378,7 @@ preview_notes() {
 
   if [[ -n "$selected_note" ]]; then
     if command -v glow &>/dev/null; then
-      glow "$location/$selected_note"
+      glow -t "$location/$selected_note"
     else
       if [[ "$TUI" == "gum" ]]; then
         gum style --foreground 214 "glow is not installed. Showing raw content:"
