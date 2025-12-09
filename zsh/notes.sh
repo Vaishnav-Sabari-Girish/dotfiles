@@ -72,8 +72,226 @@ load_config() {
   fi
 }
 
+# Create a new directory with option for nested directories
+create_directory() {
+  local current_path="$NOTES_DIR"
+
+  while true; do
+    local dir_name=$(get_input "Enter directory name")
+
+    if [[ -z "$dir_name" ]]; then
+      if [[ "$TUI" == "gum" ]]; then
+        gum style --foreground 196 "Directory name cannot be empty."
+      else
+        echo "Directory name cannot be empty."
+      fi
+      return
+    fi
+
+    current_path="$current_path/$dir_name"
+
+    if [[ -d "$current_path" ]]; then
+      if [[ "$TUI" == "gum" ]]; then
+        gum style --foreground 214 "Directory already exists: ${current_path#$NOTES_DIR/}"
+      else
+        echo "Directory already exists: ${current_path#$NOTES_DIR/}"
+      fi
+      return
+    fi
+
+    mkdir -p "$current_path"
+
+    if [[ "$TUI" == "gum" ]]; then
+      gum style --foreground 212 "Directory created: ${current_path#$NOTES_DIR/}"
+    else
+      echo "Directory created: ${current_path#$NOTES_DIR/}"
+    fi
+
+    # Ask if user wants to create a subdirectory
+    if confirm_action "Create a subdirectory inside ${dir_name}?"; then
+      continue
+    else
+      break
+    fi
+  done
+}
+
+# Add subdirectory to existing directory
+add_subdirectory() {
+  local parent_path=$(navigate_directories "Select parent directory:")
+
+  if [[ -z "$parent_path" ]]; then
+    return
+  fi
+
+  # Now create subdirectory
+  while true; do
+    local dir_name=$(get_input "Enter subdirectory name")
+
+    if [[ -z "$dir_name" ]]; then
+      if [[ "$TUI" == "gum" ]]; then
+        gum style --foreground 196 "Directory name cannot be empty."
+      else
+        echo "Directory name cannot be empty."
+      fi
+      return
+    fi
+
+    local new_path="$parent_path/$dir_name"
+
+    if [[ -d "$new_path" ]]; then
+      if [[ "$TUI" == "gum" ]]; then
+        gum style --foreground 214 "Directory already exists: ${new_path#$NOTES_DIR/}"
+      else
+        echo "Directory already exists: ${new_path#$NOTES_DIR/}"
+      fi
+      return
+    fi
+
+    mkdir -p "$new_path"
+
+    if [[ "$TUI" == "gum" ]]; then
+      gum style --foreground 212 "Subdirectory created: ${new_path#$NOTES_DIR/}"
+    else
+      echo "Subdirectory created: ${new_path#$NOTES_DIR/}"
+    fi
+
+    # Ask if user wants to create another subdirectory
+    if confirm_action "Create another subdirectory inside ${dir_name}?"; then
+      parent_path="$new_path"
+      continue
+    else
+      break
+    fi
+  done
+}
+
+# Navigate directories hierarchically
+navigate_directories() {
+  local header="${1:-Select location:}"
+  local current_path="$NOTES_DIR"
+
+  while true; do
+    # Get only direct subdirectories of current path
+    local dirs=($(find "$current_path" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort))
+
+    local all_options=()
+
+    # Add "Select this directory" option
+    all_options+=("✅ Select this directory")
+
+    # Add back option if not at root
+    if [[ "$current_path" != "$NOTES_DIR" ]]; then
+      all_options+=("⬆️  Go back")
+    fi
+
+    # Add subdirectories
+    if [[ ${#dirs[@]} -gt 0 ]]; then
+      for dir in "${dirs[@]}"; do
+        all_options+=("📁 $(basename "$dir")")
+      done
+    fi
+
+    local display_path="${current_path#$NOTES_DIR}"
+    [[ -z "$display_path" ]] && display_path="Root"
+
+    local selected
+    if [[ "$TUI" == "gum" ]]; then
+      selected=$(printf '%s\n' "${all_options[@]}" | gum choose --header="$header
+Current: $display_path")
+    else
+      echo "Current location: $display_path"
+      selected=$(printf '%s\n' "${all_options[@]}" | fzf --prompt="$header ")
+    fi
+
+    if [[ -z "$selected" ]]; then
+      echo ""
+      return
+    fi
+
+    case "$selected" in
+    "✅ Select this directory")
+      echo "$current_path"
+      return
+      ;;
+    "⬆️  Go back")
+      current_path=$(dirname "$current_path")
+      ;;
+    📁*)
+      local dir_name="${selected#📁 }"
+      current_path="$current_path/$dir_name"
+      ;;
+    *)
+      return
+      ;;
+    esac
+  done
+}
+
+# Manage directories - add subdirectories or delete directories
+manage_directories() {
+  local action=$(show_menu "Add Subdirectory to Existing Folder" "Delete Directory" "Back")
+
+  case "$action" in
+  "Add Subdirectory to Existing Folder")
+    add_subdirectory
+    ;;
+  "Delete Directory")
+    delete_directory
+    ;;
+  "Back" | *)
+    return
+    ;;
+  esac
+}
+
+# Delete directory
+delete_directory() {
+  local dir_path=$(navigate_directories "Select directory to delete:")
+
+  if [[ -z "$dir_path" ]] || [[ "$dir_path" == "$NOTES_DIR" ]]; then
+    if [[ "$TUI" == "gum" ]]; then
+      gum style --foreground 196 "Cannot delete root directory."
+    else
+      echo "Cannot delete root directory."
+    fi
+    return
+  fi
+
+  # Check if directory has contents
+  if [[ -n "$(ls -A "$dir_path" 2>/dev/null)" ]]; then
+    if [[ "$TUI" == "gum" ]]; then
+      gum style --foreground 214 "Warning: Directory is not empty!"
+    else
+      echo "Warning: Directory is not empty!"
+    fi
+
+    if ! confirm_action "Delete directory and all its contents?"; then
+      return
+    fi
+  else
+    if ! confirm_action "Delete directory ${dir_path#$NOTES_DIR/}?"; then
+      return
+    fi
+  fi
+
+  rm -rf "$dir_path"
+
+  if [[ "$TUI" == "gum" ]]; then
+    gum style --foreground 212 "Deleted: ${dir_path#$NOTES_DIR/}"
+  else
+    echo "Deleted: ${dir_path#$NOTES_DIR/}"
+  fi
+}
+
 # Create a new note
 create_note() {
+  local location=$(navigate_directories "Select location for new note:")
+
+  if [[ -z "$location" ]]; then
+    return
+  fi
+
   local note_name=$(get_input "Enter note name (press Enter for today's date)")
 
   if [[ -z "$note_name" ]]; then
@@ -85,7 +303,7 @@ create_note() {
     note_name="${note_name}.md"
   fi
 
-  local note_path="$NOTES_DIR/$note_name"
+  local note_path="$location/$note_name"
 
   if [[ -f "$note_path" ]]; then
     if [[ "$TUI" == "gum" ]]; then
@@ -101,13 +319,19 @@ create_note() {
 
 # Open existing notes for editing
 open_notes() {
-  local notes=($(ls "$NOTES_DIR"/*.md 2>/dev/null))
+  local location=$(navigate_directories "Navigate to folder:")
+
+  if [[ -z "$location" ]]; then
+    return
+  fi
+
+  local notes=($(find "$location" -maxdepth 1 -name "*.md" -type f 2>/dev/null))
 
   if [[ ${#notes[@]} -eq 0 ]]; then
     if [[ "$TUI" == "gum" ]]; then
-      gum style --foreground 196 "No notes found."
+      gum style --foreground 196 "No notes found in this location."
     else
-      echo "No notes found."
+      echo "No notes found in this location."
     fi
     return
   fi
@@ -121,19 +345,25 @@ open_notes() {
   fi
 
   if [[ -n "$selected_note" ]]; then
-    ${EDITOR:-vim} "$NOTES_DIR/$selected_note"
+    ${EDITOR:-vim} "$location/$selected_note"
   fi
 }
 
 # Preview notes
 preview_notes() {
-  local notes=($(ls "$NOTES_DIR"/*.md 2>/dev/null))
+  local location=$(navigate_directories "Navigate to folder:")
+
+  if [[ -z "$location" ]]; then
+    return
+  fi
+
+  local notes=($(find "$location" -maxdepth 1 -name "*.md" -type f 2>/dev/null))
 
   if [[ ${#notes[@]} -eq 0 ]]; then
     if [[ "$TUI" == "gum" ]]; then
-      gum style --foreground 196 "No notes found."
+      gum style --foreground 196 "No notes found in this location."
     else
-      echo "No notes found."
+      echo "No notes found in this location."
     fi
     return
   fi
@@ -148,27 +378,33 @@ preview_notes() {
 
   if [[ -n "$selected_note" ]]; then
     if command -v glow &>/dev/null; then
-      glow -t "$NOTES_DIR/$selected_note"
+      glow "$location/$selected_note"
     else
       if [[ "$TUI" == "gum" ]]; then
         gum style --foreground 214 "glow is not installed. Showing raw content:"
       else
         echo "glow is not installed. Showing raw content:"
       fi
-      cat "$NOTES_DIR/$selected_note"
+      cat "$location/$selected_note"
     fi
   fi
 }
 
 # Delete notes
 delete_notes() {
-  local notes=($(ls "$NOTES_DIR"/*.md 2>/dev/null))
+  local location=$(navigate_directories "Navigate to folder:")
+
+  if [[ -z "$location" ]]; then
+    return
+  fi
+
+  local notes=($(find "$location" -maxdepth 1 -name "*.md" -type f 2>/dev/null))
 
   if [[ ${#notes[@]} -eq 0 ]]; then
     if [[ "$TUI" == "gum" ]]; then
-      gum style --foreground 196 "No notes found."
+      gum style --foreground 196 "No notes found in this location."
     else
-      echo "No notes found."
+      echo "No notes found in this location."
     fi
     return
   fi
@@ -182,7 +418,7 @@ delete_notes() {
 
   if [[ -n "$selected_note" ]]; then
     if confirm_action "Delete $selected_note?"; then
-      rm "$NOTES_DIR/$selected_note"
+      rm "$location/$selected_note"
       if [[ "$TUI" == "gum" ]]; then
         gum style --foreground 212 "Deleted: $selected_note"
       else
@@ -192,45 +428,19 @@ delete_notes() {
   fi
 }
 
-# Search notes
+# Search notes by filename using fzf
 search_notes() {
-  local query=$(get_input "Enter search term")
+  echo "Searching for notes by filename..."
 
-  if [[ -z "$query" ]]; then
-    return
-  fi
+  # Find all markdown files recursively and use fzf to search
+  local selected=$(find "$NOTES_DIR" -name "*.md" -type f 2>/dev/null |
+    sed "s|$NOTES_DIR/||" |
+    fzf --prompt="Search notes by name: " \
+      --preview="if command -v glow &>/dev/null; then glow '$NOTES_DIR/{}'; else cat '$NOTES_DIR/{}'; fi" \
+      --preview-window=right:60%:wrap)
 
-  local results=$(grep -l -i "$query" "$NOTES_DIR"/*.md 2>/dev/null)
-
-  if [[ -z "$results" ]]; then
-    if [[ "$TUI" == "gum" ]]; then
-      gum style --foreground 196 "No notes found matching: $query"
-    else
-      echo "No notes found matching: $query"
-    fi
-    return
-  fi
-
-  if [[ "$TUI" == "gum" ]]; then
-    gum style --foreground 212 "Notes containing '$query':"
-  else
-    echo "Notes containing '$query':"
-  fi
-
-  echo "$results" | while read -r note; do
-    echo "  - $(basename "$note")"
-  done
-
-  # Option to preview a result
-  local selected_note
-  if [[ "$TUI" == "gum" ]]; then
-    selected_note=$(echo "$results" | sed 's|.*/||' | gum choose)
-  else
-    selected_note=$(echo "$results" | sed 's|.*/||' | fzf --prompt="Select note to preview: ")
-  fi
-
-  if [[ -n "$selected_note" ]] && command -v glow &>/dev/null; then
-    glow "$NOTES_DIR/$selected_note"
+  if [[ -n "$selected" ]]; then
+    ${EDITOR:-vim} "$NOTES_DIR/$selected"
   fi
 }
 
@@ -243,11 +453,17 @@ main_menu() {
       echo "=== Note Taking App ==="
     fi
 
-    choice=$(show_menu "Create New Note" "Open Notes" "Preview Notes" "Delete Notes" "Search Notes" "Quit")
+    choice=$(show_menu "Create New Note" "Create Directory" "Manage Directories" "Open Notes" "Preview Notes" "Delete Notes" "Search Notes" "Quit")
 
     case "$choice" in
     "Create New Note")
       create_note
+      ;;
+    "Create Directory")
+      create_directory
+      ;;
+    "Manage Directories")
+      manage_directories
       ;;
     "Open Notes")
       open_notes
