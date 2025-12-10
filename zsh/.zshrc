@@ -155,26 +155,31 @@ autoload -U compinit; compinit
 source /home/vaishnav/fzf-tab/fzf-tab.plugin.zsh
 
 
-# Function to add, commit, and push to all Git remotes with gum for input
+# Function to add, commit, and push to all Git remotes with meteor for conventional commits
 acp() {
-    # Check if gum is installed
-    if ! command -v gum >/dev/null 2>&1; then
-        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+    # Check if meteor is installed
+    if ! command -v meteor >/dev/null 2>&1; then
+        echo 'Error: meteor is not installed. Install with: go install github.com/stefanlogue/meteor@latest'
         return 1
     fi
 
     # Stage all changes
     git add .
 
-    # Prompt for commit message using gum
-    commit_msg=$(gum input --placeholder 'commit message')
-    if [ -z "$commit_msg" ]; then
-        echo 'Error: Commit message cannot be empty'
+    # Use meteor for conventional commit (interactive)
+    meteor
+    
+    # Check if commit was successful
+    if [ $? -ne 0 ]; then
+        echo 'Error: Commit failed or was cancelled'
         return 1
     fi
 
-    # Commit changes
-    git commit -m "$commit_msg"
+    # Check if gum is installed for branch selection
+    if ! command -v gum >/dev/null 2>&1; then
+        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+        return 1
+    fi
 
     # Prompt for branch name using gum
     branch=$(git branch | gum choose | sed 's/^* //')
@@ -189,44 +194,49 @@ acp() {
         return 1
     fi
 
-    # Checkout the specified branch
-    git checkout "$branch"
+    # Checkout the specified branch (only if not already on it)
+    current_branch=$(git branch --show-current)
+    if [ "$current_branch" != "$branch" ]; then
+        git checkout "$branch"
+    fi
 
-    # Get all remote names
-    remotes=$(git remote)
-
-    
     # Get all remote names into an array
     remotes=($(git remote))
 
     # Push to all remotes
     for remote in "${remotes[@]}"; do
-        echo "Debug: Pushing to remote - $remote"
+        echo "Pushing to remote: $remote"
         git push "$remote" "$branch"
     done
 
-    echo 'Changes added, committed, and pushed to all remotes'
+    echo 'Changes added, committed with conventional format, and pushed to all remotes'
 }
 
+# Function to add, commit, and push to all Git remotes with meteor for conventional commits
 acpf() {
-    # Check if gum is installed
-    if ! command -v gum >/dev/null 2>&1; then
-        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+    # Check if meteor is installed
+    if ! command -v meteor >/dev/null 2>&1; then
+        echo 'Error: meteor is not installed. Install with: go install github.com/stefanlogue/meteor@latest'
         return 1
     fi
 
     # Stage all changes
     git add .
 
-    # Prompt for commit message using gum
-    commit_msg=$(gum input --placeholder 'commit message')
-    if [ -z "$commit_msg" ]; then
-        echo 'Error: Commit message cannot be empty'
+    # Use meteor for conventional commit (interactive)
+    meteor
+    
+    # Check if commit was successful
+    if [ $? -ne 0 ]; then
+        echo 'Error: Commit failed or was cancelled'
         return 1
     fi
 
-    # Commit changes
-    git commit -m "$commit_msg"
+    # Check if gum is installed for branch selection
+    if ! command -v gum >/dev/null 2>&1; then
+        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+        return 1
+    fi
 
     # Prompt for branch name using gum
     branch=$(git branch | gum choose | sed 's/^* //')
@@ -241,23 +251,22 @@ acpf() {
         return 1
     fi
 
-    # Checkout the specified branch
-    git checkout "$branch"
+    # Checkout the specified branch (only if not already on it)
+    current_branch=$(git branch --show-current)
+    if [ "$current_branch" != "$branch" ]; then
+        git checkout "$branch"
+    fi
 
-    # Get all remote names
-    remotes=$(git remote)
-
-    
     # Get all remote names into an array
     remotes=($(git remote))
 
     # Push to all remotes
     for remote in "${remotes[@]}"; do
-        echo "Debug: Pushing to remote - $remote"
-        git push "$remote" "$branch" --force
+        echo "Pushing to remote: $remote"
+        git push --force "$remote" "$branch"
     done
 
-    echo 'Changes added, committed, and pushed to all remotes'
+    echo 'Changes added, committed with conventional format, and pushed to all remotes'
 }
 
 export ZEIT_DB=/home/vaishnav/zeit_db/zeit.db
