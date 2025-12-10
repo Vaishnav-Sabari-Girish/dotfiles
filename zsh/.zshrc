@@ -1205,3 +1205,4 @@ notes() {
     fi
 }
 
+source $HOME/dotfiles/zsh/forgeprj.sh
