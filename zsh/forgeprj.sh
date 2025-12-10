@@ -4,12 +4,16 @@
 # Requires: gum, git, git-cliff, gh (GitHub CLI), berg (Codeberg CLI)
 
 forgeproj() {
+  # Save the current shell options
+  local old_opts=$-
   set -e
 
   # Check deps
   for cmd in gum git git-cliff; do
     if ! command -v "$cmd" &>/dev/null; then
       echo "Error: $cmd is not installed."
+      # Restore shell options before returning
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
   done
@@ -23,6 +27,7 @@ forgeproj() {
   PROJECT_NAME=$(gum input --prompt "Enter project name: ")
   if [ -z "$PROJECT_NAME" ]; then
     echo "Error: project name cannot be empty."
+    [[ $old_opts == *e* ]] || set +e
     return 1
   fi
 
@@ -72,6 +77,7 @@ EOF
     echo "🦀 Creating Rust project..."
     if ! command -v cargo &>/dev/null; then
       echo "Error: cargo is not installed. Please install Rust from https://rustup.rs/"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -84,6 +90,7 @@ EOF
     echo "🐍 Creating Python project..."
     if ! command -v uv &>/dev/null; then
       echo "Error: uv is not installed. Please install it from https://docs.astral.sh/uv/"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -96,6 +103,7 @@ EOF
     echo "🐹 Creating Go project..."
     if ! command -v go &>/dev/null; then
       echo "Error: go is not installed. Please install Go from https://golang.org/dl/"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -153,6 +161,7 @@ EOF
     echo "⚡ Creating Zig project..."
     if ! command -v zig &>/dev/null; then
       echo "Error: zig is not installed. Please install Zig from https://ziglang.org/download/"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -192,6 +201,7 @@ EOF
     echo "🔧 Creating ESP32 Rust (std) project..."
     if ! command -v cargo &>/dev/null; then
       echo "Error: cargo is not installed. Please install Rust from https://rustup.rs/"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -298,6 +308,7 @@ EOF
   "GitHub")
     if ! command -v gh &>/dev/null; then
       gum style --foreground 196 "Error: GitHub CLI (gh) not found"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -330,6 +341,7 @@ EOF
   "Codeberg")
     if ! command -v berg &>/dev/null; then
       gum style --foreground 196 "Error: Codeberg CLI (berg) not found"
+      [[ $old_opts == *e* ]] || set +e
       return 1
     fi
 
@@ -392,6 +404,9 @@ EOF
     --foreground 212 --border-foreground 212 --border double \
     --align center --width 50 --margin "1 2" --padding "1 2" \
     "Project '$PROJECT_NAME' ready! 🚀"
+
+  # Restore original shell options before exiting
+  [[ $old_opts == *e* ]] || set +e
 }
 
 # Make function available when sourced
