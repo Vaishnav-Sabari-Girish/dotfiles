@@ -8,6 +8,8 @@
 
 ### :page_facing_up: Documentation
 
+- **(updated cliff)** Updated cliff.toml - ([2391a1a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2391a1a3902fd5301ac2b4f451f6add88bada7ff)) by @Vaishnav-Sabari-Girish
+
 - **(changelog)** Added CHANGELOG.md - ([2398333](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2398333bb55b8cc3cc11bde0474db428acaf88a4)) by @Vaishnav-Sabari-Girish
 
 

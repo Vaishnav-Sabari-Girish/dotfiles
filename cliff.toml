@@ -1,7 +1,3 @@
-# git-cliff ~ configuration file
-# https://git-cliff.org/docs/configuration
-
-
 [remote.github]
 owner = "Vaishnav-Sabari-Girish"
 repo = "dotfiles"
