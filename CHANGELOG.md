@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(custom cliff.tom)** Added custom cliff.toml - ([9ebd526](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9ebd52601d7b000d9d532f1b3bdf5836b8266f38)) by @Vaishnav-Sabari-Girish
+
 - **(project creator)** Project creating script - ([4d02ae4](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4d02ae44cf474c6b69515fa72b0a7537737a08d5)) by @Vaishnav-Sabari-Girish
 
 - **(Added meteor)** Added meteor - ([b001747](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b001747fda09292090cca5d978abe681868db081)) by @Vaishnav-Sabari-Girish
