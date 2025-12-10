@@ -8,6 +8,11 @@
 - **(Added meteor)** Added meteor - ([b001747](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b001747fda09292090cca5d978abe681868db081)) by @Vaishnav-Sabari-Girish
 
 
+### :bug: Bug fixes
+
+- **(fixed exit bug)** Fixed a bug - ([6087641](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/6087641fb7f2f3acf4d41081566432a995f74f16))
+
+
 ### :page_facing_up: Documentation
 
 - **(updated changelg)** Updated changelog - ([095fdef](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/095fdefbbe7e0f69e112b515affa79d09982238d)) by @Vaishnav-Sabari-Girish
