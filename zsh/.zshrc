@@ -106,6 +106,7 @@ alias teensy=/home/vaishnav/Teensy_Loader/teensy
 alias cutecom=/home/vaishnav/cutecom/cutecom
 
 alias tree="wisu -g --icons --hyperlinks"
+alias exit_0="$HOME/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
 export PATH="$HOME/.basher/bin:$PATH"   ##basher5ea843
 
 export PATH="$PATH:/home/vaishnav/.modular/bin"
