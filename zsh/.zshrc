@@ -144,7 +144,7 @@ file_upload() {
 bash $HOME/dotfiles/zsh/anime_quote.sh
 
 echo "# Check addae regularly" | $HOME/go/bin/glow -
-echo "# Use flash for flashcards" | $HOME/go/bin/glow -
+echo "# Use goki for flashcards" | $HOME/go/bin/glow -
 echo "# Use exit_0 for LPIC practice" | $HOME/go/bin/glow -
 
 eval "$(starship init zsh)"

@@ -82,6 +82,7 @@ def get_pio [] {
 alias teensy = /home/vaishnav/Teensy_Loader/teensy
 alias cutecom = /home/vaishnav/cutecom/cutecom
 alias tree = wisu -g --icons --hyperlinks
+alias exit_0 = /home/vaishnav/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh
 alias preview_md = gh markdown-preview
 # temp_share_local function (ssh with complex arguments)
 def temp_share_local [] {
@@ -410,6 +411,8 @@ bash $"($env.HOME)/dotfiles/zsh/anime_quote.sh"
 
 # Print newline for spacing
 echo "# Check addae regularly" | glow -
+echo "# Use goki for flashcards" | glow -
+echo "# Use exit_0 for LPIC practice" | glow -
 print ""
 
 def img [filename: string] {
