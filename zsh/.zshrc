@@ -124,7 +124,7 @@ qr() {
     echo "Usage: qr <link_to_website>"
     return 1
   fi
-  curl qrenco.de/"$1"
+  qrterm "$1"
 }
 
 file_upload() {
@@ -134,7 +134,7 @@ file_upload() {
   fi
   link=$(ffsend upload "$1" | grep -o 'https://[^ ]*')
   echo " "
-  curl qrenco.de/$link
+  qrterm $link
 }
 
 
@@ -269,8 +269,6 @@ acpf() {
     echo 'Changes added, committed with conventional format, and pushed to all remotes'
 }
 
-export ZEIT_DB=/home/vaishnav/zeit_db/zeit.db
-
 export RUSTONIG_SYSTEM_LIBONIG=1
 
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
@@ -278,10 +276,6 @@ export RUSTONIG_SYSTEM_LIBONIG=1
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
 alias project="cd $HOME/Desktop/My_Projects/"
 
-tere() {
-    local result=$(command tere "$@")
-    [ -n "$result" ] && cd -- "$result"
-}
 . "/home/vaishnav/.deno/env"
 
 alias preview_md="gh markdown-preview"
