@@ -40,9 +40,6 @@ fi
 
 export PATH=$PATH:/usr/local/go/bin
 
-export POP_SMTP_HOST=smtp.gmail.com
-export POP_SMTP_PORT=587
-
 printf "\n"
 
 export EDITOR=nvim
@@ -1209,3 +1206,15 @@ notes() {
 }
 
 source $HOME/dotfiles/zsh/forgeprj.sh
+
+send_email() {
+    local script_path="$HOME/dotfiles/zsh/send_email.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: send_email.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
+
