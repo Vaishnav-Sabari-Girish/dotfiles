@@ -1,16 +1,15 @@
 [font]
-normal = {family = "MesloLGSDZ Nerd Font"}
+normal = {family = "JetBrainsMono Nerd Font"}
 size = 16
-
-[terminal.shell]
-program = "/home/vaishnav/.local/bin/xonsh"
 
 [window]
 dimensions = {columns = 96 , lines = 60}
+decorations = "None"
 
 [general]
 import = [
-  "/home/vaishnav/.config/alacritty/themes/themes/catppuccin_frappe.toml"
+  "~/.config/alacritty/catppuccin-macchiato.toml"
 ]
 
-[terminal]
+[env]
+TERM = "xterm-256color"

@@ -1,7 +1,0 @@
-{
-    "Alt-/": "lua:comment.comment",
-    "CtrlUnderscore": "lua:comment.comment",
-    "F12": "command:makeup",
-    "F5": "command:runit",
-    "F9": "command:makeupbg"
-}

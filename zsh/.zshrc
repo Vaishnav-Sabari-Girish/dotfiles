@@ -145,14 +145,15 @@ echo "# Use goki for flashcards" | $HOME/go/bin/glow -
 echo "# Use exit_0 for LPIC practice" | $HOME/go/bin/glow -
 
 eval "$(starship init zsh)"
+autoload -Uz compinit
+compinit
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOME/fzf-tab/fzf-tab.zsh
 source /home/vaishnav/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export PATH=/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/.local/bin:/home/vaishnav/.local/lib/hyde::/usr/local/bin:/usr/bin:/var/lib/snapd/snap/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/opt/nvim-linux-x86_64/bin
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-autoload -U compinit; compinit
-source /home/vaishnav/fzf-tab/fzf-tab.plugin.zsh
 
 
 # Function to add, commit, and push to all Git remotes with meteor for conventional commits
@@ -276,7 +277,7 @@ export RUSTONIG_SYSTEM_LIBONIG=1
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
 alias project="cd $HOME/Desktop/My_Projects/"
 
-. "/home/vaishnav/.deno/env"
+# . "/home/vaishnav/.deno/env"
 
 alias preview_md="gh markdown-preview"
 
