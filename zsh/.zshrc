@@ -1215,3 +1215,10 @@ send_email() {
 
 export LC_ALL=en_IN.UTF-8
 export LANG=en_IN.UTF-8
+
+# bun completions
+[ -s "/home/vaishnav/.bun/_bun" ] && source "/home/vaishnav/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

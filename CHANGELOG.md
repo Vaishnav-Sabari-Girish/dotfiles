@@ -1,6 +1,18 @@
 
 ### :rocket: New features
 
+- **(added rofi)** Added rofi config - ([8cd2845](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8cd2845feab55c552e1b0556160be984f20f67a3)) by @Vaishnav-Sabari-Girish
+
+- **(niri an fuzzel)** Added niri and fuzzel - ([8f15f05](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8f15f05aefe94cf19f77381d8b87496032f0f5e8)) by @Vaishnav-Sabari-Girish
+
+- **(added inline)** Added inline diagnostic - ([cb43744](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/cb4374423bbe3aa6654adbf301caf8e8a151d053)) by @Vaishnav-Sabari-Girish
+
+- **(Added send_email)** Added script to mail - ([fca0100](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fca0100d6046f746bcf308add5f4902612b621ca)) by @Vaishnav-Sabari-Girish
+
+- **(updated home)** Updated homepage - ([c96ca84](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c96ca8415136b4368b7107287a25e14c51605531)) by @Vaishnav-Sabari-Girish
+
+- **(added exit_0)** Added exit_0 - ([9f3ef5e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9f3ef5e3a9c88b356b00bb401016fb352d0fa817)) by @Vaishnav-Sabari-Girish
+
 - **(custom cliff.tom)** Added custom cliff.toml - ([9ebd526](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9ebd52601d7b000d9d532f1b3bdf5836b8266f38)) by @Vaishnav-Sabari-Girish
 
 - **(project creator)** Project creating script - ([4d02ae4](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4d02ae44cf474c6b69515fa72b0a7537737a08d5)) by @Vaishnav-Sabari-Girish
@@ -10,10 +22,12 @@
 
 ### :bug: Bug fixes
 
-- **(fixed exit bug)** Fixed a bug - ([6087641](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/6087641fb7f2f3acf4d41081566432a995f74f16))
+- **(fixed exit bug)** Fixed a bug - ([6087641](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/6087641fb7f2f3acf4d41081566432a995f74f16)) by @Vaishnav-Sabari-Girish
 
 
 ### :page_facing_up: Documentation
+
+- **(updated cl)** Updated CHANGELOG.md - ([e89ef23](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e89ef23217f40d96006e6d5d7e422de0b4334811)) by @Vaishnav-Sabari-Girish
 
 - **(updated changelg)** Updated changelog - ([095fdef](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/095fdefbbe7e0f69e112b515affa79d09982238d)) by @Vaishnav-Sabari-Girish
 
@@ -23,6 +37,10 @@
 
 
 ### :package: Other
+
+- **(removed some)** Removed some stuff - ([a61a69a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/a61a69aef04d20a89535efc31754e7ef856bbc98)) by @Vaishnav-Sabari-Girish
+
+- Updated exit_0 in nu - ([7d7dd79](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7d7dd792fcbdc2ddec98d2401e59bad293a8551b)) by @Vaishnav-Sabari-Girish
 
 - Updated notes - ([7e86573](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7e865732d7ef856a6ea32be4292f6a2e7fba1f90)) by @Vaishnav-Sabari-Girish
 
