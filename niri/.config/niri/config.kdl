@@ -337,7 +337,8 @@ binds {
 
   // Suggested binds for running programs: terminal, app launcher, screen locker.
   Mod+T hotkey-overlay-title="Open a Terminal: Wezterm" { spawn "wezterm"; }
-  Mod+A hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+  //Mod+A hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+  Mod+A hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
   Super+L hotkey-overlay-title="Lock the Screen" {
     spawn-sh "pkill swayidle; swaylock -i ~/Pictures/wallpaper_frieren.jpg --fade-in 0 --clock --indicator --effect-blur 7x5 & swayidle -w timeout 20 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors'"
   }

@@ -1,0 +1,30 @@
+configuration {
+    modi: "drun,run,window";
+    font: "JetBrainsMono Nerd Font 14";
+    location: 0;
+    show-icons: true;
+    icon-theme: "Papirus";
+    drun-display-format: "{name}";
+    sort: true;
+    sorting-method: "normal";
+    case-sensitive: false;
+    cycle: true;
+    sidebar-mode: false;
+    scroll-method: 0;
+    matching: "normal";
+    normalize-match: true;
+    display-window: " Windows";
+    display-run: " Run";
+    display-drun: " Apps";
+    
+    timeout {
+        action: "kb-cancel";
+        delay:  0;
+    }
+    filebrowser {
+        directories-first: true;
+        sorting-method:    "name";
+    }
+}
+
+@theme "~/.config/rofi/theme.rasi"
