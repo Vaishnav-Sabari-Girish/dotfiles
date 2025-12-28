@@ -132,12 +132,47 @@ file_upload() {
     echo "Usage: file_upload <path_to_file>"
     return 1
   fi
-  link=$(ffsend upload "$1" | grep -o 'https://[^ ]*')
-  echo " "
-  qrterm $link
+
+  PRIMARY_HOST="https://send.mni.li"
+  SECONDARY_HOST="https://send.richy.sh"
+
+  upload_with_host() {
+    local host="$1"
+    ffsend upload --host "$host" "$2" 2>/dev/null | grep -o 'https://[^ ]*'
+  }
+
+  # Try primary
+  if curl -fs --max-time 5 "$PRIMARY_HOST" > /dev/null; then
+    echo "Using primary host: $PRIMARY_HOST"
+    link=$(upload_with_host "$PRIMARY_HOST" "$1")
+  fi
+
+  # Try secondary if primary failed
+  if [ -z "$link" ] && curl -fs --max-time 5 "$SECONDARY_HOST" > /dev/null; then
+    echo "Primary failed, using secondary host: $SECONDARY_HOST"
+    link=$(upload_with_host "$SECONDARY_HOST" "$1")
+  fi
+
+  # Final fallback: default ffsend host
+  if [ -z "$link" ]; then
+    echo "Primary and secondary unavailable, falling back to default"
+    link=$(ffsend upload "$1" 2>/dev/null | grep -o 'https://[^ ]*')
+  fi
+
+  if [ -z "$link" ]; then
+    echo "Upload failed."
+    return 1
+  fi
+
+  # Copy first, then notify
+  printf "%s" "$link" | wl-copy
+  notify-send "File Upload" "Link copied to clipboard"
+
+  echo "Link copied to clipboard:"
+  echo "$link"
+  echo
+  qrterm "$link"
 }
-
-
 bash $HOME/dotfiles/zsh/anime_quote.sh
 
 echo "# Check addae regularly" | $HOME/go/bin/glow -
