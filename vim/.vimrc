@@ -15,6 +15,8 @@ Plug 'preservim/nerdtree'
 Plug 'tpope/vim-fugitive'
 Plug 'mhinz/vim-signify', { 'tag': 'legacy' }
 Plug 'arcticicestudio/nord-vim'
+
+" To be loaded last
 Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
