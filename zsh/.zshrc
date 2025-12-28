@@ -151,10 +151,7 @@ source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/fzf-tab/fzf-tab.zsh
 source /home/vaishnav/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export PATH=/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.basher/bin:/usr/local/bin:/home/vaishnav/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/.local/bin:/home/vaishnav/.local/lib/hyde::/usr/local/bin:/usr/bin:/var/lib/snapd/snap/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/usr/local/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/usr/local/go/bin:/home/vaishnav/.cargo/bin:/home/vaishnav/go/bin:/home/vaishnav/.modular/bin:/opt/nvim-linux-x86_64/bin
-
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-
 
 # Function to add, commit, and push to all Git remotes with meteor for conventional commits
 acp() {
@@ -211,6 +208,58 @@ acp() {
     done
 
     echo 'Changes added, committed with conventional format, and pushed to all remotes'
+}
+
+# Function to push to origin only
+acpo() {
+    # Check if meteor is installed
+    if ! command -v meteor >/dev/null 2>&1; then
+        echo 'Error: meteor is not installed. Install with: go install github.com/stefanlogue/meteor@latest'
+        return 1
+    fi
+
+    # Stage all changes
+    git add .
+
+    # Use meteor for conventional commit (interactive)
+    meteor
+    
+    # Check if commit was successful
+    if [ $? -ne 0 ]; then
+        echo 'Error: Commit failed or was cancelled'
+        return 1
+    fi
+
+    # Check if gum is installed for branch selection
+    if ! command -v gum >/dev/null 2>&1; then
+        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
+        return 1
+    fi
+
+    # Prompt for branch name using gum
+    branch=$(git branch | gum choose | sed 's/^* //')
+    if [ -z "$branch" ]; then
+        echo 'Error: Branch name cannot be empty'
+        return 1
+    fi
+
+    # Verify branch exists
+    if ! git rev-parse --verify "$branch" >/dev/null 2>&1; then
+        echo "Error: Branch $branch does not exist"
+        return 1
+    fi
+
+    # Checkout the specified branch (only if not already on it)
+    current_branch=$(git branch --show-current)
+    if [ "$current_branch" != "$branch" ]; then
+        git checkout "$branch"
+    fi
+
+    # Push to origin only
+    echo "Pushing to remote: origin"
+    git push origin "$branch"
+
+    echo 'Changes added, committed with conventional format, and pushed to origin'
 }
 
 # Function to add, commit, and push to all Git remotes with meteor for conventional commits
@@ -810,7 +859,8 @@ else
     compdef _just just
 fi
 
-. $HOME/go/pkg/mod/github.com/asdf-vm/asdf@v0.18.0/asdf.sh
+
+export PATH="$HOME/.asdf/shims:$PATH"
 
 function img() {
     
@@ -1222,3 +1272,4 @@ export LANG=en_IN.UTF-8
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+\. "$HOME/.nvm/nvm.sh"
