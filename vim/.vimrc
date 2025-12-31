@@ -1,3 +1,7 @@
+" ================================
+" Core editor settings
+" ================================
+
 " Enable modern Vim defaults
 syntax on
 filetype plugin indent on
@@ -14,28 +18,56 @@ set clipboard=unnamedplus
 " Recommended basic settings for completion menu
 set completeopt=menuone,noinsert,noselect
 
-" ---- vim-plug ----
+" Line numbers (hybrid: absolute + relative)
+set number
+set relativenumber
+
+" Smart line numbers: disable relative numbers in Insert mode
+augroup numbertoggle
+  autocmd!
+  autocmd InsertEnter * set norelativenumber
+  autocmd InsertLeave * set relativenumber
+augroup END
+
+
+" ================================
+" Plugin management (vim-plug)
+" ================================
+
 call plug#begin('~/.vim/plugged')
 
+" Language / syntax
 Plug 'rust-lang/rust.vim'
+
+" File tree
 Plug 'preservim/nerdtree'
-Plug 'tpope/vim-fugitive'
-Plug 'mhinz/vim-signify', { 'tag': 'legacy' }
-Plug 'arcticicestudio/nord-vim'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
-" Completion
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Git
+Plug 'tpope/vim-fugitive'
+Plug 'mhinz/vim-signify', { 'tag': 'legacy' }
 
-" To be loaded last
+" UI / theme
+Plug 'arcticicestudio/nord-vim'
 Plug 'ryanoasis/vim-devicons'
+
+" Completion / LSP
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
-" Colorscheme
+
+" ================================
+" Appearance
+" ================================
+
 colorscheme nord
 
+
+" ================================
 " CoC.nvim completion mappings
+" ================================
+
 " Use <Tab>/<S-Tab> to navigate completion menu
 inoremap <silent><expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
@@ -51,17 +83,20 @@ else
         \ : "\<C-g>u\<CR>"
 endif
 
-" Keybinds
-"" Open Tree
+
+" ================================
+" Keybindings
+" ================================
+
+" Toggle NERDTree
 nnoremap <leader>e :NERDTreeToggle<CR>
 
-"" Close only the open file buffer and not NERDTree and also keep the focus on
-"" NERDTree
+" Close only the file buffer, keep NERDTree open and focused
 function! DeleteFileBuffer()
   " Save current window
   let l:cur_win = winnr()
 
-  " Find a non-NERDTree window
+  " Find a non-NERDTree window and close its buffer
   for w in range(1, winnr('$'))
     if getbufvar(winbufnr(w), '&filetype') !=# 'nerdtree'
       execute w . 'wincmd w'
