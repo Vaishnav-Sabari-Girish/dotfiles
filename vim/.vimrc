@@ -73,15 +73,8 @@ inoremap <silent><expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " Use <CR> (Enter) to confirm completion when menu is open, otherwise newline
-if exists('*complete_info')
-  inoremap <silent><expr> <CR> complete_info()['selected'] !=# -1
-        \ ? "\<C-y>"
-        \ : "\<C-g>u\<CR>"
-else
-  inoremap <silent><expr> <CR> pumvisible()
-        \ ? "\<C-y>"
-        \ : "\<C-g>u\<CR>"
-endif
+" Use Enter to confirm completion
+inoremap <silent><expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 
 " ================================
