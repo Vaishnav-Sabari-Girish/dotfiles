@@ -1,6 +1,24 @@
 
 ### :rocket: New features
 
+- **(updated vimrc)** Modified vimrc - ([d5f621f](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d5f621f6c469dc53c980b72cc44cab3db7a16dc2)) by @Vaishnav-Sabari-Girish
+
+- **(updated vimrc)** Updated vimrc - ([9b3516e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9b3516ee825105f34d4a775479baf1453f6570d1)) by @Vaishnav-Sabari-Girish
+
+- **(modified vimrc)** Modified Vimrc - ([52c2784](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/52c2784a645ced2860e17bcfd4cd5d665075142a)) by @Vaishnav-Sabari-Girish
+
+- **(changed font)** Wezterm font changed - ([ebb0b8f](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ebb0b8f7c3de017b92a72b62a38e8f6dcf416d11)) by @Vaishnav-Sabari-Girish
+
+- **(changed tree)** Changed tree - ([67ece9a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/67ece9a9a1e261992b08f03f664fe9081e0a8f45)) by @Vaishnav-Sabari-Girish
+
+- **(updated file)** Updated file_upload function - ([ff13fb0](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ff13fb04ec34fbc9dce5263bd309cc4335cd8943)) by @Vaishnav-Sabari-Girish
+
+- **(updated vimrc)** Added new keybindings - ([c7f0f15](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c7f0f15f85d3e94b91d811d1d36fd466616cfd64)) by @Vaishnav-Sabari-Girish
+
+- **(upated vimrc)** Updated vimrc - ([b11eb6c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b11eb6c5893ae2e48eebf4c68025fb1e3e30c991)) by @Vaishnav-Sabari-Girish
+
+- **(added vim)** Added vimrc - ([4bde91e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4bde91edc9c033e81161c09ca636f5a39a2e5adb)) by @Vaishnav-Sabari-Girish
+
 - **(added rofi)** Added rofi config - ([8cd2845](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8cd2845feab55c552e1b0556160be984f20f67a3)) by @Vaishnav-Sabari-Girish
 
 - **(niri an fuzzel)** Added niri and fuzzel - ([8f15f05](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8f15f05aefe94cf19f77381d8b87496032f0f5e8)) by @Vaishnav-Sabari-Girish
@@ -26,6 +44,8 @@
 
 
 ### :page_facing_up: Documentation
+
+- **(updated cll)** Updated the changelog - ([fc2fa32](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fc2fa323a29c220f1febf8fe9a35ace82bdce90a)) by @Vaishnav-Sabari-Girish
 
 - **(updated cl)** Updated CHANGELOG.md - ([e89ef23](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e89ef23217f40d96006e6d5d7e422de0b4334811)) by @Vaishnav-Sabari-Girish
 
