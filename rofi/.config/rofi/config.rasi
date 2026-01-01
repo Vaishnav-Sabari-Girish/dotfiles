@@ -1,6 +1,6 @@
 configuration {
     modi: "drun,run,window";
-    font: "JetBrainsMono Nerd Font 14";
+    font: "JetBrainsMono Nerd Font 16";
     location: 0;
     show-icons: true;
     icon-theme: "Papirus";
