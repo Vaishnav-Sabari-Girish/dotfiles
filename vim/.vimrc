@@ -6,6 +6,23 @@
 syntax on
 filetype plugin indent on
 
+set ttimeout
+set ttimeoutlen=1
+set ttyfast
+
+" Set cursor shapes for different modes
+" 1 or 2 = block, 3 or 4 = underline, 5 or 6 = bar
+" (Odd numbers blink, even numbers are steady)
+let &t_EI = "\<Esc>[1 q"   " Normal mode: Blinking block
+let &t_SI = "\<Esc>[5 q"   " Insert mode: Blinking bar
+let &t_SR = "\<Esc>[3 q"   " Replace mode: Blinking underline
+
+" FIX: Force terminal to show block cursor immediately on startup
+augroup force_startup_cursor
+  autocmd!
+  autocmd VimEnter * silent !echo -ne "\<Esc>[1 q"
+augroup END
+
 " Hide ~ at end of buffer
 set fillchars=eob:\ 
 
@@ -62,6 +79,9 @@ call plug#end()
 " ================================
 
 colorscheme nord
+" Fix invisible text in Visual mode
+set termguicolors
+highlight Visual guibg=#4c566a guifg=NONE ctermbg=8 ctermfg=NONE
 
 
 " ================================
@@ -73,7 +93,6 @@ inoremap <silent><expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " Use <CR> (Enter) to confirm completion when menu is open, otherwise newline
-" Use Enter to confirm completion
 inoremap <silent><expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 
