@@ -6,7 +6,9 @@
 	helper = !/usr/bin/gh auth git-credential
 [user]
 	email = forgamesonly684@gmail.com
-	name = Vaishnav-Sabari-Girish
+	name = Vaishnav Sabari Girish
+	signkey = 0AFB94F820A38489
+	signingkey = 0AFB94F820A38489
 [init]
 	defaultBranch = main
 [filter "lfs"]
@@ -16,3 +18,7 @@
 	required = true
 [pull]
 	rebase = false
+[commit]
+	gpgsign = true
+[gpg]
+	program = gpg

@@ -64,12 +64,15 @@ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'tpope/vim-fugitive'
 Plug 'mhinz/vim-signify', { 'tag': 'legacy' }
 
+" Completion / LSP
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Auto close brackets
+Plug 'jiangmiao/auto-pairs'
+
 " UI / theme
 Plug 'arcticicestudio/nord-vim'
 Plug 'ryanoasis/vim-devicons'
-
-" Completion / LSP
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 

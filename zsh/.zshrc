@@ -42,7 +42,7 @@ export PATH=$PATH:/usr/local/go/bin
 
 printf "\n"
 
-export EDITOR=nvim
+export EDITOR=vim
 
 export PATH="$PATH:/home/vaishnav/.cargo/bin"
 export PATH="$PATH:/usr/local/go/bin"
