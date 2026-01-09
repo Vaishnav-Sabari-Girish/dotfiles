@@ -1,6 +1,16 @@
 
 ### :rocket: New features
 
+- **(added new hotkey)** Added new hotkey - ([7868a61](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7868a61b761d73e7a647e5589d962e2b57f00443)) by @Vaishnav-Sabari-Girish
+
+- **(updated stuff)** Updated stuff in git - ([021bc25](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/021bc259546bf5f1a2011fea8037719f7149d11c)) by @Vaishnav-Sabari-Girish
+
+- **(updated vimrc)** Updated vimrc - ([2b773d3](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2b773d3cbf1bfc2c7bac431ab92238f8ea68bd10)) by @Vaishnav-Sabari-Girish
+
+- **(added wallpapers)** Added wallpapers - ([95628ea](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/95628ea35ee353918924c4f7083262644ed2d11d)) by @Vaishnav-Sabari-Girish
+
+- **(updated niri con)** Updated niri config - ([a9d5785](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/a9d5785d91104c6b406ccd025714ef341fbaedfd)) by @Vaishnav-Sabari-Girish
+
 - **(updated vimrc)** Modified vimrc - ([d5f621f](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d5f621f6c469dc53c980b72cc44cab3db7a16dc2)) by @Vaishnav-Sabari-Girish
 
 - **(updated vimrc)** Updated vimrc - ([9b3516e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9b3516ee825105f34d4a775479baf1453f6570d1)) by @Vaishnav-Sabari-Girish
@@ -45,6 +55,10 @@
 
 ### :page_facing_up: Documentation
 
+- **(did stuff)** Did stuff - ([e177e75](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e177e7593151a376af06c2bdae2370c488561488)) by @Vaishnav-Sabari-Girish
+
+- **(updated cl)** Updated Changelogs - ([fd540db](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd540db2b19552af2ce030f6be65833680a688a0)) by @Vaishnav-Sabari-Girish
+
 - **(updated cll)** Updated the changelog - ([fc2fa32](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fc2fa323a29c220f1febf8fe9a35ace82bdce90a)) by @Vaishnav-Sabari-Girish
 
 - **(updated cl)** Updated CHANGELOG.md - ([e89ef23](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e89ef23217f40d96006e6d5d7e422de0b4334811)) by @Vaishnav-Sabari-Girish
@@ -57,6 +71,8 @@
 
 
 ### :package: Other
+
+- Adding wallpapers so initializing git lfs - ([ea76d2a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ea76d2ab2fd686752f960fab66aeaa694db493c3)) by @Vaishnav-Sabari-Girish
 
 - **(removed some)** Removed some stuff - ([a61a69a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/a61a69aef04d20a89535efc31754e7ef856bbc98)) by @Vaishnav-Sabari-Girish
 
