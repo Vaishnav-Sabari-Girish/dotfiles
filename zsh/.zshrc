@@ -360,6 +360,7 @@ export RUSTONIG_SYSTEM_LIBONIG=1
 
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
 alias project="cd $HOME/Desktop/My_Projects/"
+alias nchat_tg="nchat -d ~/.config/nchat_tg"
 
 # . "/home/vaishnav/.deno/env"
 

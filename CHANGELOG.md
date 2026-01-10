@@ -55,6 +55,8 @@
 
 ### :page_facing_up: Documentation
 
+- **(updated cl)** Updated Changelog - ([cd6cffb](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/cd6cffb89a9d40dd7d5dc93a2e8b26b9b1e4128f))
+
 - **(did stuff)** Did stuff - ([e177e75](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e177e7593151a376af06c2bdae2370c488561488)) by @Vaishnav-Sabari-Girish
 
 - **(updated cl)** Updated Changelogs - ([fd540db](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd540db2b19552af2ce030f6be65833680a688a0)) by @Vaishnav-Sabari-Girish
