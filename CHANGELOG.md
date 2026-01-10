@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(added new nchat)** Added seperate nchat - ([21da900](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/21da900d5f5ee9909477517e4ffd5e9d6754c912))
+
 - **(added new hotkey)** Added new hotkey - ([7868a61](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7868a61b761d73e7a647e5589d962e2b57f00443)) by @Vaishnav-Sabari-Girish
 
 - **(updated stuff)** Updated stuff in git - ([021bc25](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/021bc259546bf5f1a2011fea8037719f7149d11c)) by @Vaishnav-Sabari-Girish
