@@ -361,6 +361,7 @@ export RUSTONIG_SYSTEM_LIBONIG=1
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
 alias project="cd $HOME/Desktop/My_Projects/"
 alias nchat_tg="nchat -d ~/.config/nchat_tg"
+alias stm32cli='/opt/stm32cubeprog/bin/STM32_Programmer_CLI'
 
 # . "/home/vaishnav/.deno/env"
 
@@ -1309,3 +1310,15 @@ export LANG=en_IN.UTF-8
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 \. "$HOME/.nvm/nvm.sh"
+
+stm32flash() {
+    # Adjust this path if you saved the file somewhere else
+    local script_path="$HOME/dotfiles/zsh/stm32flash.sh"
+
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: Script not found or not executable at $script_path"
+        return 1
+    fi
+}

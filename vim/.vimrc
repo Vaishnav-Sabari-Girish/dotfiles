@@ -55,6 +55,7 @@ call plug#begin('~/.vim/plugged')
 
 " Language / syntax
 Plug 'rust-lang/rust.vim'
+Plug 'mracos/mermaid.vim'
 
 " File tree
 Plug 'preservim/nerdtree'
