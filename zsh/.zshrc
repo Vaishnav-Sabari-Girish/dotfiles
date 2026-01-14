@@ -361,7 +361,9 @@ export RUSTONIG_SYSTEM_LIBONIG=1
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
 alias project="cd $HOME/Desktop/My_Projects/"
 alias nchat_tg="nchat -d ~/.config/nchat_tg"
-alias stm32cli='/opt/stm32cubeprog/bin/STM32_Programmer_CLI'
+
+# Erase the STM32 Chip
+alias stm32erase="/opt/stm32cubeprog/bin/STM32_Programmer_CLI -c port=SWD freq=480 mode=HotPlug -e all"
 
 # . "/home/vaishnav/.deno/env"
 
