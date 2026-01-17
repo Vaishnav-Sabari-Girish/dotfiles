@@ -5,10 +5,10 @@
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
 [user]
-	email = forgamesonly684@gmail.com
+	email = vaishnav.sabari.girish@gmail.com
 	name = Vaishnav Sabari Girish
 	signkey = 0AFB94F820A38489
-	signingkey = 0AFB94F820A38489
+	signingkey = 71922ABFB77026CC
 [init]
 	defaultBranch = main
 [filter "lfs"]
@@ -22,3 +22,7 @@
 	gpgsign = true
 [gpg]
 	program = gpg
+[sendemail]
+	smtpserver = smtp.gmail.com
+	smtpserverport = 587
+	smtpencryption = tls
