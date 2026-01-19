@@ -190,17 +190,49 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # Function to add, commit, and push to all Git remotes with meteor for conventional commits
 acp() {
-    # Check if meteor is installed
-    if ! command -v meteor >/dev/null 2>&1; then
-        echo 'Error: meteor is not installed. Install with: go install github.com/stefanlogue/meteor@latest'
+    # Check for fzf
+    if ! command -v fzf >/dev/null 2>&1; then
+        echo 'Error: fzf is not installed. Please install it from https://github.com/junegunn/fzf'
         return 1
     fi
 
     # Stage all changes
     git add .
 
-    # Use meteor for conventional commit (interactive)
-    meteor
+    # 1. Define Commit Types with Descriptions
+    local choices=(
+        "feat : A new feature"
+        "fix : A bug fix"
+        "docs : Documentation only changes"
+        "style : Changes that do not affect the meaning of the code (white-space, formatting, etc)"
+        "refactor : A code change that neither fixes a bug nor adds a feature"
+        "perf : A code change that improves performance"
+        "test : Adding missing tests or correcting existing tests"
+        "build : Changes that affect the build system or external dependencies"
+        "ci : Changes to our CI configuration files and scripts"
+        "chore : Other changes that don't modify src or test files"
+        "revert : Reverts a previous commit"
+    )
+
+    # 2. Select Commit Type using fzf
+    # We use printf to feed the array elements as new lines into fzf
+    echo "Choose commit type:"
+    local selected
+    selected=$(printf "%s\n" "${choices[@]}" | fzf --reverse --header "Select Commit Type")
+
+    # Handle cancellation
+    if [ -z "$selected" ]; then
+        echo 'Error: No commit type selected.'
+        return 1
+    fi
+
+    # 3. Extract the type (Clean the string)
+    # Removes everything starting from " :" to the end
+    local type
+    type="${selected%% :*}"
+
+    # 4. Commit
+    git commit -as -e -m "$type(): "
     
     # Check if commit was successful
     if [ $? -ne 0 ]; then
@@ -208,14 +240,10 @@ acp() {
         return 1
     fi
 
-    # Check if gum is installed for branch selection
-    if ! command -v gum >/dev/null 2>&1; then
-        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
-        return 1
-    fi
-
-    # Prompt for branch name using gum
-    branch=$(git branch | gum choose | sed 's/^* //')
+    # 5. Prompt for branch name using fzf
+    local branch
+    branch=$(git branch --format='%(refname:short)' | fzf --reverse --header "Select Branch")
+    
     if [ -z "$branch" ]; then
         echo 'Error: Branch name cannot be empty'
         return 1
@@ -227,22 +255,23 @@ acp() {
         return 1
     fi
 
-    # Checkout the specified branch (only if not already on it)
+    # Checkout branch if needed
+    local current_branch
     current_branch=$(git branch --show-current)
     if [ "$current_branch" != "$branch" ]; then
         git checkout "$branch"
     fi
 
-    # Get all remote names into an array
+    # Push to all remotes
+    local remotes
     remotes=($(git remote))
 
-    # Push to all remotes
     for remote in "${remotes[@]}"; do
         echo "Pushing to remote: $remote"
         git push "$remote" "$branch"
     done
 
-    echo 'Changes added, committed with conventional format, and pushed to all remotes'
+    echo 'Changes added, committed, and pushed to all remotes'
 }
 
 # Function to push to origin only
