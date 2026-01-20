@@ -4,3 +4,4 @@ usage_data.json
 checkouts/
 history.txt
 .gitconfig
+.mailsynclastrun
