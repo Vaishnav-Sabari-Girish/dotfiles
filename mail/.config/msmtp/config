@@ -1,0 +1,36 @@
+account forgamesonly684@gmail.com
+host smtp.gmail.com
+port 587
+from forgamesonly684@gmail.com
+user forgamesonly684@gmail.com
+passwordeval "pass forgamesonly684@gmail.com"
+auth on
+tls on
+tls_trust_file	/etc/ssl/certs/ca-certificates.crt
+logfile /.local/share/msmtp.log
+# tls_starttls
+
+account write2vaichu@gmail.com
+host smtp.gmail.com
+port 587
+from write2vaichu@gmail.com
+user write2vaichu@gmail.com
+passwordeval "pass write2vaichu@gmail.com"
+auth on
+tls on
+tls_trust_file	/etc/ssl/certs/ca-certificates.crt
+logfile /.local/share/msmtp.log
+# tls_starttls
+
+account vaishnav.sabari.girish@gmail.com
+host smtp.gmail.com
+port 587
+from vaishnav.sabari.girish@gmail.com
+user vaishnav.sabari.girish@gmail.com
+passwordeval "pass vaishnav.sabari.girish@gmail.com"
+auth on
+tls on
+tls_trust_file	/etc/ssl/certs/ca-certificates.crt
+logfile /.local/share/msmtp.log
+# tls_starttls
+
