@@ -1,0 +1,77 @@
+IMAPStore forgamesonly684@gmail.com-remote
+Host imap.gmail.com
+Port 993
+User forgamesonly684@gmail.com
+PassCmd "pass forgamesonly684@gmail.com"
+AuthMechs LOGIN
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore forgamesonly684@gmail.com-local
+Subfolders Verbatim
+Path /home/vaishnav/.local/share/mail/forgamesonly684@gmail.com/
+Inbox /home/vaishnav/.local/share/mail/forgamesonly684@gmail.com/INBOX
+
+Channel forgamesonly684@gmail.com
+Expunge Both
+Far :forgamesonly684@gmail.com-remote:
+Near :forgamesonly684@gmail.com-local:
+Patterns * !"[Gmail]/All Mail"
+Create Both
+SyncState *
+MaxMessages 0
+ExpireUnread no
+# End profile
+
+
+IMAPStore write2vaichu@gmail.com-remote
+Host imap.gmail.com
+Port 993
+User write2vaichu@gmail.com
+PassCmd "pass write2vaichu@gmail.com"
+AuthMechs LOGIN
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore write2vaichu@gmail.com-local
+Subfolders Verbatim
+Path /home/vaishnav/.local/share/mail/write2vaichu@gmail.com/
+Inbox /home/vaishnav/.local/share/mail/write2vaichu@gmail.com/INBOX
+
+Channel write2vaichu@gmail.com
+Expunge Both
+Far :write2vaichu@gmail.com-remote:
+Near :write2vaichu@gmail.com-local:
+Patterns * !"[Gmail]/All Mail"
+Create Both
+SyncState *
+MaxMessages 0
+ExpireUnread no
+# End profile
+
+
+IMAPStore vaishnav.sabari.girish@gmail.com-remote
+Host imap.gmail.com
+Port 993
+User vaishnav.sabari.girish@gmail.com
+PassCmd "pass vaishnav.sabari.girish@gmail.com"
+AuthMechs LOGIN
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore vaishnav.sabari.girish@gmail.com-local
+Subfolders Verbatim
+Path /home/vaishnav/.local/share/mail/vaishnav.sabari.girish@gmail.com/
+Inbox /home/vaishnav/.local/share/mail/vaishnav.sabari.girish@gmail.com/INBOX
+
+Channel vaishnav.sabari.girish@gmail.com
+Expunge Both
+Far :vaishnav.sabari.girish@gmail.com-remote:
+Near :vaishnav.sabari.girish@gmail.com-local:
+Patterns * !"[Gmail]/All Mail"
+Create Both
+SyncState *
+MaxMessages 0
+ExpireUnread no
+# End profile
+
