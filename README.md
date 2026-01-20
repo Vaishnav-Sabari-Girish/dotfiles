@@ -9,3 +9,5 @@ Here are my links to the other git repos
 I have a separate README for my nvim config. 
 
 Find it [Here](./nvim/README.md)
+
+For my custom scripts find it [here](./scripts.md)
