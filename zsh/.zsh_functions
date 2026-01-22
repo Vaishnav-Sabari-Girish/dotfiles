@@ -639,14 +639,27 @@ stm32flash() {
 }
 
 tree_copy() {
-    # Use the first argument as path, or default to current directory '.'
-    local target="${1:-.}"
+    local target="."
+    local eza_opts=""
 
-    # Run eza tree and copy to clipboard
-    eza --tree "$target" | wl-copy
+    # Parse arguments
+    for arg in "$@"; do
+        if [[ "$arg" == "--all" || "$arg" == "-a" || "$arg" == "--hidden" ]]; then
+            eza_opts="--all"
+        else
+            target="$arg"
+        fi
+    done
 
-    # Optional: Confirm execution to the user
-    echo "Directory tree of '$target' copied to clipboard."
+    # Run eza tree (with optional --all) and copy to clipboard
+    eza --tree $eza_opts "$target" | wl-copy
+
+    # Confirm execution
+    if [[ -n "$eza_opts" ]]; then
+        echo "Directory tree of '$target' (including hidden files) copied to clipboard."
+    else
+        echo "Directory tree of '$target' copied to clipboard."
+    fi
 }
 
 function img() {
