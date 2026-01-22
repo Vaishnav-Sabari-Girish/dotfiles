@@ -1353,3 +1353,14 @@ stm32flash() {
         return 1
     fi
 }
+
+tree_copy() {
+    # Use the first argument as path, or default to current directory '.'
+    local target="${1:-.}"
+
+    # Run eza tree and copy to clipboard
+    eza --tree "$target" | wl-copy
+
+    # Optional: Confirm execution to the user
+    echo "Directory tree of '$target' copied to clipboard."
+}
