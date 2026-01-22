@@ -7,7 +7,7 @@ passwordeval "pass forgamesonly684@gmail.com"
 auth on
 tls on
 tls_trust_file	/etc/ssl/certs/ca-certificates.crt
-logfile /.local/share/msmtp.log
+logfile ~/.local/share/msmtp.log
 # tls_starttls
 
 account write2vaichu@gmail.com
@@ -19,7 +19,7 @@ passwordeval "pass write2vaichu@gmail.com"
 auth on
 tls on
 tls_trust_file	/etc/ssl/certs/ca-certificates.crt
-logfile /.local/share/msmtp.log
+logfile ~/.local/share/msmtp.log
 # tls_starttls
 
 account vaishnav.sabari.girish@gmail.com
@@ -31,6 +31,6 @@ passwordeval "pass vaishnav.sabari.girish@gmail.com"
 auth on
 tls on
 tls_trust_file	/etc/ssl/certs/ca-certificates.crt
-logfile /.local/share/msmtp.log
+logfile ~/.local/share/msmtp.log
 # tls_starttls
 
