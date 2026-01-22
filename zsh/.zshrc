@@ -111,10 +111,10 @@ export NAP_WHITE="#F5E0DC"
 printf "\n"
 
 # --- COMPLETIONS & FUNCTIONS ---
-# Add custom completions to fpath
-fpath=($HOME/completition_zsh/ $HOME/.zsh/completions $fpath)
+# Add custom completions to fpath (Stow path)
+fpath=($HOME/.zsh/completions $fpath)
 
-# Source custom functions
+# Source custom functions (Stow path)
 if [[ -f ~/.zsh_functions ]]; then
     source ~/.zsh_functions
 fi
@@ -132,12 +132,19 @@ hash -r
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# Custom Startup Scripts
-bash $HOME/dotfiles/zsh/anime_quote.sh
+# Custom Startup Scripts (Now calling from .local/bin)
+if [[ -f $HOME/.local/bin/anime_quote.sh ]]; then
+    bash $HOME/.local/bin/anime_quote.sh
+fi
+
 echo "# Check addae regularly" | $HOME/go/bin/glow -
 echo "# Use goki for flashcards" | $HOME/go/bin/glow -
 echo "# Use exit_0 for LPIC practice" | $HOME/go/bin/glow -
-source $HOME/dotfiles/zsh/forgeprj.sh
+
+if [[ -f $HOME/.local/bin/forgeprj.sh ]]; then
+    source $HOME/.local/bin/forgeprj.sh
+fi
+
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # --- INITIALIZATION (MUST BE LAST) ---

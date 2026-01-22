@@ -539,7 +539,7 @@ remove_pages() {
 }
 
 wsend() {
-    local script_path="$HOME/dotfiles/zsh/send_file.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/send_file.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -550,7 +550,7 @@ wsend() {
 }
 
 wreceive() {
-    local script_path="$HOME/dotfiles/zsh/receive_file.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/receive_file.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -561,7 +561,7 @@ wreceive() {
 }
 
 mkproj() {
-    local script_path="$HOME/dotfiles/zsh/mkproj.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/mkproj.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -572,7 +572,7 @@ mkproj() {
 }
 
 gist_manager() {
-    local script_path="$HOME/dotfiles/zsh/gist_manager.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/gist_manager.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -583,7 +583,7 @@ gist_manager() {
 }
 
 mp4_to_gif() {
-    local script_path="$HOME/dotfiles/zsh/mp4_to_gif.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/mp4_to_gif.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -594,7 +594,7 @@ mp4_to_gif() {
 }
 
 aoci() {
-    local script_path="$HOME/dotfiles/zsh/aoci.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/aoci.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -605,7 +605,7 @@ aoci() {
 }
 
 notes() {
-    local script_path="$HOME/dotfiles/zsh/notes.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/notes.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -616,7 +616,7 @@ notes() {
 }
 
 send_email() {
-    local script_path="$HOME/dotfiles/zsh/send_email.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/send_email.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
@@ -628,7 +628,7 @@ send_email() {
 
 stm32flash() {
     # Adjust this path if you saved the file somewhere else
-    local script_path="$HOME/dotfiles/zsh/stm32flash.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/stm32flash.sh"
 
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
