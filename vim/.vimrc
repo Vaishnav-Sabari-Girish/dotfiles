@@ -137,3 +137,6 @@ set printoptions+=left:10pc,right:5pc,top:5pc,bottom:5pc
 
 " Optional: Set a specific font (syntax varies by system, but 'Courier' is standard)
 set printfont=Courier:h11
+
+" Alternative print
+command! P w !paps --font="JetBrains Mono 10" | lp
