@@ -155,3 +155,12 @@ eval "$(starship init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/fzf-tab/fzf-tab.zsh
 source $HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Fixing cursor in foot
+# Force the cursor to be a Blinking Beam at the prompt
+# \e[5 q = Blinking Beam
+# \e[6 q = Steady Beam
+_fix_cursor() {
+   echo -ne '\e[5 q'
+}
+precmd_functions+=(_fix_cursor)
