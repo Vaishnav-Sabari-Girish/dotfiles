@@ -3,19 +3,19 @@
 -- :Lazy
 
 -- Step 2: Try this updated configuration with better error handling
+-- return {
+--  "AlexvZyl/nordic.nvim",
+--  lazy = false,
+--  priority = 1000,
+--  config = function()
+--    require("nordic").load()
+--  end,
+-- }
+-- Step 3: If still not working, try this simpler version:
 return {
-  "AlexvZyl/nordic.nvim",
-  lazy = false,
+  "shaunsingh/nord.nvim",
   priority = 1000,
   config = function()
-    require("nordic").load()
+    vim.cmd("colorscheme nord")
   end,
 }
--- Step 3: If still not working, try this simpler version:
--- return {
---   "shaunsingh/nord.nvim",
---   priority = 1000,
---   config = function()
---     vim.cmd("colorscheme nord")
---   end,
--- }
