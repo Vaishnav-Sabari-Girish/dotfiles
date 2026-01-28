@@ -311,6 +311,16 @@ window-rule {
 	clip-to-geometry true
 }
 
+window-rule {
+    // Match the application ID for surf
+    // Since surf is running via XWayland, the ID is usually the class name.
+    match app-id="Surf"
+
+    // Force it to open fullscreen
+    open-fullscreen true
+}
+
+
 binds {
 	Mod+Shift+Slash { show-hotkey-overlay; }
 
