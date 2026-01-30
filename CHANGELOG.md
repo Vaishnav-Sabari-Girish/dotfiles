@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(added org mode)** Added org mode - ([bce6815](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/bce6815cd3f909db1a3bd897e6e39b6675a6bf96)) by @Vaishnav-Sabari-Girish
+
 - **(keybind for foot)** Add keybind for foot - ([c9792bd](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c9792bd290daa00c813867f76a63d55479869526)) by @Vaishnav-Sabari-Girish
 
 - **(adde foot config)** Added foot config - ([3d1cfac](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3d1cfaca029fe4d5aaa98803a576fe9860c34dbd)) by @Vaishnav-Sabari-Girish
