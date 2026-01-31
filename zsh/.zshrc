@@ -167,3 +167,5 @@ precmd_functions+=(_fix_cursor)
 
 # Execute the check
 run_daily_kanji_check
+alias nitch='nitchrevived'
+alias ff='fastfetch'
