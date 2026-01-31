@@ -164,3 +164,6 @@ _fix_cursor() {
    echo -ne '\e[5 q'
 }
 precmd_functions+=(_fix_cursor)
+
+# Execute the check
+run_daily_kanji_check

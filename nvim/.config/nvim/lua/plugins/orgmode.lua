@@ -11,6 +11,9 @@ return {
         -- ADD THIS SECTION TO REMAP KEYS
         mappings = {
           org = {
+            -- Open file/link
+            org_open_at_point = "<leader>oo",
+            -- Toggle Checkbox
             org_toggle_checkbox = "<leader>tt", -- Was <C-space>
           },
         },

@@ -672,3 +672,12 @@ function img() {
         loupe "$@"
     fi
 }
+
+# --- Daily Kanji Quiz Startup ---
+function run_daily_kanji_check() {
+    # Check if the binary exists in PATH (works for .local/bin or .cargo/bin)
+    if command -v daily_kanji >/dev/null 2>&1; then
+        daily_kanji
+    fi
+}
+
