@@ -1,6 +1,16 @@
 
 ### :rocket: New features
 
+- **(foot config)** Updated foot config - ([d49329c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d49329cc4c06cb39e6bd254e255d37b502476f32)) by @Vaishnav-Sabari-Girish
+
+- **(transpoarency)** Changed Transparency in wezterm - ([bfdc01b](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/bfdc01bfbad0be3d89ba21bda886c2c8fe3f40fe)) by @Vaishnav-Sabari-Girish
+
+- **(added new aliases)** Aliases added - ([98c8cd4](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/98c8cd46a098c7355d4c6173ad67b86bbc8eff8b)) by @Vaishnav-Sabari-Girish
+
+- **(added kanji)** Kanji practice - ([1eb06fa](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1eb06fa1d78b553c856b59defbbda808f908ba27)) by @Vaishnav-Sabari-Girish
+
+- **(add changelog.sh)** Add script for changelog - ([d3dd71a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d3dd71a06bf6a3c0d35c2874d6daabc6c9468760)) by @Vaishnav-Sabari-Girish
+
 - **(added org mode)** Added org mode - ([bce6815](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/bce6815cd3f909db1a3bd897e6e39b6675a6bf96)) by @Vaishnav-Sabari-Girish
 
 - **(keybind for foot)** Add keybind for foot - ([c9792bd](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c9792bd290daa00c813867f76a63d55479869526)) by @Vaishnav-Sabari-Girish
