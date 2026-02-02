@@ -169,3 +169,4 @@ precmd_functions+=(_fix_cursor)
 run_daily_kanji_check
 alias nitch='nitchrevived'
 alias ff='fastfetch'
+alias webcam="mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --demuxer-lavf-o=input_format=mjpeg > /dev/null 2>&1"
