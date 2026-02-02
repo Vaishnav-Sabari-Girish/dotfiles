@@ -12,6 +12,7 @@ config.font = wezterm.font("JetBrainsMono Nerd Font")
 config.default_cursor_style = "BlinkingBar"
 config.use_ime = true
 config.enable_kitty_graphics = true
+config.window_background_opacity = 0.9
 
 wezterm.on("gui-startup", function(cmd)
 	local tab, pane, window = mux.spawn_window(cmd or {})
