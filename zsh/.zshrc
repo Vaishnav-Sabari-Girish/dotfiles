@@ -84,7 +84,7 @@ bindkey "^[[F" end-of-line          # End
 bindkey "^[[3~" delete-char         # Delete
 
 # --- ENVIRONMENT VARIABLES ---
-export EDITOR=vim
+export EDITOR=nvim
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 export NAP_CONFIG="~/.nap/config.yaml" 
 export NAP_HOME="~/.nap" 

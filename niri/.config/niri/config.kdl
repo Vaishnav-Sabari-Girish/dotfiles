@@ -334,6 +334,7 @@ binds {
 	Super+L hotkey-overlay-title="Lock the Screen" {
 		spawn-sh "swayidle -w timeout 20 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' & IDLE_PID=$!; swaylock -i ~/Pictures/wallpaper_frieren.jpg --fade-in 0 --clock --indicator --effect-blur 7x5; kill $IDLE_PID"
 	}
+  Mod+E hotkey-overlay-title="Open files" { spawn "nautilus"; }
 	Super+F hotkey-overlay-title="Open Firefox: firefox" { spawn "firefox"; }
 
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
