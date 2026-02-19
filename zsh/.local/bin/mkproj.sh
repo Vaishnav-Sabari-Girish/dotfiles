@@ -155,7 +155,7 @@ EOF
   cargo add embassy-stm32 --features "stm32f103c8,unstable-pac,memory-x,time-driver-any,exti"
   cargo add embassy-time --features tick-hz-1_000_000
 
-  # 3. .cargo/config.toml (Removed defmt.x)
+  # 3. .cargo/config.toml
   echo "⚙️  Configuring build target..."
   mkdir -p .cargo
   cat >.cargo/config.toml <<'EOF'
@@ -167,7 +167,7 @@ rustflags = [
 ]
 
 [build]
-target = "thumbv7m-none-eabi" # Cortex-M3 for STM32F103
+target = "thumbv7m-none-eabi"
 
 [env]
 DEFMT_LOG = "trace"
@@ -211,14 +211,12 @@ bind_interrupts!(struct Irqs {
 async fn main(_spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
 
-    // USART1 TX on PA9, using DMA1 Channel 4 (Standard for Blue Pill)
     let mut tx = UartTx::new(p.USART1, p.PA9, p.DMA1_CH4, Config::default()).unwrap();
 
     loop {
         let mut s: String<64> = String::new();
         let _ = writeln!(s, "Embassy Running! Uptime: {}s\r\n", embassy_time::Instant::now().as_secs());
         
-        // Async write to FTDI
         let _ = tx.write(s.as_bytes()).await;
 
         Timer::after_millis(1000).await;
@@ -262,15 +260,15 @@ EOF
 
   # 2. Add Dependencies via cargo add
   echo "➕ Adding dependencies..."
-  cargo add cortex-m
-  cargo add cortex-m-rt
-  cargo add embedded-hal
-  cargo add fugit
-  cargo add panic-halt
-  cargo add rp2040-boot2
+  cargo add cortex-m@0.7.7
+  cargo add cortex-m-rt@0.7.5
+  cargo add embedded-hal@1.0.0
+  cargo add fugit@0.3.9
+  cargo add panic-halt@1.0.0
+  cargo add rp2040-boot2@0.3.0
   cargo add rp2040-hal@0.11.0 --features "critical-section-impl"
-  cargo add smart-leds
-  cargo add ws2812-pio
+  cargo add smart-leds@0.4.0
+  cargo add ws2812-pio@0.9.0
 
   # 3. Append Release/Dev Profiles to Cargo.toml
   echo "⚙️  Configuring build profiles..."
@@ -420,18 +418,29 @@ EOF
 
   # 7. Download Flash Nuke Utility
   echo "🧹 Downloading flash_nuke.uf2 utility..."
-  curl -L -O -s https://datasheets.raspberrypi.com/soft/flash_nuke.uf2
+  curl -L -s -o flash_nuke.uf2 https://raw.githubusercontent.com/Pwea/Flash-Nuke/main/flash_nuke.uf2
 
   # 8. Justfile
   cat >Justfile <<'EOF'
-run:
-    @cargo run
+# Grab the name of the current directory to use as the binary name
+BIN_NAME := `basename "$PWD"`
 
 build:
     @cargo build --release
 
+run: build
+    @echo "📦 Converting ELF to UF2..."
+    @elf2uf2-rs convert target/thumbv6m-none-eabi/release/{{BIN_NAME}} flash.uf2
+    @echo "🔌 Mounting RP2040 synchronously (requires sudo)..."
+    @sudo mount -t vfat -o sync /dev/sda1 /mnt/rp2
+    @echo "⚡ Flashing memory..."
+    @sudo cp flash.uf2 /mnt/rp2/
+    @echo "✅ Done! LED should be blinking."
+    @sudo umount /mnt/rp2/ || true
+
 clean:
     @cargo clean
+    @rm -f flash.uf2
 EOF
 
   echo "✅ RP2040 project '$project_name' created!"
