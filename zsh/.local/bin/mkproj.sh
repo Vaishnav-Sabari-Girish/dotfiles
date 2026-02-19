@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, Zig, and ESP32-Std
+# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, and STM32-Embassy
 
 set -e
 
@@ -13,230 +13,229 @@ fi
 
 # Choose language
 echo "🚀 Project Creator"
-language=$(gum choose "C" "Rust" "Python" "Go" "Zig" "ESP32-Std")
+language=$(gum choose "C" "Rust" "Python" "Go" "Zig" "ESP32-Std" "STM32-Embassy")
 
 case $language in
 "C")
   echo "📁 Creating C project..."
   project_name=$(gum input --prompt "Enter project name: ")
-
-  # Create project directory
   mkdir -p "$project_name"
   cd "$project_name"
 
-  # Create main.c with Hello World
   cat >main.c <<'EOF'
 #include <stdio.h>
 
 int main() {
-  printf("Hello, World!\n");
-  return 0;
+    printf("Hello, World!\n");
+    return 0;
 }
 EOF
 
-  # Create Justfile
   cat >Justfile <<'EOF'
-# Variables
 CFLAGS := "-Wall -Wextra -O2"
 SRC := "main.c"
 OUT := "main.out"
 
-# Build rule
 build:
     @gcc {{SRC}} -o {{OUT}} {{CFLAGS}}
 
-# Run rule
 run:
-    @./{{OUT}} + just clean
+    @./{{OUT}}
 
-# Build + Run + Clean together
 br:
     @just build && just run && just clean
 
-# Remove built binary
 clean:
     @rm {{OUT}}
 EOF
-
-  echo "✅ C project '$project_name' created successfully!"
-  echo "📝 Files created: main.c, Justfile"
-  echo "🔨 Run 'just build' to compile, 'just run' to execute, or 'just br' to build and run"
-  echo "🔨 Use 'just --list' to view all the available commands"
+  echo "✅ C project '$project_name' created!"
   ;;
 
 "Rust")
   echo "🦀 Creating Rust project..."
   project_name=$(gum input --prompt "Enter project name: ")
-
-  # Check if cargo is installed
   if ! command -v cargo &>/dev/null; then
-    echo "Error: cargo is not installed. Please install Rust from https://rustup.rs/"
+    echo "Error: cargo not found."
     exit 1
   fi
-
   cargo new --bin "$project_name"
-  echo "✅ Rust project '$project_name' created successfully!"
-  echo "📝 Binary project created with Cargo.toml and src/main.rs"
-  echo "🔨 Run 'cargo run' to compile and execute"
+  echo "✅ Rust project '$project_name' created!"
   ;;
 
 "Python")
   echo "🐍 Creating Python project..."
   project_name=$(gum input --prompt "Enter project name: ")
-
-  # Check if uv is installed
   if ! command -v uv &>/dev/null; then
-    echo "Error: uv is not installed. Please install it from https://docs.astral.sh/uv/"
+    echo "Error: uv not found."
     exit 1
   fi
-
   uv init "$project_name"
-  echo "✅ Python project '$project_name' created successfully!"
-  echo "📝 Project created with pyproject.toml, main.py, and other files"
-  echo "🔨 Run 'uv run main.py' to execute"
+  echo "✅ Python project '$project_name' created!"
   ;;
 
 "Go")
   echo "🐹 Creating Go project..."
   project_name=$(gum input --prompt "Enter project name: ")
-
-  # Check if go is installed
-  if ! command -v go &>/dev/null; then
-    echo "Error: go is not installed. Please install Go from https://golang.org/dl/"
-    exit 1
-  fi
-
-  # Create project directory
   mkdir -p "$project_name"
   cd "$project_name"
-
-  # Initialize Go module
   go mod init "$project_name"
-
-  # Create main.go with Hello World
   cat >main.go <<'EOF'
-//Your Golang Code goes here
+package main
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, Go!")
+}
 EOF
-
-  # Create Justfile for consistency
   cat >Justfile <<'EOF'
-# Variables
-BINARY := "main"
-
-# Build rule
-build:
-    @go build -o {{BINARY}} .
-
-# Run rule
 run:
     @go run .
-
-# Build + Run together
-br:
-    @just build && ./{{BINARY}} && just clean
-
-# Test rule
-test:
-    @go test ./...
-
-# Format code
-fmt:
-    @go fmt ./...
-
-# Clean build artifacts
+build:
+    @go build -o main .
 clean:
-    @rm -f {{BINARY}}
-
-# Tidy modules
-tidy:
-    @go mod tidy
+    @rm -f main
 EOF
-
-  echo "✅ Go project '$project_name' created successfully!"
-  echo "📝 Files created: go.mod, main.go, Justfile"
-  echo "🔨 Run 'go run .' or 'just run' to execute"
-  echo "🔨 Run 'go build' or 'just build' to compile"
-  echo "🔨 Use 'just --list' to view all the available commands"
+  echo "✅ Go project '$project_name' created!"
   ;;
 
 "Zig")
   echo "⚡ Creating Zig project..."
   project_name=$(gum input --prompt "Enter project name: ")
-
-  # Check if zig is installed
-  if ! command -v zig &>/dev/null; then
-    echo "Error: zig is not installed. Please install Zig from https://ziglang.org/download/"
-    exit 1
-  fi
-
-  # Create project directory
   mkdir -p "$project_name"
   cd "$project_name"
-
-  # Initialize Zig project
   zig init
-
-  # Create Justfile for consistency with C workflow
   cat >Justfile <<'EOF'
-# Variables
-BINARY := "zig-out/bin/{{PROJECT_NAME}}"
-
-# Build rule
-build:
-    @zig build
-
-# Run rule (using zig build run)
 run:
     @zig build run
-
-# Build + Run together
-br:
-    @just build && just run
-
-# Test rule
-test:
-    @zig build test
-
-# Clean build artifacts
+build:
+    @zig build
 clean:
     @rm -rf zig-out .zig-cache
 EOF
-
-  # Replace placeholder in Justfile with actual project name
-  sed -i "s/{{PROJECT_NAME}}/$project_name/g" Justfile
-
-  echo "✅ Zig project '$project_name' created successfully!"
-  echo "📝 Files created: build.zig, src/main.zig, Justfile"
-  echo "🔨 Run 'just build' to compile, 'just run' to execute, or 'just br' to build and run"
-  echo "🔨 Run 'zig build' or 'just build' to compile"
-  echo "🔨 Use 'just --list' to view all the available commands"
+  echo "✅ Zig project '$project_name' created!"
   ;;
 
 "ESP32-Std")
   echo "🔧 Creating ESP32 Rust (std) project..."
-
-  # Check if cargo is installed
-  if ! command -v cargo &>/dev/null; then
-    echo "Error: cargo is not installed. Please install Rust from https://rustup.rs/"
-    exit 1
-  fi
-
-  # Check if cargo-generate is installed
   if ! command -v cargo-generate &>/dev/null; then
-    echo "⚠️  cargo-generate is not installed. Installing now..."
     cargo install cargo-generate
   fi
-
-  # Generate project using esp-idf-template
-  # The template will prompt for project name and configuration
   cargo generate esp-rs/esp-idf-template cargo
+  ;;
 
-  echo "✅ ESP32-Std project created successfully!"
-  echo "📝 Project created with ESP-IDF template (std support)"
-  echo "🔨 Run 'cargo build' to compile for your selected ESP32 target"
-  echo "🔨 Run 'cargo run' to build, flash, and monitor"
-  echo "💡 Make sure you have the ESP-IDF prerequisites installed"
-  echo "📚 See: https://docs.esp-rs.org/book/"
+"STM32-Embassy")
+  echo "🦀 Creating STM32 Embassy (no-std) project..."
+  project_name=$(gum input --prompt "Enter project name: ")
+
+  # Ensure the cross-compilation target is installed
+  echo "⚙️  Checking Rust target..."
+  rustup target add thumbv7m-none-eabi || true
+
+  # 1. Initialize Project
+  echo "📦 Initializing Cargo project..."
+  cargo new --bin "$project_name"
+  cd "$project_name"
+
+  # 2. Add Dependencies via cargo add
+  echo "➕ Adding dependencies..."
+
+  # Standard Crates
+  cargo add cortex-m --features "inline-asm,critical-section-single-core"
+  cargo add cortex-m-rt
+  cargo add panic-halt
+  cargo add heapless
+
+  cargo add embassy-executor --features "arch-cortex-m,executor-thread"
+  cargo add embassy-stm32 --features "stm32f103c8,unstable-pac,memory-x,time-driver-any,exti"
+  cargo add embassy-time --features tick-hz-1_000_000
+
+  # 3. .cargo/config.toml (Removed defmt.x)
+  echo "⚙️  Configuring build target..."
+  mkdir -p .cargo
+  cat >.cargo/config.toml <<'EOF'
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+runner = "probe-rs run --chip STM32F103C8"
+
+rustflags = [
+  "-C", "link-arg=-Tlink.x",
+]
+
+[build]
+target = "thumbv7m-none-eabi" # Cortex-M3 for STM32F103
+
+[env]
+DEFMT_LOG = "trace"
+EOF
+
+  # 4. Embed.toml
+  cat >Embed.toml <<'EOF'
+[default.general]
+chip = "STM32F103C8"
+
+[default.reset]
+halt_afterwards = false
+
+[default.rtt]
+enabled = false
+
+[default.gdb]
+enabled = false
+EOF
+
+  # 5. src/main.rs
+  echo "📝 Writing main.rs..."
+  cat >src/main.rs <<'EOF'
+#![no_std]
+#![no_main]
+
+use panic_halt as _;
+use embassy_executor::Spawner;
+use embassy_stm32::usart::{Config, UartTx, InterruptHandler};
+use embassy_stm32::peripherals;
+use embassy_time::Timer;
+use core::fmt::Write;
+use heapless::String;
+use embassy_stm32::bind_interrupts;
+
+bind_interrupts!(struct Irqs {
+    USART1 => InterruptHandler<peripherals::USART1>;
+});
+
+#[embassy_executor::main]
+async fn main(_spawner: Spawner) {
+    let p = embassy_stm32::init(Default::default());
+
+    // USART1 TX on PA9, using DMA1 Channel 4 (Standard for Blue Pill)
+    let mut tx = UartTx::new(p.USART1, p.PA9, p.DMA1_CH4, Config::default()).unwrap();
+
+    loop {
+        let mut s: String<64> = String::new();
+        let _ = writeln!(s, "Embassy Running! Uptime: {}s\r\n", embassy_time::Instant::now().as_secs());
+        
+        // Async write to FTDI
+        let _ = tx.write(s.as_bytes()).await;
+
+        Timer::after_millis(1000).await;
+    }
+}
+EOF
+
+  # 6. Justfile
+  cat >Justfile <<'EOF'
+run:
+    @cargo run
+
+build:
+    @cargo build --release
+
+clean:
+    @cargo clean
+EOF
+
+  echo "✅ STM32 project '$project_name' created!"
+  echo "📝 Hardware: STM32F103C8 (Blue Pill)"
+  echo "🔌 Wiring: Connect PA9 (TX) to FTDI RX"
+  echo "🔨 Run 'just run' to flash."
   ;;
 esac
 
