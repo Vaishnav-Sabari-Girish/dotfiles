@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, and STM32-Embassy
+# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, and RP2040-HAL
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language
 echo "🚀 Project Creator"
-language=$(gum choose "C" "Rust" "Python" "Go" "Zig" "ESP32-Std" "STM32-Embassy")
+language=$(gum choose "C" "Rust" "Python" "Go" "Zig" "ESP32-Std" "STM32-Embassy" "RP2040-HAL")
 
 case $language in
 "C")
@@ -235,6 +235,202 @@ EOF
   echo "✅ STM32 project '$project_name' created!"
   echo "📝 Hardware: STM32F103C8 (Blue Pill)"
   echo "🔌 Wiring: Connect PA9 (TX) to FTDI RX"
+  echo "🔨 Run 'just run' to flash."
+  ;;
+
+"RP2040-HAL")
+  echo "🍓 Creating RP2040 (no-std) project..."
+  project_name=$(gum input --prompt "Enter project name: ")
+
+  # Ensure the cross-compilation target is installed
+  echo "⚙️  Checking Rust target..."
+  rustup target add thumbv6m-none-eabi || true
+
+  # 1. Initialize Project
+  echo "📦 Initializing Cargo project..."
+  cargo new --bin "$project_name"
+  cd "$project_name"
+
+  # Force Cargo edition to 2024 to support #[unsafe(...)]
+  sed -i 's/edition = "2021"/edition = "2024"/' Cargo.toml
+
+  # 2. Add Dependencies via cargo add
+  echo "➕ Adding dependencies..."
+  cargo add cortex-m
+  cargo add cortex-m-rt
+  cargo add embedded-hal
+  cargo add fugit
+  cargo add panic-halt
+  cargo add rp2040-boot2
+  cargo add rp2040-hal@0.11.0 --features "critical-section-impl"
+  cargo add smart-leds
+  cargo add ws2812-pio
+
+  # 3. Append Release/Dev Profiles to Cargo.toml
+  echo "⚙️  Configuring build profiles..."
+  cat >>Cargo.toml <<'EOF'
+
+[profile.dev]
+codegen-units = 1 
+debug = 2 
+debug-assertions = true
+incremental = false 
+opt-level = 3
+overflow-checks = true
+
+[profile.release]
+codegen-units = 1 
+debug = 2 
+debug-assertions = false
+incremental = false 
+lto = 'fat'
+opt-level = 3
+overflow-checks = false
+EOF
+
+  # 4. .cargo/config.toml
+  echo "⚙️  Configuring build target..."
+  mkdir -p .cargo
+  cat >.cargo/config.toml <<'EOF'
+[build]
+target = "thumbv6m-none-eabi"
+
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+runner = "elf2uf2-rs deploy --family rp2040"
+linker = "flip-link"
+rustflags = [
+  "-C", "link-arg=--nmagic",
+  "-C", "link-arg=-Tlink.x",
+  "-C", "no-vectorize-loops",
+]
+
+[env]
+DEFMT_LOG = "debug"
+EOF
+
+  # 5. memory.x
+  echo "🧠 Configuring memory map..."
+  cat >memory.x <<'EOF'
+MEMORY {
+    BOOT2 : ORIGIN = 0x10000000, LENGTH = 0x100
+    FLASH : ORIGIN = 0x10000100, LENGTH = 2048K - 0x100
+    RAM   : ORIGIN = 0x20000000, LENGTH = 256K
+}
+
+EXTERN(BOOT2_FIRMWARE)
+
+SECTIONS {
+    /* ### Boot loader */
+    .boot2 ORIGIN(BOOT2) :
+    {
+        KEEP(*(.boot2));
+    } > BOOT2
+} INSERT BEFORE .text;
+EOF
+
+  # 6. src/main.rs
+  echo "📝 Writing main.rs..."
+  cat >src/main.rs <<'EOF'
+#![no_std]
+#![no_main]
+
+use cortex_m_rt::entry;
+use panic_halt as _;
+use rp2040_hal::{
+    clocks::{init_clocks_and_plls, Clock},
+    pac,
+    pio::PIOExt,
+    timer::Timer,
+    watchdog::Watchdog,
+    Sio,
+};
+use smart_leds::{SmartLedsWrite, RGB8};
+use ws2812_pio::Ws2812;
+
+// --- THE IGNITION KEY ---
+// This places the 256-byte bootloader at the very start of the flash memory.
+// Without this, the RP2040 ROM refuses to jump to our code.
+#[unsafe(link_section = ".boot2")]
+#[used]
+pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_W25Q080;
+// ------------------------
+
+#[entry]
+fn main() -> ! {
+    let mut pac = pac::Peripherals::take().unwrap();
+    let cp = pac::CorePeripherals::take().unwrap();
+    
+    let mut wdt = Watchdog::new(pac.WATCHDOG);
+
+    let clocks = init_clocks_and_plls(
+        12_000_000u32,
+        pac.XOSC,
+        pac.CLOCKS,
+        pac.PLL_SYS,
+        pac.PLL_USB,
+        &mut pac.RESETS,
+        &mut wdt,
+    )
+    .ok()
+    .unwrap();
+
+    let timer = Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
+    let mut delay = cortex_m::delay::Delay::new(cp.SYST, clocks.system_clock.freq().to_Hz());
+
+    let sio = Sio::new(pac.SIO);
+    let pins = rp2040_hal::gpio::Pins::new(
+        pac.IO_BANK0,
+        pac.PADS_BANK0,
+        sio.gpio_bank0,
+        &mut pac.RESETS,
+    );
+
+    let (mut pio, sm0, _, _, _) = pac.PIO0.split(&mut pac.RESETS);
+    
+    // Set up the WS2812 NeoPixel on GP16
+    let mut ws = Ws2812::new(
+        pins.gpio16.into_function(),
+        &mut pio,
+        sm0,
+        clocks.peripheral_clock.freq(),
+        timer.count_down(),
+    );
+
+    loop {
+        // Red
+        ws.write([RGB8::new(32, 0, 0)].iter().cloned()).unwrap();
+        delay.delay_ms(500);
+        
+        // Green
+        ws.write([RGB8::new(0, 32, 0)].iter().cloned()).unwrap();
+        delay.delay_ms(500);
+        
+        // Blue
+        ws.write([RGB8::new(0, 0, 32)].iter().cloned()).unwrap();
+        delay.delay_ms(500);
+    }
+}
+EOF
+
+  # 7. Download Flash Nuke Utility
+  echo "🧹 Downloading flash_nuke.uf2 utility..."
+  curl -L -O -s https://datasheets.raspberrypi.com/soft/flash_nuke.uf2
+
+  # 8. Justfile
+  cat >Justfile <<'EOF'
+run:
+    @cargo run
+
+build:
+    @cargo build --release
+
+clean:
+    @cargo clean
+EOF
+
+  echo "✅ RP2040 project '$project_name' created!"
+  echo "📝 Hardware: Waveshare RP2040 Zero"
+  echo "🔌 NeoPixel on GP16"
   echo "🔨 Run 'just run' to flash."
   ;;
 esac
