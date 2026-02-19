@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(replaced gum with fzf)** Replaced gum with fzf in mkproj - ([405f9e9](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/405f9e9da1a2adb1b7022090280ff3fa62f28e88)) by @Vaishnav-Sabari-Girish
+
 - **(add RP2040)** RP2040 Embedded Rust - ([f8f4790](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/f8f47901137ab1558e3e597bd95c6a45a702ecb1)) by @Vaishnav-Sabari-Girish
 
 - **(stm32 project)** STM32 BluePill Embedded Rust project creation - ([0163d51](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0163d51ebd8a819c33819126acaca2b208ef2841)) by @Vaishnav-Sabari-Girish
