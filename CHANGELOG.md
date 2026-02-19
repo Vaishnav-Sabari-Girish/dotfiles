@@ -1,6 +1,24 @@
 
 ### :rocket: New features
 
+- **(add RP2040)** RP2040 Embedded Rust - ([f8f4790](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/f8f47901137ab1558e3e597bd95c6a45a702ecb1)) by @Vaishnav-Sabari-Girish
+
+- **(stm32 project)** STM32 BluePill Embedded Rust project creation - ([0163d51](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0163d51ebd8a819c33819126acaca2b208ef2841)) by @Vaishnav-Sabari-Girish
+
+- **(discord max)** Updated discord window rules - ([290efb6](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/290efb668441261182db6aef30ef53c042b5c9e0)) by @Vaishnav-Sabari-Girish
+
+- **(viu completions)** Added completions for viu - ([52a6c7b](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/52a6c7b9fcd27c6a2167dec251304fe9796de926)) by @Vaishnav-Sabari-Girish
+
+- **(rust stuff update)** Force stable toolchain - ([da61768](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/da61768da06cf1cc6e0ddfe00e8db5fdfc46e7fe)) by @Vaishnav-Sabari-Girish
+
+- **(rust)** Rust stuff - ([4c4ae2a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4c4ae2adbaf43b026b2e3434a7c4e19355df7c55)) by @Vaishnav-Sabari-Girish
+
+- **(changed some stuff)** Add crates.nvim - ([97bf301](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/97bf301e2544a1064999a902c990686a36cce23d)) by @Vaishnav-Sabari-Girish
+
+- **(changed pdf viewer)** Changed PDF viewer from evince to papers - ([bb6b6dc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/bb6b6dcb9c4cf2fa5c16d9219e54528d96d06fd7)) by @Vaishnav-Sabari-Girish
+
+- **(zshrc)** Add new alias for webcam - ([1a09d98](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1a09d98d087ac41395e321fc6d36ec545c20286f)) by @Vaishnav-Sabari-Girish
+
 - **(foot config)** Updated foot config - ([d49329c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d49329cc4c06cb39e6bd254e255d37b502476f32)) by @Vaishnav-Sabari-Girish
 
 - **(transpoarency)** Changed Transparency in wezterm - ([bfdc01b](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/bfdc01bfbad0be3d89ba21bda886c2c8fe3f40fe)) by @Vaishnav-Sabari-Girish
@@ -109,6 +127,8 @@
 
 ### :page_facing_up: Documentation
 
+- **(cl update)** Updated CHANGELOG - ([832ca2e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/832ca2e2ba37b88c3b023a85b714c21e26509182)) by @Vaishnav-Sabari-Girish
+
 - **(updated readme)** Updated README.md - ([eb0b6e8](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/eb0b6e8a599742aaae20a997f1e74fe36383d863)) by @Vaishnav-Sabari-Girish
 
 - **(updated cl)** Updated Changelog - ([513b979](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/513b979c90accd62b64ab7c489a27e768a3cee90)) by @Vaishnav-Sabari-Girish
@@ -130,6 +150,11 @@
 - **(changelog)** Added CHANGELOG.md - ([2398333](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2398333bb55b8cc3cc11bde0474db428acaf88a4)) by @Vaishnav-Sabari-Girish
 
 
+### :zap: Performance
+
+- **(default editor changed)** Changed default editor - ([672abd1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/672abd1a8c5e192190cb53319da207a61640f348)) by @Vaishnav-Sabari-Girish
+
+
 ### :wrench: Miscellaneous
 
 - **(.mailsynclastrun)** Ignore .mailsynclastrun - ([8516d7d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8516d7da8ad192fb1052fc712e716afa6b4997d0)) by @Vaishnav-Sabari-Girish
@@ -141,6 +166,8 @@
 
 
 ### :art: Styling
+
+- **(foot config change)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([4d8170d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4d8170d5b82b7188ab12f164e6873e65649fda1f)) by @Vaishnav-Sabari-Girish
 
 - **(changed nvim theme)** Changed nvim theme - ([b30b62c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b30b62c13cf8eb7661e4b0ba2c8aa393cbd514df)) by @Vaishnav-Sabari-Girish
 

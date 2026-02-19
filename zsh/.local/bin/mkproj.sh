@@ -5,20 +5,26 @@
 
 set -e
 
-# Check if gum is installed
-if ! command -v gum &>/dev/null; then
-  echo "Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum"
+# Check if fzf is installed
+if ! command -v fzf &>/dev/null; then
+  echo "Error: fzf is not installed. Please install it using your package manager."
   exit 1
 fi
 
-# Choose language
+# Choose language using fzf
 echo "🚀 Project Creator"
-language=$(gum choose "C" "Rust" "Python" "Go" "Zig" "ESP32-Std" "STM32-Embassy" "RP2040-HAL")
+language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL" | fzf --prompt="Choose language: " --height=10 --layout=reverse --border)
+
+# Exit if the user pressed Esc or Ctrl-C in fzf
+if [ -z "$language" ]; then
+  echo "Aborted."
+  exit 0
+fi
 
 case $language in
 "C")
   echo "📁 Creating C project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
   mkdir -p "$project_name"
   cd "$project_name"
 
@@ -53,7 +59,7 @@ EOF
 
 "Rust")
   echo "🦀 Creating Rust project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
   if ! command -v cargo &>/dev/null; then
     echo "Error: cargo not found."
     exit 1
@@ -64,7 +70,7 @@ EOF
 
 "Python")
   echo "🐍 Creating Python project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
   if ! command -v uv &>/dev/null; then
     echo "Error: uv not found."
     exit 1
@@ -75,7 +81,7 @@ EOF
 
 "Go")
   echo "🐹 Creating Go project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
   mkdir -p "$project_name"
   cd "$project_name"
   go mod init "$project_name"
@@ -100,7 +106,7 @@ EOF
 
 "Zig")
   echo "⚡ Creating Zig project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
   mkdir -p "$project_name"
   cd "$project_name"
   zig init
@@ -125,7 +131,7 @@ EOF
 
 "STM32-Embassy")
   echo "🦀 Creating STM32 Embassy (no-std) project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
 
   # Ensure the cross-compilation target is installed
   echo "⚙️  Checking Rust target..."
@@ -240,7 +246,7 @@ EOF
 
 "RP2040-HAL")
   echo "🍓 Creating RP2040 (no-std) project..."
-  project_name=$(gum input --prompt "Enter project name: ")
+  read -p "Enter project name: " project_name
 
   # Ensure the cross-compilation target is installed
   echo "⚙️  Checking Rust target..."
