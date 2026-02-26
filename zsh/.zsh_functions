@@ -2,8 +2,9 @@
 
 # Just for fun 
 precmd() {
-  if [ $? -ne 0 ]; then
-    paplay "$HOME/Music/FAH Echo Sound Effect [9t9pDnG0SeM].wav" 
+  local exit_status=$?
+  if [ $exit_status -ne 0 ] && [ $exit_status -ne 130 ]; then
+    paplay --volume=200000 "$HOME/Music/FAH Echo Sound Effect [9t9pDnG0SeM].wav" &
   fi
 }
 
