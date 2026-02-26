@@ -1,13 +1,5 @@
 #!/bin/zsh
 
-mojo_project() {
-  if [ -z "$1" ]; then 
-    echo "Usage: mojo_project <project_name>"
-    return 1 
-  fi 
-  magic init "$1" --format mojoproject && rm -rf "$1"/.gitignore && rm -rf "$1"/.gitattributes
-}
-
 qr() {
   if [ -z "$1" ]; then
     echo "Usage: qr <link_to_website>"
@@ -149,71 +141,51 @@ acp() {
     echo 'Changes added, committed, and pushed to all remotes'
 }
 
-# Function to push to origin only
-acpo() {
-    # Check if meteor is installed
-    if ! command -v meteor >/dev/null 2>&1; then
-        echo 'Error: meteor is not installed. Install with: go install github.com/stefanlogue/meteor@latest'
-        return 1
-    fi
-
-    # Stage all changes
-    git add .
-
-    # Use meteor for conventional commit (interactive)
-    meteor
-    
-    # Check if commit was successful
-    if [ $? -ne 0 ]; then
-        echo 'Error: Commit failed or was cancelled'
-        return 1
-    fi
-
-    # Check if gum is installed for branch selection
-    if ! command -v gum >/dev/null 2>&1; then
-        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
-        return 1
-    fi
-
-    # Prompt for branch name using gum
-    branch=$(git branch | gum choose | sed 's/^* //')
-    if [ -z "$branch" ]; then
-        echo 'Error: Branch name cannot be empty'
-        return 1
-    fi
-
-    # Verify branch exists
-    if ! git rev-parse --verify "$branch" >/dev/null 2>&1; then
-        echo "Error: Branch $branch does not exist"
-        return 1
-    fi
-
-    # Checkout the specified branch (only if not already on it)
-    current_branch=$(git branch --show-current)
-    if [ "$current_branch" != "$branch" ]; then
-        git checkout "$branch"
-    fi
-
-    # Push to origin only
-    echo "Pushing to remote: origin"
-    git push origin "$branch"
-
-    echo 'Changes added, committed with conventional format, and pushed to origin'
-}
-
-# Function to add, commit, and push to all Git remotes with meteor for conventional commits
+# Function to add, commit, and force push to all Git remotes with meteor for conventional commits
 acpf() {
-    # Check if meteor is installed
-    if ! command -v meteor >/dev/null 2>&1; then
-        echo 'Error: meteor is not installed. Install with: go install github.com/stefanlogue/meteor@latest'
+    # Check for fzf
+    if ! command -v fzf >/dev/null 2>&1; then
+        echo 'Error: fzf is not installed. Please install it from https://github.com/junegunn/fzf'
         return 1
     fi
 
     # Stage all changes
     git add .
 
-    # Use meteor for conventional commit (interactive)
-    meteor
+    # 1. Define Commit Types with Descriptions
+    local choices=(
+        "feat : A new feature"
+        "fix : A bug fix"
+        "docs : Documentation only changes"
+        "style : Changes that do not affect the meaning of the code (white-space, formatting, etc)"
+        "refactor : A code change that neither fixes a bug nor adds a feature"
+        "perf : A code change that improves performance"
+        "test : Adding missing tests or correcting existing tests"
+        "build : Changes that affect the build system or external dependencies"
+        "ci : Changes to our CI configuration files and scripts"
+        "chore : Other changes that don't modify src or test files"
+        "revert : Reverts a previous commit"
+    )
+
+    # 2. Select Commit Type using fzf
+    # We use printf to feed the array elements as new lines into fzf
+    echo "Choose commit type:"
+    local selected
+    selected=$(printf "%s\n" "${choices[@]}" | fzf --reverse --header "Select Commit Type")
+
+    # Handle cancellation
+    if [ -z "$selected" ]; then
+        echo 'Error: No commit type selected.'
+        return 1
+    fi
+
+    # 3. Extract the type (Clean the string)
+    # Removes everything starting from " :" to the end
+    local type
+    type="${selected%% :*}"
+
+    # 4. Commit
+    git commit -as -e -m "$type(): "
     
     # Check if commit was successful
     if [ $? -ne 0 ]; then
@@ -221,14 +193,10 @@ acpf() {
         return 1
     fi
 
-    # Check if gum is installed for branch selection
-    if ! command -v gum >/dev/null 2>&1; then
-        echo 'Error: gum is not installed. Please install it from https://github.com/charmbracelet/gum'
-        return 1
-    fi
-
-    # Prompt for branch name using gum
-    branch=$(git branch | gum choose | sed 's/^* //')
+    # 5. Prompt for branch name using fzf
+    local branch
+    branch=$(git branch --format='%(refname:short)' | fzf --reverse --header "Select Branch")
+    
     if [ -z "$branch" ]; then
         echo 'Error: Branch name cannot be empty'
         return 1
@@ -240,66 +208,23 @@ acpf() {
         return 1
     fi
 
-    # Checkout the specified branch (only if not already on it)
+    # Checkout branch if needed
+    local current_branch
     current_branch=$(git branch --show-current)
     if [ "$current_branch" != "$branch" ]; then
         git checkout "$branch"
     fi
-
-    # Get all remote names into an array
-    remotes=($(git remote))
 
     # Push to all remotes
+    local remotes
+    remotes=($(git remote))
+
     for remote in "${remotes[@]}"; do
         echo "Pushing to remote: $remote"
-        git push --force "$remote" "$branch"
+        git push "$remote" "$branch" --force
     done
 
-    echo 'Changes added, committed with conventional format, and pushed to all remotes'
-}
-
-form_create() {
-    local num_questions code
-    # Prompt for number of questions
-    num_questions=$(gum input --prompt "Enter number of questions: " --placeholder "e.g., 5")
-    
-    # Validate number of questions is a positive integer
-    if [[ ! "$num_questions" =~ ^[0-9]+$ ]] || [ "$num_questions" -le 0 ]; then
-        echo "Error: Please enter a valid positive number"
-        return 1
-    fi
-    
-    # Prompt for code
-    code=$(gum input --prompt "Enter form code: " --placeholder "e.g., myform123")
-    
-    # Validate code is not empty
-    if [ -z "$code" ]; then
-        echo "Error: Code cannot be empty"
-        return 1
-    fi
-    
-    # Execute ssh command to create bashform
-    ssh -t bashform.me create "$num_questions" "$code"
-}
-
-function ans_form() {
-    local code
-    # Prompt for form code using gum input
-    code=$(gum input --prompt "Enter form code: " --placeholder "e.g., myform123")
-    
-    # Validate code is not empty
-    if [ -z "$code" ]; then
-        echo "Error: Code cannot be empty"
-        return 1
-    fi
-    
-    # Execute ssh command to answer the form
-    ssh -t bashform.me form "$code"
-}
-
-function view_forms() {
-    # Execute ssh command to view all form answers
-    ssh -t bashform.me forms
+    echo 'Changes added, committed, and pushed to all remotes'
 }
 
 pdf_manager() {
@@ -571,16 +496,6 @@ mkproj() {
     fi
 }
 
-gist_manager() {
-    local script_path="$HOME/dotfiles/zsh/.local/bin/gist_manager.sh"
-    
-    if [[ -x "$script_path" ]]; then
-        "$script_path" "$@"
-    else
-        echo "Error: gist_manager.sh not found or not executable at $script_path"
-        return 1
-    fi
-}
 
 mp4_to_gif() {
     local script_path="$HOME/dotfiles/zsh/.local/bin/mp4_to_gif.sh"
@@ -589,28 +504,6 @@ mp4_to_gif() {
         "$script_path" "$@"
     else
         echo "Error: mp4_to_gif.sh not found or not executable at $script_path"
-        return 1
-    fi
-}
-
-aoci() {
-    local script_path="$HOME/dotfiles/zsh/.local/bin/aoci.sh"
-    
-    if [[ -x "$script_path" ]]; then
-        "$script_path" "$@"
-    else
-        echo "Error: aoci.sh not found or not executable at $script_path"
-        return 1
-    fi
-}
-
-notes() {
-    local script_path="$HOME/dotfiles/zsh/.local/bin/notes.sh"
-    
-    if [[ -x "$script_path" ]]; then
-        "$script_path" "$@"
-    else
-        echo "Error: notes.sh not found or not executable at $script_path"
         return 1
     fi
 }
