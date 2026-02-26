@@ -1,5 +1,13 @@
 #!/bin/zsh
 
+# Just for fun 
+precmd() {
+  if [ $? -ne 0 ]; then
+    paplay "$HOME/Music/FAH Echo Sound Effect [9t9pDnG0SeM].wav" 
+  fi
+}
+
+
 qr() {
   if [ -z "$1" ]; then
     echo "Usage: qr <link_to_website>"
