@@ -1,6 +1,12 @@
 
 ### :rocket: New features
 
+- **(removed some unused functions and scripts)** Removed some scripts - ([403bacb](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/403bacbc4f02b7b4e1ccb0bed73e01906553ee84)) by @Vaishnav-Sabari-Girish
+
+- **(discord RPC)** Added Discord RPC for nvim - ([07bfebe](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/07bfebe84799982fc4942c3d013383b6db110708)) by @Vaishnav-Sabari-Girish
+
+- **(mkproj update)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([5cb4fc5](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/5cb4fc55ca171eb9e483a4ae354ac4b2ee377063)) by @Vaishnav-Sabari-Girish
+
 - **(replaced gum with fzf)** Replaced gum with fzf in mkproj - ([405f9e9](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/405f9e9da1a2adb1b7022090280ff3fa62f28e88)) by @Vaishnav-Sabari-Girish
 
 - **(add RP2040)** RP2040 Embedded Rust - ([f8f4790](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/f8f47901137ab1558e3e597bd95c6a45a702ecb1)) by @Vaishnav-Sabari-Girish
@@ -114,6 +120,10 @@
 
 ### :bug: Bug fixes
 
+- **(fixed stuff)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([3057ac1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3057ac11cf9a060a7e80886d3ef5206782fa3b0b)) by @Vaishnav-Sabari-Girish
+
+- **(soudn playing for SIGINT fixed)** T played even for CTRL+C so I fix - ([b56a479](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b56a4791c9828d9b6dbdf24b8bdd525cece8c291)) by @Vaishnav-Sabari-Girish
+
 - **(fixed some stuff)** Fixed some stuff in foot - ([598dd8c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/598dd8cb998098de6be13d3b53ae1f1d6220bbd5)) by @Vaishnav-Sabari-Girish
 
 - **(path error)** Fixed a path error in neomutt - ([d57b971](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d57b9716da77e8bb8146f448a4cf730139be03ed)) by @Vaishnav-Sabari-Girish
@@ -128,6 +138,8 @@
 
 
 ### :page_facing_up: Documentation
+
+- **(cl update)** Updated CHANGELOG - ([2aea6b9](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2aea6b96fd49e1f82afd27175ac1412e7184a57d)) by @Vaishnav-Sabari-Girish
 
 - **(cl update)** Updated CHANGELOG - ([832ca2e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/832ca2e2ba37b88c3b023a85b714c21e26509182)) by @Vaishnav-Sabari-Girish
 
@@ -154,10 +166,14 @@
 
 ### :zap: Performance
 
+- **(add faah sound)** Just for fun - ([df71c22](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/df71c2262e2acf0839317e166c2eec517566d033)) by @Vaishnav-Sabari-Girish
+
 - **(default editor changed)** Changed default editor - ([672abd1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/672abd1a8c5e192190cb53319da207a61640f348)) by @Vaishnav-Sabari-Girish
 
 
 ### :wrench: Miscellaneous
+
+- **(lazy-lock file update)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([24d23fc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/24d23fc21d92833689c2dd34005ab91a9fcfa2c8)) by @Vaishnav-Sabari-Girish
 
 - **(.mailsynclastrun)** Ignore .mailsynclastrun - ([8516d7d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8516d7da8ad192fb1052fc712e716afa6b4997d0)) by @Vaishnav-Sabari-Girish
 
@@ -175,6 +191,8 @@
 
 
 ### :package: Other
+
+- **(nvim stuff)** Nvim lockfile stuff - ([0ea03a7](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0ea03a73409a61b61f61f6982394ec0b9b10c798)) by @Vaishnav-Sabari-Girish
 
 - Adding wallpapers so initializing git lfs - ([ea76d2a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ea76d2ab2fd686752f960fab66aeaa694db493c3)) by @Vaishnav-Sabari-Girish
 
