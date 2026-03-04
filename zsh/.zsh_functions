@@ -528,8 +528,8 @@ send_email() {
     fi
 }
 
-stm32flash() {
-    # Adjust this path if you saved the file somewhere else
+stm32flash2() {
+   # Adjust this path if you saved the file somewhere else
     local script_path="$HOME/dotfiles/zsh/.local/bin/stm32flash.sh"
 
     if [[ -x "$script_path" ]]; then
