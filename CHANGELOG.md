@@ -1,6 +1,10 @@
 
 ### :rocket: New features
 
+- **(zsh)** Update .zshrc - ([e7ecc6e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e7ecc6ee39d67cf0f5b6120a4a04e3b44082b1ad)) by @Vaishnav-Sabari-Girish
+
+- **(remove mdmath)** Removed mdmath plugin - ([7444e86](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7444e8627a3d61610c7d7b63e33f11296488ff94)) by @Vaishnav-Sabari-Girish
+
 - **(removed some unused functions and scripts)** Removed some scripts - ([403bacb](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/403bacbc4f02b7b4e1ccb0bed73e01906553ee84)) by @Vaishnav-Sabari-Girish
 
 - **(discord RPC)** Added Discord RPC for nvim - ([07bfebe](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/07bfebe84799982fc4942c3d013383b6db110708)) by @Vaishnav-Sabari-Girish
@@ -137,66 +141,9 @@
 - **(fixed exit bug)** Fixed a bug - ([6087641](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/6087641fb7f2f3acf4d41081566432a995f74f16)) by @Vaishnav-Sabari-Girish
 
 
-### :page_facing_up: Documentation
-
-- **(cl update)** Updated CHANGELOG - ([2aea6b9](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2aea6b96fd49e1f82afd27175ac1412e7184a57d)) by @Vaishnav-Sabari-Girish
-
-- **(cl update)** Updated CHANGELOG - ([832ca2e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/832ca2e2ba37b88c3b023a85b714c21e26509182)) by @Vaishnav-Sabari-Girish
-
-- **(updated readme)** Updated README.md - ([eb0b6e8](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/eb0b6e8a599742aaae20a997f1e74fe36383d863)) by @Vaishnav-Sabari-Girish
-
-- **(updated cl)** Updated Changelog - ([513b979](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/513b979c90accd62b64ab7c489a27e768a3cee90)) by @Vaishnav-Sabari-Girish
-
-- **(updated cl)** Updated Changelog - ([cd6cffb](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/cd6cffb89a9d40dd7d5dc93a2e8b26b9b1e4128f)) by @Vaishnav-Sabari-Girish
-
-- **(did stuff)** Did stuff - ([e177e75](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e177e7593151a376af06c2bdae2370c488561488)) by @Vaishnav-Sabari-Girish
-
-- **(updated cl)** Updated Changelogs - ([fd540db](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd540db2b19552af2ce030f6be65833680a688a0)) by @Vaishnav-Sabari-Girish
-
-- **(updated cll)** Updated the changelog - ([fc2fa32](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fc2fa323a29c220f1febf8fe9a35ace82bdce90a)) by @Vaishnav-Sabari-Girish
-
-- **(updated cl)** Updated CHANGELOG.md - ([e89ef23](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e89ef23217f40d96006e6d5d7e422de0b4334811)) by @Vaishnav-Sabari-Girish
-
-- **(updated changelg)** Updated changelog - ([095fdef](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/095fdefbbe7e0f69e112b515affa79d09982238d)) by @Vaishnav-Sabari-Girish
-
-- **(updated cliff)** Updated cliff.toml - ([2391a1a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2391a1a3902fd5301ac2b4f451f6add88bada7ff)) by @Vaishnav-Sabari-Girish
-
-- **(changelog)** Added CHANGELOG.md - ([2398333](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2398333bb55b8cc3cc11bde0474db428acaf88a4)) by @Vaishnav-Sabari-Girish
-
-
-### :zap: Performance
-
-- **(add faah sound)** Just for fun - ([df71c22](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/df71c2262e2acf0839317e166c2eec517566d033)) by @Vaishnav-Sabari-Girish
-
-- **(default editor changed)** Changed default editor - ([672abd1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/672abd1a8c5e192190cb53319da207a61640f348)) by @Vaishnav-Sabari-Girish
-
-
-### :wrench: Miscellaneous
-
-- **(lazy-lock file update)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([24d23fc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/24d23fc21d92833689c2dd34005ab91a9fcfa2c8)) by @Vaishnav-Sabari-Girish
-
-- **(.mailsynclastrun)** Ignore .mailsynclastrun - ([8516d7d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8516d7da8ad192fb1052fc712e716afa6b4997d0)) by @Vaishnav-Sabari-Girish
-
-
-### :recycle: Refactoring
-
-- **(structure change)** Changed structure - ([12b3809](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/12b380960662a4a6f3b7d1c6ad5192a4cc2312f5)) by @Vaishnav-Sabari-Girish
-
-
-### :art: Styling
-
-- **(foot config change)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([4d8170d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4d8170d5b82b7188ab12f164e6873e65649fda1f)) by @Vaishnav-Sabari-Girish
-
-- **(changed nvim theme)** Changed nvim theme - ([b30b62c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b30b62c13cf8eb7661e4b0ba2c8aa393cbd514df)) by @Vaishnav-Sabari-Girish
-
-
 ### :package: Other
 
-- **(nvim stuff)** Nvim lockfile stuff - ([0ea03a7](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0ea03a73409a61b61f61f6982394ec0b9b10c798)) by @Vaishnav-Sabari-Girish
-
 - Adding wallpapers so initializing git lfs - ([ea76d2a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ea76d2ab2fd686752f960fab66aeaa694db493c3)) by @Vaishnav-Sabari-Girish
-
-- **(removed some)** Removed some stuff - ([a61a69a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/a61a69aef04d20a89535efc31754e7ef856bbc98)) by @Vaishnav-Sabari-Girish
 
 - Updated exit_0 in nu - ([7d7dd79](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7d7dd792fcbdc2ddec98d2401e59bad293a8551b)) by @Vaishnav-Sabari-Girish
 
@@ -589,5 +536,69 @@
 - My Dotfiles : Initial commit - ([8f3ad06](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8f3ad068e1a7e0324beb15d43245dc23168329ca)) by @Vaishnav-Sabari-Girish
 
 - My Dotfiles : Initial commit - ([8411016](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8411016d63bb1d76e629658f8b8c54aff1255cbc)) by @Vaishnav-Sabari-Girish
+
+
+### :page_facing_up: Documentation
+
+- **(cl update)** Updated CHANGELOG - ([2aea6b9](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2aea6b96fd49e1f82afd27175ac1412e7184a57d)) by @Vaishnav-Sabari-Girish
+
+- **(cl update)** Updated CHANGELOG - ([832ca2e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/832ca2e2ba37b88c3b023a85b714c21e26509182)) by @Vaishnav-Sabari-Girish
+
+- **(updated readme)** Updated README.md - ([eb0b6e8](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/eb0b6e8a599742aaae20a997f1e74fe36383d863)) by @Vaishnav-Sabari-Girish
+
+- **(updated cl)** Updated Changelog - ([513b979](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/513b979c90accd62b64ab7c489a27e768a3cee90)) by @Vaishnav-Sabari-Girish
+
+- **(updated cl)** Updated Changelog - ([cd6cffb](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/cd6cffb89a9d40dd7d5dc93a2e8b26b9b1e4128f)) by @Vaishnav-Sabari-Girish
+
+- **(did stuff)** Did stuff - ([e177e75](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e177e7593151a376af06c2bdae2370c488561488)) by @Vaishnav-Sabari-Girish
+
+- **(updated cl)** Updated Changelogs - ([fd540db](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd540db2b19552af2ce030f6be65833680a688a0)) by @Vaishnav-Sabari-Girish
+
+- **(updated cll)** Updated the changelog - ([fc2fa32](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fc2fa323a29c220f1febf8fe9a35ace82bdce90a)) by @Vaishnav-Sabari-Girish
+
+- **(updated cl)** Updated CHANGELOG.md - ([e89ef23](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e89ef23217f40d96006e6d5d7e422de0b4334811)) by @Vaishnav-Sabari-Girish
+
+- **(updated changelg)** Updated changelog - ([095fdef](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/095fdefbbe7e0f69e112b515affa79d09982238d)) by @Vaishnav-Sabari-Girish
+
+- **(updated cliff)** Updated cliff.toml - ([2391a1a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2391a1a3902fd5301ac2b4f451f6add88bada7ff)) by @Vaishnav-Sabari-Girish
+
+- **(changelog)** Added CHANGELOG.md - ([2398333](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/2398333bb55b8cc3cc11bde0474db428acaf88a4)) by @Vaishnav-Sabari-Girish
+
+
+### :zap: Performance
+
+- **(add faah sound)** Just for fun - ([df71c22](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/df71c2262e2acf0839317e166c2eec517566d033)) by @Vaishnav-Sabari-Girish
+
+- **(default editor changed)** Changed default editor - ([672abd1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/672abd1a8c5e192190cb53319da207a61640f348)) by @Vaishnav-Sabari-Girish
+
+
+### :wrench: Miscellaneous
+
+- **(updated stuff)** Stuff updated - ([065a064](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/065a064cdeb2c2af1ebb1b8689d650d2cb06cc96)) by @Vaishnav-Sabari-Girish
+
+- **(cl update)** Updated CHANGELOG - ([579057a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/579057a3190ba099ca3106e61aee2294edc3eb09)) by @Vaishnav-Sabari-Girish
+
+- **(lazy-lock file update)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([24d23fc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/24d23fc21d92833689c2dd34005ab91a9fcfa2c8)) by @Vaishnav-Sabari-Girish
+
+- **(.mailsynclastrun)** Ignore .mailsynclastrun - ([8516d7d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/8516d7da8ad192fb1052fc712e716afa6b4997d0)) by @Vaishnav-Sabari-Girish
+
+
+### :recycle: Refactoring
+
+- **(structure change)** Changed structure - ([12b3809](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/12b380960662a4a6f3b7d1c6ad5192a4cc2312f5)) by @Vaishnav-Sabari-Girish
+
+
+### :art: Styling
+
+- **(foot config change)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([4d8170d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4d8170d5b82b7188ab12f164e6873e65649fda1f)) by @Vaishnav-Sabari-Girish
+
+- **(changed nvim theme)** Changed nvim theme - ([b30b62c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b30b62c13cf8eb7661e4b0ba2c8aa393cbd514df)) by @Vaishnav-Sabari-Girish
+
+
+### :hammer: Build
+
+- **(nvim stuff)** Nvim lockfile stuff - ([0ea03a7](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0ea03a73409a61b61f61f6982394ec0b9b10c798)) by @Vaishnav-Sabari-Girish
+
+- **(removed some)** Removed some stuff - ([a61a69a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/a61a69aef04d20a89535efc31754e7ef856bbc98)) by @Vaishnav-Sabari-Girish
 
 <!-- generated by git-cliff -->
