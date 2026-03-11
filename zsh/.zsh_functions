@@ -9,14 +9,6 @@ precmd() {
 }
 
 
-qr() {
-  if [ -z "$1" ]; then
-    echo "Usage: qr <link_to_website>"
-    return 1
-  fi
-  qrterm "$1"
-}
-
 file_upload() {
   if [ -z "$1" ]; then
     echo "Usage: file_upload <path_to_file>"
@@ -528,7 +520,7 @@ send_email() {
     fi
 }
 
-stm32flash2() {
+stm32flash() {
    # Adjust this path if you saved the file somewhere else
     local script_path="$HOME/dotfiles/zsh/.local/bin/stm32flash.sh"
 

@@ -1,3 +1,7 @@
+# git-cliff ~ configuration file
+# https://git-cliff.org/docs/configuration
+
+
 [remote.github]
 owner = "Vaishnav-Sabari-Girish"
 repo = "dotfiles"
@@ -50,7 +54,10 @@ commit_parsers = [
     { message = "^refactor", group = "<!-- 5 -->:recycle: Refactoring" },
     { message = "^style", group = "<!-- 6 -->:art: Styling" },
     { message = "^test", group = "<!-- 7 -->:white_check_mark: Testing" },
-    { message = ".*", group = "<!-- 8 -->:package: Other" },
+    { message = "^Merge", group = "<!-- 8 -->:twisted_rightwards_arrows: Pull Requests" },
+    { message = "^build", group = "<!-- 9 -->:hammer: Build" },
+    { message = "^ci", group = "<!-- 10 -->:construction_worker: CI" },
+    { message = ".*", group = "<!-- 11 -->:package: Other" },
 ]
 # An array of regex based parsers to modify commit messages prior to further processing.
 commit_preprocessors = [{ pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" }]

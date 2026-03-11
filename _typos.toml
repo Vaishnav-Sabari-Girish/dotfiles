@@ -1,0 +1,12 @@
+[default.extend-words]
+seperate = "seperate"
+cll = "cll"
+
+
+[default]
+extend-ignore-identifiers-re = [
+  "^ns_.*$",
+]
+
+[files]
+extend-exclude = ["CHANGELOG.md"]

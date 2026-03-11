@@ -51,25 +51,9 @@ setopt HIST_VERIFY               # Show command before running with history expa
 alias ll='ls -lah'        # List with human-readable sizes
 alias gs='git status'     # Git status shortcut
 alias ga='git add'        # Git add shortcut
-alias type_test=$HOME/typer/typer
-alias confetty=$HOME/go/bin/confetty
-alias draw=$HOME/go/bin/draw
-alias glyph=$HOME/go/bin/glyphs
-alias fuck=thefuck $"(history | last 1 | get command | get 0)"
 alias cat=bat
 alias pdf=papers
-alias pic=eog
-alias japanese="$HOME/japanese_class.sh"
 alias ls="eza --icons --hyperlink"
-alias tm=$HOME/taskcli/tm
-alias chess=$HOME/go/bin/gambit
-alias picocom="picocom --echo"
-alias notebook="euporie-notebook"
-alias jid=$HOME/go/bin/jid
-alias ghfetch='$HOME/go/bin/ghfetch'
-alias get_pio='source ~/.platformio/penv/bin/activate'
-alias teensy=$HOME/Teensy_Loader/teensy
-alias cutecom=$HOME/cutecom/cutecom
 alias tree="eza --icons --hyperlink --tree"
 alias exit_0="$HOME/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
 alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
@@ -77,6 +61,8 @@ alias project="cd $HOME/Desktop/My_Projects/"
 alias nchat_tg="nchat -d ~/.config/nchat_tg"
 alias stm32erase="/opt/stm32cubeprog/bin/STM32_Programmer_CLI -c port=SWD freq=480 mode=HotPlug -e all"
 alias preview_md="gh markdown-preview"
+alias ff='fastfetch'
+alias webcam="mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --demuxer-lavf-o=input_format=mjpeg > /dev/null 2>&1"
 
 # Key bindings
 bindkey "^[[H" beginning-of-line    # Home
@@ -97,18 +83,6 @@ export LC_ALL=en_IN.UTF-8
 export LANG=en_IN.UTF-8
 export BUN_INSTALL="$HOME/.bun"
 export ZVM_INSTALL="$HOME/.zvm/self"
-
-# Nap Colors
-export NAP_PRIMARY_COLOR="#CBA6F7" 
-export NAP_RED="#EBA0AC" 
-export NAP_GREEN="#A6E3A1" 
-export NAP_FOREGROUND="#CDD6F4" 
-export NAP_BACKGROUND="#1E1E2E" 
-export NAP_BLACK="#181825" 
-export NAP_GRAY="#585B70" 
-export NAP_WHITE="#F5E0DC" 
-
-printf "\n"
 
 # --- COMPLETIONS & FUNCTIONS ---
 # Add custom completions to fpath (Stow path)
@@ -137,14 +111,6 @@ if [[ -f $HOME/.local/bin/anime_quote.sh ]]; then
     bash $HOME/.local/bin/anime_quote.sh
 fi
 
-echo "# Check addae regularly" | $HOME/go/bin/glow -
-echo "# Use goki for flashcards" | $HOME/go/bin/glow -
-echo "# Use exit_0 for LPIC practice" | $HOME/go/bin/glow -
-
-if [[ -f $HOME/.local/bin/forgeprj.sh ]]; then
-    source $HOME/.local/bin/forgeprj.sh
-fi
-
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # --- INITIALIZATION (MUST BE LAST) ---
@@ -165,8 +131,5 @@ _fix_cursor() {
 }
 precmd_functions+=(_fix_cursor)
 
-# Execute the check
+# Daily Kanji Practice
 run_daily_kanji_check
-alias nitch='nitchrevived'
-alias ff='fastfetch'
-alias webcam="mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --demuxer-lavf-o=input_format=mjpeg > /dev/null 2>&1"
