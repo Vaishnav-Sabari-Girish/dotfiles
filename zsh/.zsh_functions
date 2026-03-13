@@ -575,3 +575,12 @@ function run_daily_kanji_check() {
     fi
 }
 
+
+# -- Git Graph ---
+serie() {
+    if [[ -n "$WEZTERM_EXECUTABLE" ]]; then
+        command serie "$@"
+    else
+        wezterm start --cwd "$PWD" -- serie "$@"
+    fi
+}
