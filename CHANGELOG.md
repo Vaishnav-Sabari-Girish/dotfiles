@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(git graph)** Add wrapper script for serie - ([fd83388](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd83388d52f6fe1ff6d18c1f3140ed6942b2b4c1)) by @Vaishnav-Sabari-Girish
+
 - **(zsh)** Update .zshrc - ([e7ecc6e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e7ecc6ee39d67cf0f5b6120a4a04e3b44082b1ad)) by @Vaishnav-Sabari-Girish
 
 - **(remove mdmath)** Removed mdmath plugin - ([7444e86](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/7444e8627a3d61610c7d7b63e33f11296488ff94)) by @Vaishnav-Sabari-Girish
@@ -573,6 +575,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([c2cfb2c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c2cfb2cf356df7d3cbf4156d67d243ce3912f2e3)) by @github-actions[bot]
 
 - **(updated stuff)** Stuff updated - ([065a064](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/065a064cdeb2c2af1ebb1b8689d650d2cb06cc96)) by @Vaishnav-Sabari-Girish
 
