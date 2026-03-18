@@ -562,6 +562,8 @@ function img() {
         wezterm imgcat "$@"
     elif [[ "$TERM_PROGRAM" == "ghostty" ]] || [[ "$TERM_PROGRAM" == "kitty" ]]; then
         kitten icat "$@"
+    elif [[ "$TERM" == "foot" ]]; then
+        $HOME/.cargo/bin/mcat "$@"
     else
         loupe "$@"
     fi
