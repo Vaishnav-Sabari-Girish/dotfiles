@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(changed deprecated functions)** Foot deprecated functions update - ([e3c28dc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e3c28dc1aa875990cd0adc2e4fc9e23eb52d1842)) by @Vaishnav-Sabari-Girish
+
 - **(git graph)** Add wrapper script for serie - ([fd83388](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd83388d52f6fe1ff6d18c1f3140ed6942b2b4c1)) by @Vaishnav-Sabari-Girish
 
 - **(zsh)** Update .zshrc - ([e7ecc6e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e7ecc6ee39d67cf0f5b6120a4a04e3b44082b1ad)) by @Vaishnav-Sabari-Girish
@@ -575,6 +577,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([5836c3a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/5836c3aa615da0be2259598cb94a445c6cf4cc3d)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([c2cfb2c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c2cfb2cf356df7d3cbf4156d67d243ce3912f2e3)) by @github-actions[bot]
 
