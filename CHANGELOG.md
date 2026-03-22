@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(nushell update)** Update Nushell config - ([1b70011](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1b70011722e9dd2a0560e896293bc7f462827a90)) by @Vaishnav-Sabari-Girish
+
 - **(changed deprecated functions)** Foot deprecated functions update - ([e3c28dc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e3c28dc1aa875990cd0adc2e4fc9e23eb52d1842)) by @Vaishnav-Sabari-Girish
 
 - **(git graph)** Add wrapper script for serie - ([fd83388](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fd83388d52f6fe1ff6d18c1f3140ed6942b2b4c1)) by @Vaishnav-Sabari-Girish
@@ -578,6 +580,8 @@
 
 ### :wrench: Miscellaneous
 
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([fdc9380](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fdc93805a8f45f19af2c03e3ddd4fafcbc33461c)) by @github-actions[bot]
+
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([5836c3a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/5836c3aa615da0be2259598cb94a445c6cf4cc3d)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([c2cfb2c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/c2cfb2cf356df7d3cbf4156d67d243ce3912f2e3)) by @github-actions[bot]
@@ -601,6 +605,11 @@
 - **(foot config change)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([4d8170d](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4d8170d5b82b7188ab12f164e6873e65649fda1f)) by @Vaishnav-Sabari-Girish
 
 - **(changed nvim theme)** Changed nvim theme - ([b30b62c](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b30b62c13cf8eb7661e4b0ba2c8aa393cbd514df)) by @Vaishnav-Sabari-Girish
+
+
+### :twisted_rightwards_arrows: Pull Requests
+
+- Merge branch 'main' of github.com:Vaishnav-Sabari-Girish/dotfiles - ([03e762a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/03e762ad8e25bc4d909cd3381e7529d07d4d3961)) by @Vaishnav-Sabari-Girish
 
 
 ### :hammer: Build
