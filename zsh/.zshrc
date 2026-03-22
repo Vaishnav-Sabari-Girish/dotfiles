@@ -83,6 +83,7 @@ export LC_ALL=en_IN.UTF-8
 export LANG=en_IN.UTF-8
 export BUN_INSTALL="$HOME/.bun"
 export ZVM_INSTALL="$HOME/.zvm/self"
+export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 
 # --- COMPLETIONS & FUNCTIONS ---
 # Add custom completions to fpath (Stow path)
