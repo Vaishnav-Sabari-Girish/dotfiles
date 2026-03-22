@@ -130,6 +130,8 @@
 
 ### :bug: Bug fixes
 
+- **(starship)** Fixed starship in nushell - ([f2c9b04](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/f2c9b04fc73ae32f9c80bc03cd9a27a727ae108c)) by @Vaishnav-Sabari-Girish
+
 - **(fixed stuff)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([3057ac1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3057ac11cf9a060a7e80886d3ef5206782fa3b0b)) by @Vaishnav-Sabari-Girish
 
 - **(soudn playing for SIGINT fixed)** T played even for CTRL+C so I fix - ([b56a479](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b56a4791c9828d9b6dbdf24b8bdd525cece8c291)) by @Vaishnav-Sabari-Girish
@@ -580,6 +582,8 @@
 
 ### :wrench: Miscellaneous
 
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([d320d13](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d320d13d285cc5ae5bb7f38bcdcebe85440421a2)) by @github-actions[bot]
+
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([fdc9380](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/fdc93805a8f45f19af2c03e3ddd4fafcbc33461c)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([5836c3a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/5836c3aa615da0be2259598cb94a445c6cf4cc3d)) by @github-actions[bot]
@@ -608,6 +612,8 @@
 
 
 ### :twisted_rightwards_arrows: Pull Requests
+
+- Merge branch 'main' of github.com:Vaishnav-Sabari-Girish/dotfiles - ([9de576e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9de576e54e4d8ecda05cfd56a81511ebbfcf543e)) by @Vaishnav-Sabari-Girish
 
 - Merge branch 'main' of github.com:Vaishnav-Sabari-Girish/dotfiles - ([03e762a](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/03e762ad8e25bc4d909cd3381e7529d07d4d3961)) by @Vaishnav-Sabari-Girish
 
