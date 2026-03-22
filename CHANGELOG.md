@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(nushell)** Made nushell default shell for wezterm - ([87ca256](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/87ca2563900feafef7a863fb94df00e82c364e09)) by @Vaishnav-Sabari-Girish
+
 - **(nushell update)** Update Nushell config - ([1b70011](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1b70011722e9dd2a0560e896293bc7f462827a90)) by @Vaishnav-Sabari-Girish
 
 - **(changed deprecated functions)** Foot deprecated functions update - ([e3c28dc](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e3c28dc1aa875990cd0adc2e4fc9e23eb52d1842)) by @Vaishnav-Sabari-Girish
@@ -581,6 +583,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([80870f5](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/80870f5c82726470890a47bd5a1fe4ada0c4a9f4)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([d320d13](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/d320d13d285cc5ae5bb7f38bcdcebe85440421a2)) by @github-actions[bot]
 
