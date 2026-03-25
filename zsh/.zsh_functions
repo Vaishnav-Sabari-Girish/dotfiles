@@ -588,7 +588,7 @@ serie() {
 }
 
 # -- GIF on terminal --- 
-lpx() {
+gif() {
     if [[ -n "$WEZTERM_EXECUTABLE" ]]; then
         # Already in WezTerm, run lpx directly
         command lpx "$@"
