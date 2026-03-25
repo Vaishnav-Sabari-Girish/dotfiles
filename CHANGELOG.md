@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(lpx)** Function to play gifs on terminal - ([5681314](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/568131463af399e7630fecb65315314ec8b388f3)) by @Vaishnav-Sabari-Girish
+
 - **(mkproj)** Updated script again - ([e5cad89](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e5cad89a92113c94b36cb4e7dcbb08a3c3fa4010)) by @Vaishnav-Sabari-Girish
 
 - **(mkproj)** Updated script - ([b6019c1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b6019c15b2f0cc1e9a7fff709bae2571f0c24932)) by @Vaishnav-Sabari-Girish
@@ -587,6 +589,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([3a130d6](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3a130d67b479779a593a9a6215d7dfc0300b70cb)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([5718f64](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/5718f64e9f3814af9d204d4032b4ed83d3eff7ee)) by @github-actions[bot]
 
