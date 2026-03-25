@@ -138,6 +138,8 @@
 
 ### :bug: Bug fixes
 
+- **(gif)** Changed function name - ([ba73433](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ba73433e2888581503239d8e29de7a4408d65ebd)) by @Vaishnav-Sabari-Girish
+
 - **(starship)** Fixed starship in nushell - ([f2c9b04](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/f2c9b04fc73ae32f9c80bc03cd9a27a727ae108c)) by @Vaishnav-Sabari-Girish
 
 - **(fixed stuff)** Signed-off-by: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com> - ([3057ac1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3057ac11cf9a060a7e80886d3ef5206782fa3b0b)) by @Vaishnav-Sabari-Girish
@@ -589,6 +591,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([06b91d2](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/06b91d285503dd734b5872d3dd238c7c0caaa733)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([3a130d6](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3a130d67b479779a593a9a6215d7dfc0300b70cb)) by @github-actions[bot]
 
