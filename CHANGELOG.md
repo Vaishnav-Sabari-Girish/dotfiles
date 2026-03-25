@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(mkproj)** Updated script again - ([e5cad89](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e5cad89a92113c94b36cb4e7dcbb08a3c3fa4010)) by @Vaishnav-Sabari-Girish
+
 - **(mkproj)** Updated script - ([b6019c1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/b6019c15b2f0cc1e9a7fff709bae2571f0c24932)) by @Vaishnav-Sabari-Girish
 
 - **(nushell)** Made nushell default shell for wezterm - ([87ca256](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/87ca2563900feafef7a863fb94df00e82c364e09)) by @Vaishnav-Sabari-Girish
@@ -585,6 +587,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([5718f64](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/5718f64e9f3814af9d204d4032b4ed83d3eff7ee)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([6fbb551](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/6fbb551acb75fb18bfab617d6d119257890edb3f)) by @github-actions[bot]
 
