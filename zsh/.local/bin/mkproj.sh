@@ -24,7 +24,7 @@ fi
 case $language in
 "C")
   echo "📁 Creating C project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
   mkdir -p "$project_name"
   cd "$project_name"
 
@@ -59,7 +59,7 @@ EOF
 
 "Rust")
   echo "🦀 Creating Rust project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
   if ! command -v cargo &>/dev/null; then
     echo "Error: cargo not found."
     exit 1
@@ -70,7 +70,7 @@ EOF
 
 "Python")
   echo "🐍 Creating Python project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
   if ! command -v uv &>/dev/null; then
     echo "Error: uv not found."
     exit 1
@@ -81,7 +81,7 @@ EOF
 
 "Go")
   echo "🐹 Creating Go project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
   mkdir -p "$project_name"
   cd "$project_name"
   go mod init "$project_name"
@@ -106,7 +106,7 @@ EOF
 
 "Zig")
   echo "⚡ Creating Zig project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
   mkdir -p "$project_name"
   cd "$project_name"
   zig init
@@ -131,7 +131,7 @@ EOF
 
 "STM32-Embassy")
   echo "🦀 Creating STM32 Embassy (no-std) project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
 
   # Ensure the cross-compilation target is installed
   echo "⚙️  Checking Rust target..."
@@ -244,7 +244,7 @@ EOF
 
 "RP2040-HAL")
   echo "🍓 Creating RP2040 (no-std) project..."
-  read -p "Enter project name: " project_name
+  read -r -p "Enter project name: " project_name
 
   # Ensure the cross-compilation target is installed
   echo "⚙️  Checking Rust target..."
@@ -260,19 +260,23 @@ EOF
 
   # 2. Add Dependencies via cargo add
   echo "➕ Adding dependencies..."
-  cargo add cortex-m@0.7.7
-  cargo add cortex-m-rt@0.7.5
-  cargo add embedded-hal@1.0.0
-  cargo add fugit@0.3.9
-  cargo add panic-halt@1.0.0
-  cargo add rp2040-boot2@0.3.0
-  cargo add rp2040-hal@0.11.0 --features "critical-section-impl"
-  cargo add smart-leds@0.4.0
-  cargo add ws2812-pio@0.9.0
+  cargo add cortex-m
+  cargo add cortex-m-rt
+  cargo add embedded-hal
+  cargo add fugit
+  cargo add panic-halt
+  cargo add rp2040-boot2
+  cargo add rp2040-hal --features "critical-section-impl"
 
   # 3. Append Release/Dev Profiles to Cargo.toml
   echo "⚙️  Configuring build profiles..."
-  cat >>Cargo.toml <<'EOF'
+  cat >>Cargo.toml <<EOF
+
+[[bin]]
+name = "$project_name"
+test = false
+bench = false
+doctest = false
 
 [profile.dev]
 codegen-units = 1 
@@ -348,8 +352,6 @@ use rp2040_hal::{
     watchdog::Watchdog,
     Sio,
 };
-use smart_leds::{SmartLedsWrite, RGB8};
-use ws2812_pio::Ws2812;
 
 // --- THE IGNITION KEY ---
 // This places the 256-byte bootloader at the very start of the flash memory.
@@ -389,29 +391,8 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    let (mut pio, sm0, _, _, _) = pac.PIO0.split(&mut pac.RESETS);
-    
-    // Set up the WS2812 NeoPixel on GP16
-    let mut ws = Ws2812::new(
-        pins.gpio16.into_function(),
-        &mut pio,
-        sm0,
-        clocks.peripheral_clock.freq(),
-        timer.count_down(),
-    );
-
     loop {
-        // Red
-        ws.write([RGB8::new(32, 0, 0)].iter().cloned()).unwrap();
-        delay.delay_ms(500);
-        
-        // Green
-        ws.write([RGB8::new(0, 32, 0)].iter().cloned()).unwrap();
-        delay.delay_ms(500);
-        
-        // Blue
-        ws.write([RGB8::new(0, 0, 32)].iter().cloned()).unwrap();
-        delay.delay_ms(500);
+        cortex_m::asm::wfi();
     }
 }
 EOF
