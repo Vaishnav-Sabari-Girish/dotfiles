@@ -586,3 +586,14 @@ serie() {
         wezterm start --cwd "$PWD" -- serie "$@"
     fi
 }
+
+# -- GIF on terminal --- 
+lpx() {
+    if [[ -n "$WEZTERM_EXECUTABLE" ]]; then
+        # Already in WezTerm, run lpx directly
+        command lpx "$@"
+    else
+        # Not in WezTerm, open it and run lpx with all arguments
+        wezterm start --cwd "$PWD" -- lpx "$@"
+    fi
+}
