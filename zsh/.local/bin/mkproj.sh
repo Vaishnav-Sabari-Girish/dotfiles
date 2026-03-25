@@ -416,8 +416,23 @@ run: build
     @sudo mount -t vfat -o sync /dev/sda1 /mnt/rp2
     @echo "⚡ Flashing memory..."
     @sudo cp flash.uf2 /mnt/rp2/
-    @echo "✅ Done! LED should be blinking."
+    @echo "✅ Done! Program Flashed successfully"
     @sudo umount /mnt/rp2/ || true
+
+nuke:
+    @echo "🧹 Nuking RP2040 flash memory..."
+    @if mountpoint -q /mnt/rp2; then \
+        echo "✓ Drive already mounted at /mnt/rp2"; \
+    else \
+        echo "🔌 Mounting RP2040..."; \
+        sudo mount -t vfat -o sync /dev/sda1 /mnt/rp2; \
+    fi
+    @echo "💣 Copying flash_nuke.uf2..."
+    @sudo cp flash_nuke.uf2 /mnt/rp2/
+    @echo "⏳ Waiting for flash erase to complete..."
+    @sleep 2
+    @sudo umount /mnt/rp2/ || true
+    @echo "✅ Flash memory nuked! Board will reboot."
 
 clean:
     @cargo clean
