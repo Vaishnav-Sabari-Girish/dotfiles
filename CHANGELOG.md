@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(nu and mkproj)** Update EDITOR env var and add cycle option to fzf - ([1f72de1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1f72de1bfb9bc1c74c442bd76611ac9537503667)) by @Vaishnav-Sabari-Girish
+
 - **(lpx)** Function to play gifs on terminal - ([5681314](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/568131463af399e7630fecb65315314ec8b388f3)) by @Vaishnav-Sabari-Girish
 
 - **(mkproj)** Updated script again - ([e5cad89](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/e5cad89a92113c94b36cb4e7dcbb08a3c3fa4010)) by @Vaishnav-Sabari-Girish
@@ -592,6 +594,8 @@
 
 ### :wrench: Miscellaneous
 
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([4e0a39b](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4e0a39b398123c45ccadc4f48a9203cdc01d3848)) by @github-actions[bot]
+
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([06b91d2](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/06b91d285503dd734b5872d3dd238c7c0caaa733)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([3a130d6](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/3a130d67b479779a593a9a6215d7dfc0300b70cb)) by @github-actions[bot]
@@ -632,6 +636,8 @@
 
 
 ### :twisted_rightwards_arrows: Pull Requests
+
+- Merge branch 'main' of github.com:Vaishnav-Sabari-Girish/dotfiles - ([a76ae96](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/a76ae9693e4720415be25e9990852175c97fddfc)) by @Vaishnav-Sabari-Girish
 
 - Merge branch 'main' of github.com:Vaishnav-Sabari-Girish/dotfiles - ([9de576e](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/9de576e54e4d8ecda05cfd56a81511ebbfcf543e)) by @Vaishnav-Sabari-Girish
 
