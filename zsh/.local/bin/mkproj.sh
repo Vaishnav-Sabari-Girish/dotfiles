@@ -13,7 +13,7 @@ fi
 
 # Choose language using fzf
 echo "🚀 Project Creator"
-language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL" | fzf --prompt="Choose language: " --height=10 --layout=reverse --border)
+language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL" | fzf --prompt="Choose language: " --height=10 --layout=reverse --border --cycle)
 
 # Exit if the user pressed Esc or Ctrl-C in fzf
 if [ -z "$language" ]; then

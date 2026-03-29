@@ -1,5 +1,6 @@
 $env.STARSHIP_SHELL = "nu"
 $env.STARSHIP_CONFIG = ($env.HOME | path join ".config/starship/nu/starship.toml")
+$env.EDITOR = "nvim"
 
 def starship_left_prompt [] {
     starship prompt --status=0 --cmd-duration 0
