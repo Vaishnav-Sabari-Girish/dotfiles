@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(tennis)** Add completion for tennis - ([4a57792](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4a57792063790fed96104e96c0fff59a02fc0d9f)) by @Vaishnav-Sabari-Girish
+
 - **(nu and mkproj)** Update EDITOR env var and add cycle option to fzf - ([1f72de1](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1f72de1bfb9bc1c74c442bd76611ac9537503667)) by @Vaishnav-Sabari-Girish
 
 - **(lpx)** Function to play gifs on terminal - ([5681314](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/568131463af399e7630fecb65315314ec8b388f3)) by @Vaishnav-Sabari-Girish
@@ -593,6 +595,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([be45800](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/be4580035a9afee8dcc85002f8ee46ba3124549c)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([4e0a39b](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4e0a39b398123c45ccadc4f48a9203cdc01d3848)) by @github-actions[bot]
 
