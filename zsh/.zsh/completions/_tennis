@@ -1,0 +1,35 @@
+#compdef tennis
+compdef _tennis tennis
+_tennis() {
+  _arguments -s \
+    '-n[Turn on row numbers]' \
+    '--row-numbers[Turn on row numbers]' \
+    '-t[Add a title to the table]:string:' \
+    '--title[Add a title to the table]:string:' \
+    '--border[Table border style (rounded|thin|double|...)]:border:(ascii_rounded basic basic_compact compact compact_double dots double heavy light markdown none psql reinforced restructured rounded single thin with_love)' \
+    '--peek[Show csv shape, sample, and handy stats]' \
+    '--zebra[Turn on zebra stripes]' \
+    '--select[Select or reorder comma-separated headers]:headers:' \
+    '--sort[Sort rows by comma-separated headers]:headers:' \
+    '-r[Reverse rows (helpful for sorting)]' \
+    '--reverse[Reverse rows (helpful for sorting)]' \
+    '--shuffle[Shuffle rows into random order]' \
+    '--shuf[Shuffle rows into random order]' \
+    '--head[Show first N rows]:int:' \
+    '--tail[Show last N rows]:int:' \
+    '--filter[Only show rows that contain this text]:string:' \
+    '--color[Turn color off and on (on|off|auto)]:color:(auto off on)' \
+    '--delimiter[Set CSV delim (can be any char or "tab")]:char:(tab , \; \|)' \
+    '--digits[Digits after decimal for float columns]:int:(1 2 3 4 5 6)' \
+    '--theme[Select color theme (auto|dark|light)]:theme:(auto dark light)' \
+    '--vanilla[Disable numeric formatting]' \
+    '--width[Set max table width in chars]:int:' \
+    '--completion[Print shell completion (bash|zsh)]:shell:(bash zsh)' \
+    '--help[Get help]' \
+    '--version[Show version number and exit]' \
+    '*:file:_files -g "*.(csv|json|jsonl|ndjson)(-.)" "*(-/)"'
+}
+
+if [ "$funcstack[1]" = "_tennis" ]; then
+  _tennis
+fi
