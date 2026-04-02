@@ -123,10 +123,178 @@ EOF
 
 "ESP32-Std")
   echo "🔧 Creating ESP32 Rust (std) project..."
+  read -r -p "Enter project name: " project_name
   if ! command -v cargo-generate &>/dev/null; then
     cargo install cargo-generate
   fi
-  cargo generate esp-rs/esp-idf-template cargo
+
+  cargo generate esp-rs/esp-idf-template cargo --name "$project_name"
+  cd "$project_name"
+
+  echo "📊 Adding build-size.sh profiling script..."
+  cat >build-size.sh <<'EOF'
+#!/usr/bin/env zsh
+
+set -e
+
+WORKSPACE_ROOT="$(cd "$(dirname "$0")" && pwd)"
+TARGET="riscv32imc-esp-espidf"
+
+# gruvbox colors
+local rst='\033[0m'
+local bold='\033[1m'
+local dim='\033[2m'
+local bg0='\033[38;2;40;40;40m'
+local fg='\033[38;2;235;219;178m'
+local fg0='\033[38;2;251;241;199m'
+local red='\033[38;2;251;73;52m'
+local green='\033[38;2;184;187;38m'
+local yellow='\033[38;2;250;189;47m'
+local blue='\033[38;2;131;165;152m'
+local purple='\033[38;2;211;134;155m'
+local aqua='\033[38;2;142;192;124m'
+local orange='\033[38;2;254;128;25m'
+local gray='\033[38;2;146;131;116m'
+
+# ESP32-C3 typical specs
+FLASH_MAX=$((4096 * 1024)) # 4MB
+RAM_MAX=$((400 * 1024))    # ~400KB internal SRAM
+
+# prerequisite checks
+missing=()
+if ! command -v cargo &>/dev/null; then
+    missing+=("  ${orange}cargo${rst}       ${gray}https://rustup.rs${rst}")
+fi
+if ! command -v jq &>/dev/null; then
+    missing+=("  ${orange}jq${rst}          ${gray}install via system package manager${rst}")
+fi
+if ! command -v rust-size &>/dev/null; then
+    missing+=("  ${orange}rust-size${rst}   ${gray}cargo install cargo-binutils && rustup component add llvm-tools${rst}")
+fi
+if ! command -v bc &>/dev/null; then
+    missing+=("  ${orange}bc${rst}          ${gray}install via system package manager${rst}")
+fi
+if (( ${#missing} > 0 )); then
+    printf "${red}${bold}missing required tools:${rst}\n"
+    for m in "${missing[@]}"; do
+        printf "$m\n"
+    done
+    exit 1
+fi
+
+usage() {
+    echo "Usage: ./build-size.sh <project>"
+    exit 1
+}
+
+bar() {
+    local used=$1 max=$2 width=40
+    local pct=$((used * 100 / max))
+    local filled=$((used * width / max))
+    (( filled > width )) && filled=$width
+    local empty=$((width - filled))
+
+    local color=$green
+    (( pct > 70 )) && color=$yellow
+    (( pct > 90 )) && color=$orange
+    (( pct > 98 )) && color=$red
+
+    printf "${dim}[${rst}"
+    printf "${color}%${filled}s${rst}" | tr ' ' '#'
+    printf "${gray}%${empty}s${rst}" | tr ' ' '.'
+    printf "${dim}]${rst}"
+    printf " ${color}${bold}%d%%${rst}" "$pct"
+}
+
+print_section() {
+    local name=$1 size=$2 color=$3
+    printf "  ${color}%-18s${rst} ${fg}%'10d${rst} ${gray}bytes${rst}  ${dim}(%6.1f KB)${rst}\n" \
+        "$name" "$size" "$(echo "scale=1; $size / 1024" | bc)"
+}
+
+if [[ $# -lt 1 ]]; then
+    usage
+fi
+
+project="$1"
+project_dir="$WORKSPACE_ROOT/$project"
+
+if [[ ! -d "$project_dir" ]]; then
+    echo "${red}error:${rst} project '$project' not found"
+    exit 1
+fi
+
+# 2. Get Cargo metadata
+METADATA="$(cargo metadata --no-deps --format-version 1 --manifest-path "$project_dir/Cargo.toml" 2>/dev/null)"
+
+TARGET_DIR="$(echo "$METADATA" | jq -r '.target_directory')"
+
+if [[ -z "$TARGET_DIR" || "$TARGET_DIR" == "null" ]]; then
+    echo "${red}error:${rst} failed to determine target directory via cargo metadata"
+    exit 1
+fi
+
+# Extract the exact binary name from Cargo.toml so we don't guess based on the folder path
+BIN_NAME="$(echo "$METADATA" | jq -r '.packages[0].targets[] | select(.kind[] == "bin") | .name' | head -n 1)"
+BINARY_DIR="$TARGET_DIR/$TARGET/release"
+
+# 3. Build and calculate sizes
+cd "$project_dir"
+
+printf "${dim}building ${fg0}${bold}$BIN_NAME${rst} ${dim}(release, $TARGET)${rst}\n"
+cargo build --release --target "$TARGET" 2>&1
+
+binary="$BINARY_DIR/$BIN_NAME"
+if [[ ! -f "$binary" ]]; then
+    echo "${red}error:${rst} binary not found at $binary"
+    exit 1
+fi
+
+# parse ESP-IDF sections
+typeset -A sections
+while read -r name size _addr; do
+    sections[$name]=$size
+done < <(rust-size -A "$binary" | grep -E '^\.')
+
+# Flash takes the flash text/rodata, plus the initial values for DRAM and IRAM
+flash_total=$(( ${sections[.flash.text]:-0} + ${sections[.flash.rodata]:-0} + ${sections[.dram0.data]:-0} + ${sections[.iram0.text]:-0} ))
+
+# RAM is the sum of Instruction RAM (IRAM) and Data RAM (DRAM)
+ram_total=$(( ${sections[.iram0.text]:-0} + ${sections[.iram0.vectors]:-0} + ${sections[.dram0.data]:-0} + ${sections[.dram0.bss]:-0} ))
+
+echo ""
+printf "${yellow}${bold}  FLASH${rst}  "
+bar $flash_total $FLASH_MAX
+printf "  ${dim}%'d / %'d bytes${rst}\n" $flash_total $FLASH_MAX
+echo ""
+print_section ".flash.text"   "${sections[.flash.text]:-0}"   "$blue"
+print_section ".flash.rodata" "${sections[.flash.rodata]:-0}" "$purple"
+print_section ".iram0.text"   "${sections[.iram0.text]:-0}"   "$aqua"
+print_section ".dram0.data"   "${sections[.dram0.data]:-0}"   "$orange"
+
+echo ""
+printf "${aqua}${bold}  RAM${rst}    "
+bar $ram_total $RAM_MAX
+printf "  ${dim}%'d / %'d bytes${rst}\n" $ram_total $RAM_MAX
+echo ""
+print_section ".iram0.text"   "${sections[.iram0.text]:-0}"   "$blue"
+print_section ".iram0.vectors" "${sections[.iram0.vectors]:-0}" "$aqua"
+print_section ".dram0.data"   "${sections[.dram0.data]:-0}"   "$orange"
+print_section ".dram0.bss"    "${sections[.dram0.bss]:-0}"    "$gray"
+echo ""
+EOF
+  chmod +x build-size.sh
+
+  echo "📝 Writing Justfile..."
+  cat >Justfile <<'EOF'
+sz:
+    @./build-size.sh .
+
+f: sz
+    @cargo run --release
+EOF
+
+  echo "✅ ESP32 project '$project_name' created with memory profiling tools!"
   ;;
 
 "STM32-Embassy")
@@ -401,7 +569,162 @@ EOF
   echo "🧹 Downloading flash_nuke.uf2 utility..."
   curl -L -s -o flash_nuke.uf2 https://raw.githubusercontent.com/Pwea/Flash-Nuke/main/flash_nuke.uf2
 
-  # 8. Justfile
+  # 8. Add build-size.sh
+  echo "📊 Adding build-size.sh profiling script..."
+  cat >build-size.sh <<'EOF'
+#!/usr/bin/env zsh
+
+set -e
+
+WORKSPACE_ROOT="$(cd "$(dirname "$0")" && pwd)"
+TARGET="thumbv6m-none-eabi"
+
+# gruvbox colors
+local rst='\033[0m'
+local bold='\033[1m'
+local dim='\033[2m'
+local bg0='\033[38;2;40;40;40m'
+local fg='\033[38;2;235;219;178m'
+local fg0='\033[38;2;251;241;199m'
+local red='\033[38;2;251;73;52m'
+local green='\033[38;2;184;187;38m'
+local yellow='\033[38;2;250;189;47m'
+local blue='\033[38;2;131;165;152m'
+local purple='\033[38;2;211;134;155m'
+local aqua='\033[38;2;142;192;124m'
+local orange='\033[38;2;254;128;25m'
+local gray='\033[38;2;146;131;116m'
+
+FLASH_MAX=$((2048 * 1024))
+RAM_MAX=$((256 * 1024))
+
+# prerequisite checks
+missing=()
+if ! command -v cargo &>/dev/null; then
+    missing+=("  ${orange}cargo${rst}       ${gray}https://rustup.rs${rst}")
+fi
+if ! command -v jq &>/dev/null; then
+    missing+=("  ${orange}jq${rst}          ${gray}install via system package manager${rst}")
+fi
+if ! command -v flip-link &>/dev/null; then
+    missing+=("  ${orange}flip-link${rst}   ${gray}cargo install flip-link${rst}")
+fi
+if ! command -v rust-size &>/dev/null; then
+    missing+=("  ${orange}rust-size${rst}   ${gray}cargo install cargo-binutils && rustup component add llvm-tools${rst}")
+fi
+if ! command -v bc &>/dev/null; then
+    missing+=("  ${orange}bc${rst}          ${gray}install via system package manager${rst}")
+fi
+if (( ${#missing} > 0 )); then
+    printf "${red}${bold}missing required tools:${rst}\n"
+    for m in "${missing[@]}"; do
+        printf "$m\n"
+    done
+    exit 1
+fi
+
+usage() {
+    echo "Usage: ./build-size.sh <project>"
+    exit 1
+}
+
+bar() {
+    local used=$1 max=$2 width=40
+    local pct=$((used * 100 / max))
+    local filled=$((used * width / max))
+    (( filled > width )) && filled=$width
+    local empty=$((width - filled))
+
+    local color=$green
+    (( pct > 70 )) && color=$yellow
+    (( pct > 90 )) && color=$orange
+    (( pct > 98 )) && color=$red
+
+    printf "${dim}[${rst}"
+    printf "${color}%${filled}s${rst}" | tr ' ' '#'
+    printf "${gray}%${empty}s${rst}" | tr ' ' '.'
+    printf "${dim}]${rst}"
+    printf " ${color}${bold}%d%%${rst}" "$pct"
+}
+
+print_section() {
+    local name=$1 size=$2 color=$3
+    printf "  ${color}%-18s${rst} ${fg}%'10d${rst} ${gray}bytes${rst}  ${dim}(%6.1f KB)${rst}\n" \
+        "$name" "$size" "$(echo "scale=1; $size / 1024" | bc)"
+}
+
+# 1. Parse arguments and check directories first
+if [[ $# -lt 1 ]]; then
+    usage
+fi
+
+project="$1"
+project_dir="$WORKSPACE_ROOT/$project"
+
+if [[ ! -d "$project_dir" ]]; then
+    echo "${red}error:${rst} project '$project' not found"
+    exit 1
+fi
+
+# 2. Get Cargo metadata
+METADATA="$(cargo metadata --no-deps --format-version 1 --manifest-path "$project_dir/Cargo.toml" 2>/dev/null)"
+
+TARGET_DIR="$(echo "$METADATA" | jq -r '.target_directory')"
+
+if [[ -z "$TARGET_DIR" || "$TARGET_DIR" == "null" ]]; then
+    echo "${red}error:${rst} failed to determine target directory via cargo metadata"
+    exit 1
+fi
+
+# Extract exact binary name to support "." as argument
+BIN_NAME="$(echo "$METADATA" | jq -r '.packages[0].targets[] | select(.kind[] == "bin") | .name' | head -n 1)"
+BINARY_DIR="$TARGET_DIR/$TARGET/release"
+
+# 3. Build and calculate sizes
+cd "$project_dir"
+
+printf "${dim}building ${fg0}${bold}$BIN_NAME${rst} ${dim}(release, $TARGET)${rst}\n"
+cargo build --release --target "$TARGET" 2>&1
+
+binary="$BINARY_DIR/$BIN_NAME"
+if [[ ! -f "$binary" ]]; then
+    echo "${red}error:${rst} binary not found at $binary"
+    exit 1
+fi
+
+# parse sections
+typeset -A sections
+while read -r name size _addr; do
+    sections[$name]=$size
+done < <(rust-size -A "$binary" | grep -E '^\.')
+
+flash_total=$(( ${sections[.boot2]:-0} + ${sections[.vector_table]:-0} + ${sections[.text]:-0} + ${sections[.rodata]:-0} + ${sections[.data]:-0} ))
+ram_total=$(( ${sections[.data]:-0} + ${sections[.bss]:-0} + ${sections[.uninit]:-0} ))
+
+echo ""
+printf "${yellow}${bold}  FLASH${rst}  "
+bar $flash_total $FLASH_MAX
+printf "  ${dim}%'d / %'d bytes${rst}\n" $flash_total $FLASH_MAX
+echo ""
+print_section ".text"         "${sections[.text]:-0}"         "$blue"
+print_section ".rodata"       "${sections[.rodata]:-0}"       "$purple"
+print_section ".vector_table" "${sections[.vector_table]:-0}" "$aqua"
+print_section ".boot2"        "${sections[.boot2]:-0}"        "$aqua"
+print_section ".data"         "${sections[.data]:-0}"         "$orange"
+
+echo ""
+printf "${aqua}${bold}  RAM${rst}    "
+bar $ram_total $RAM_MAX
+printf "  ${dim}%'d / %'d bytes${rst}\n" $ram_total $RAM_MAX
+echo ""
+print_section ".bss"    "${sections[.bss]:-0}"    "$blue"
+print_section ".data"   "${sections[.data]:-0}"   "$orange"
+print_section ".uninit" "${sections[.uninit]:-0}" "$gray"
+echo ""
+EOF
+  chmod +x build-size.sh
+
+  # 9. Justfile
   cat >Justfile <<'EOF'
 # Grab the name of the current directory to use as the binary name
 BIN_NAME := `basename "$PWD"`
@@ -409,7 +732,10 @@ BIN_NAME := `basename "$PWD"`
 build:
     @cargo build --release
 
-run: build
+sz:
+    @./build-size.sh .
+
+run: sz
     @echo "📦 Converting ELF to UF2..."
     @elf2uf2-rs convert target/thumbv6m-none-eabi/release/{{BIN_NAME}} flash.uf2
     @echo "🔌 Mounting RP2040 synchronously (requires sudo)..."
@@ -439,7 +765,7 @@ clean:
     @rm -f flash.uf2
 EOF
 
-  echo "✅ RP2040 project '$project_name' created!"
+  echo "✅ RP2040 project '$project_name' created with memory profiling!"
   echo "📝 Hardware: Waveshare RP2040 Zero"
   echo "🔌 NeoPixel on GP16"
   echo "🔨 Run 'just run' to flash."
