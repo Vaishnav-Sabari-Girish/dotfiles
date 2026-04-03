@@ -1,6 +1,8 @@
 
 ### :rocket: New features
 
+- **(pdf_manager)** Seperate script - ([1ac974b](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/1ac974bd5880666474ce7cba430ee57086faf3fe)) by @Vaishnav-Sabari-Girish
+
 - **(mkproj)** Add build-size.sh script for RP2040 and ESP32-Std - ([0da9040](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0da9040bd53b0adc872f6288d167e729630277e8)) by @Vaishnav-Sabari-Girish
 
 - **(tennis)** Add completion for tennis - ([4a57792](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/4a57792063790fed96104e96c0fff59a02fc0d9f)) by @Vaishnav-Sabari-Girish
@@ -597,6 +599,8 @@
 
 
 ### :wrench: Miscellaneous
+
+- **(changelog)** Update CHANGELOG.md for main [skip ci] - ([0fdb7dd](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/0fdb7dde85b6d70d5a4b112a9b612f16b57f816f)) by @github-actions[bot]
 
 - **(changelog)** Update CHANGELOG.md for main [skip ci] - ([ad8ecee](https://github.com/Vaishnav-Sabari-Girish/dotfiles/commit/ad8ecee86b06b621a27ac6935561ea94b71b8bae)) by @github-actions[bot]
 
