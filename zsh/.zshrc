@@ -48,21 +48,7 @@ setopt HIST_IGNORE_SPACE         # Ignore commands starting with space
 setopt HIST_VERIFY               # Show command before running with history expansion
 
 # --- ALIASES ---
-alias ll='ls -lah'        # List with human-readable sizes
-alias gs='git status'     # Git status shortcut
-alias ga='git add'        # Git add shortcut
-alias cat=bat
-alias pdf=papers
-alias ls="eza --icons --hyperlink"
-alias tree="eza --icons --hyperlink --tree"
-alias exit_0="$HOME/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
-alias temp_share_local="ssh -R 80:localhost:8888 nokey@localhost.run"
-alias project="cd $HOME/Desktop/My_Projects/"
-alias nchat_tg="nchat -d ~/.config/nchat_tg"
 alias stm32erase="/opt/stm32cubeprog/bin/STM32_Programmer_CLI -c port=SWD freq=480 mode=HotPlug -e all"
-alias preview_md="gh markdown-preview"
-alias ff='fastfetch'
-alias webcam="mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --demuxer-lavf-o=input_format=mjpeg > /dev/null 2>&1"
 
 # Key bindings
 bindkey "^[[H" beginning-of-line    # Home
@@ -131,6 +117,9 @@ _fix_cursor() {
    echo -ne '\e[5 q'
 }
 precmd_functions+=(_fix_cursor)
+
+# Amoxide init
+eval "$(am init zsh)"   # Context aware alias
 
 # Daily Kanji Practice
 run_daily_kanji_check
