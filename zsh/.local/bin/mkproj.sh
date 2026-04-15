@@ -319,7 +319,7 @@ EOF
   cargo add panic-halt
   cargo add heapless
 
-  cargo add embassy-executor --features "arch-cortex-m,executor-thread"
+  cargo add embassy-executor --features "executor-thread"
   cargo add embassy-stm32 --features "stm32f103c8,unstable-pac,memory-x,time-driver-any,exti"
   cargo add embassy-time --features tick-hz-1_000_000
 

@@ -1,5 +1,3 @@
-active_profiles = []
-
 [aliases]
 cat = "bat"
 exit_0 = "/home/vaishnav/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
@@ -15,3 +13,6 @@ preview_md = "gh markdown-preview"
 project = "cd /home/vaishnav/Desktop/My_Projects/"
 tree = "eza --icons --hyperlink --tree"
 webcam = "mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --demuxer-lavf-o=input_format=mjpeg > /dev/null 2>&1"
+zephyr_venv = "source /home/vaishnav/zephyrproject/zephyr_venv/bin/activate"
+
+[shell]
