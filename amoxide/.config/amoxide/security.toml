@@ -1,0 +1,6 @@
+tampered = []
+untrusted = []
+
+[[trusted]]
+path = "/home/vaishnav/Desktop/My_Projects/Zephyr_Programs/.aliases"
+hash = "67fde598802fc0f4fe100e83bdeca304d653afcf4ba5b951f2a7e3bd9544a03a"

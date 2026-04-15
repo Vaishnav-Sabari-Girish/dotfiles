@@ -13,7 +13,7 @@ fi
 
 # Choose language using fzf
 echo "🚀 Project Creator"
-language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL" | fzf --prompt="Choose language: " --height=10 --layout=reverse --border --cycle)
+language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nZephyr" | fzf --prompt="Choose language: " --height=10 --layout=reverse --border --cycle)
 
 # Exit if the user pressed Esc or Ctrl-C in fzf
 if [ -z "$language" ]; then
@@ -769,6 +769,98 @@ EOF
   echo "📝 Hardware: Waveshare RP2040 Zero"
   echo "🔌 NeoPixel on GP16"
   echo "🔨 Run 'just run' to flash."
+  ;;
+"Zephyr")
+  echo "🪁 Creating Zephyr RTOS project..."
+  read -r -p "Enter project name: " project_name
+
+  # Choose board using fzf
+  board=$(printf "nucleo_l433rc_p\nnrf52840dk" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
+
+  if [ -z "$board" ]; then
+    echo "Aborted."
+    exit 0
+  fi
+
+  # Create base directories
+  mkdir -p "$project_name/src"
+
+  echo "📝 Writing CMakeLists.txt..."
+  cat >"$project_name/CMakeLists.txt" <<EOF
+cmake_minimum_required(VERSION 3.20.0)
+
+# Pull in the Zephyr build system
+find_package(Zephyr REQUIRED HINTS \$ENV{ZEPHYR_BASE})
+
+project($project_name)
+
+# Export compile commands for clangd (Neovim)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+target_sources(app PRIVATE src/main.c)
+EOF
+
+  echo "📝 Writing prj.conf..."
+  cat >"$project_name/prj.conf" <<'EOF'
+# printk() enable for console output
+CONFIG_PRINTK=y
+
+# Enable GPIOS
+CONFIG_GPIO=y
+EOF
+
+  echo "📝 Writing src/main.c..."
+  cat >"$project_name/src/main.c" <<'EOF'
+#include <stdint.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+
+int main(void)
+{
+    printk("Hello World\n");
+    return 0;
+}
+EOF
+
+  echo "📝 Writing Justfile..."
+  cat >"$project_name/Justfile" <<EOF
+build:
+	@west build -b $board .
+
+pristine:
+	@west build -p always -b $board .
+
+flash:
+	@west flash --runner openocd
+
+clean:
+	@rm -rf build compile_commands.json
+EOF
+
+  echo "🔨 Running initial pristine build to generate Devicetree headers..."
+
+  # Verify west is accessible (Python venv is active)
+  if ! command -v west &>/dev/null; then
+    echo "⚠️  'west' command not found! Make sure your Zephyr Python venv is active."
+    echo "Project files created, but skipping automatic build and symlinking."
+  else
+    # Explicitly tell west to use project folder as source and put build folder inside it
+    west build -p always -b "$board" -d "$project_name/build" "$project_name"
+
+    echo "🔗 Symlinking compile_commands.json for Neovim/clangd..."
+    if [ -f "$project_name/build/compile_commands.json" ]; then
+      # Create symlink inside the project folder pointing to the build directory
+      ln -s build/compile_commands.json "$project_name/compile_commands.json"
+
+      # Add build artifacts to gitignore using explicit paths
+      echo "build/" >"$project_name/.gitignore"
+      echo "compile_commands.json" >>"$project_name/.gitignore"
+    else
+      echo "⚠️  compile_commands.json not found in build directory."
+    fi
+  fi
+
+  echo "✅ Zephyr project '$project_name' created for '$board'!"
   ;;
 esac
 
