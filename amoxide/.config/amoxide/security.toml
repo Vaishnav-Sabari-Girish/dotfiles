@@ -4,3 +4,7 @@ untrusted = []
 [[trusted]]
 path = "/home/vaishnav/Desktop/My_Projects/Zephyr_Programs/.aliases"
 hash = "67fde598802fc0f4fe100e83bdeca304d653afcf4ba5b951f2a7e3bd9544a03a"
+
+[[trusted]]
+path = "/home/vaishnav/Desktop/My_Projects/alert_angel/project_report/.aliases"
+hash = "544d8b59cbb34097d9e1aee1ff5817c72ed595619d3a8277d33504ad6e083e27"
