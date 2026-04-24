@@ -163,7 +163,7 @@ RAM_MAX=$((400 * 1024))    # ~400KB internal SRAM
 # prerequisite checks
 missing=()
 if ! command -v cargo &>/dev/null; then
-    missing+=("  ${orange}cargo${rst}       ${gray}https://rustup.rs${rst}")
+    missing+=("  ${orange}cargo${rst}        ${gray}https://rustup.rs${rst}")
 fi
 if ! command -v jq &>/dev/null; then
     missing+=("  ${orange}jq${rst}          ${gray}install via system package manager${rst}")
@@ -601,7 +601,7 @@ RAM_MAX=$((256 * 1024))
 # prerequisite checks
 missing=()
 if ! command -v cargo &>/dev/null; then
-    missing+=("  ${orange}cargo${rst}       ${gray}https://rustup.rs${rst}")
+    missing+=("  ${orange}cargo${rst}        ${gray}https://rustup.rs${rst}")
 fi
 if ! command -v jq &>/dev/null; then
     missing+=("  ${orange}jq${rst}          ${gray}install via system package manager${rst}")
@@ -775,7 +775,7 @@ EOF
   read -r -p "Enter project name: " project_name
 
   # Choose board using fzf
-  board=$(printf "nucleo_l433rc_p\nnrf52840dk" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
+  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
 
   if [ -z "$board" ]; then
     echo "Aborted."
@@ -825,17 +825,32 @@ EOF
   echo "📝 Writing Justfile..."
   cat >"$project_name/Justfile" <<EOF
 build:
-	@west build -b $board .
+    @west build -b $board .
 
 pristine:
-	@west build -p always -b $board .
+    @west build -p always -b $board .
 
 flash:
-	@west flash --runner openocd
+    @west flash --runner openocd
 
 clean:
-	@rm -rf build compile_commands.json
+    @rm -rf build compile_commands.json
 EOF
+
+  # Conditionally append the recover command only for Nordic boards
+  if [[ "$board" == *"nrf52840dk"* ]]; then
+    cat >>"$project_name/Justfile" <<'EOF'
+
+# Mass erases the Nordic chip to bypass the APPROTECT lock
+recover:
+    @/home/vaishnav/zephyr-sdk-1.0.1/hosttools/sysroots/x86_64-pokysdk-linux/usr/bin/openocd \
+        -s /home/vaishnav/zephyr-sdk-1.0.1/hosttools/sysroots/x86_64-pokysdk-linux/usr/share/openocd/scripts \
+        -c 'source [find interface/jlink.cfg]' \
+        -c 'transport select swd' \
+        -c 'source [find target/nrf52.cfg]' \
+        -c 'init' -c 'nrf52_recover' -c 'exit'
+EOF
+  fi
 
   echo "🔨 Running initial pristine build to generate Devicetree headers..."
 
