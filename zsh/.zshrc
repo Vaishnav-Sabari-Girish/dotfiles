@@ -124,3 +124,8 @@ eval "$(am init zsh)"   # Context aware alias
 
 # Daily Kanji Practice
 run_daily_kanji_check
+
+# Source the Boat CLI auto-tracker
+if [[ -f "$HOME/dotfiles/zsh/.local/bin/boat_tracker.zsh" ]]; then
+    source "$HOME/dotfiles/zsh/.local/bin/boat_tracker.zsh"
+fi
