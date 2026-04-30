@@ -282,6 +282,20 @@ window-rule {
 	default-column-width {}
 }
 
+// Blur wezterm background
+window-rule {
+    // Match WezTerm's app-id
+    match app-id="wezterm"
+    // Or try match app-id="^org\.wezfurlong\.wezterm$" if the above doesn't work
+
+    background-effect {
+        blur true
+        // Optional: Set xray false if you want to see windows behind WezTerm 
+        // instead of just the wallpaper.
+        xray false 
+    }
+}
+
 // Open the Firefox picture-in-picture player as floating by default.
 window-rule {
 	// This app-id regular expression will work for both:
