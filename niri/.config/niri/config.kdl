@@ -237,8 +237,6 @@ layout {
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
 
-spawn-sh-at-startup "dms run"
-
 hotkey-overlay {
 	// Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
 	skip-at-startup
