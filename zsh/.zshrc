@@ -21,6 +21,7 @@ path=(
   /var/lib/snapd/snap/bin
   $HOME/.local/lib/hyde
   /opt/nvim-linux-x86_64/bin
+  $HOME/.zvm/bin:$PATH
   $path # Appends system paths
 )
 export PATH
