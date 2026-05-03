@@ -21,7 +21,8 @@ path=(
   /var/lib/snapd/snap/bin
   $HOME/.local/lib/hyde
   /opt/nvim-linux-x86_64/bin
-  $HOME/.zvm/bin:$PATH
+  $HOME/.zvm/bin
+  $HOME/.rustup/toolchains/esp/xtensa-esp-elf/esp-15.2.0_20250920/xtensa-esp-elf/bin
   $path # Appends system paths
 )
 export PATH
@@ -65,7 +66,7 @@ export NAP_DEFAULT_LANGUAGE="ino"
 export NAP_THEME="catppuccin-mocha"
 export NVM_DIR="$HOME/.nvm"
 export RUSTONIG_SYSTEM_LIBONIG=1
-export LIBCLANG_PATH="$HOME/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-20.1.1_20250829/esp-clang/lib"
+export LIBCLANG_PATH="/home/vaishnav/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-20.1.1_20250829/esp-clang/lib"
 export LC_ALL=en_IN.UTF-8
 export LANG=en_IN.UTF-8
 export BUN_INSTALL="$HOME/.bun"
