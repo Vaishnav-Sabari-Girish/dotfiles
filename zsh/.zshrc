@@ -110,7 +110,6 @@ eval "$(starship init zsh)"
 
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/fzf-tab/fzf-tab.zsh
-source $HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # Fixing cursor in foot
 # Force the cursor to be a Blinking Beam at the prompt
@@ -124,10 +123,21 @@ precmd_functions+=(_fix_cursor)
 # Amoxide init
 eval "$(am init zsh)"   # Context aware alias
 
-# Daily Kanji Practice
-run_daily_kanji_check
-
 # Source the Boat CLI auto-tracker
 if [[ -f "$HOME/dotfiles/zsh/.local/bin/boat_tracker.zsh" ]]; then
     source "$HOME/dotfiles/zsh/.local/bin/boat_tracker.zsh"
 fi
+
+# Daily Kanji Practice
+_run_daily_kanji_once() {
+    # Run your custom app
+    $HOME/.cargo/bin/daily_kanji
+    
+    # Remove this function from the precmd array so it doesn't launch after every single command
+    precmd_functions=("${(@)precmd_functions:#_run_daily_kanji_once}")
+}
+
+# Attach to the precmd hook (runs right before the prompt is drawn)
+precmd_functions+=(_run_daily_kanji_once)
+
+source $HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
