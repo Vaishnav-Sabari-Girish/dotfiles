@@ -282,6 +282,30 @@ window-rule {
 	default-column-width {}
 }
 
+// Use floating window for fsel
+// Open the fsel launcher as a floating, centered window
+// Open the fsel launcher as a floating, centered window
+window-rule {
+    match app-id="^fsel-launcher$"
+    
+    // Forces the window to float instead of tiling/maximizing
+    open-floating true
+    
+    // Forces a specific size for your launcher so it doesn't default to niri's 0.5 proportion
+    default-column-width { fixed 800; }
+    default-window-height { fixed 500; }
+
+    // --- ADD THIS BLOCK ---
+    background-effect {
+        blur true
+        // Optional: Set xray false if you want to see windows behind the launcher 
+        // instead of just the wallpaper.
+        xray false
+    }
+
+    draw-border-with-background false
+}
+
 // Blur wezterm background
 window-rule {
     // Match WezTerm's app-id
@@ -354,7 +378,8 @@ binds {
 	Mod+T hotkey-overlay-title="Open a Terminal: Wezterm" { spawn "wezterm"; }
 	Mod+Return hotkey-overlay-title="Open a Terminal: Foot" { spawn "foot"; }
 	//Mod+A hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-	Mod+A hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
+	//Mod+A hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
+  Mod+A hotkey-overlay-title="Run an Application: fsel" { spawn "foot" "--app-id=fsel-launcher" "-o" "initial-window-mode=windowed" "-o" "colors.alpha=0.8" "fsel" "-t" "-d"; }
 	// Mod+S opens STM32CubeIDE
 	Mod+S hotkey-overlay-title="Open STM32CubeIDE" { spawn "stm32cubeide"; }
 	// Super+L hotkey-overlay-title="Lock the Screen" {
