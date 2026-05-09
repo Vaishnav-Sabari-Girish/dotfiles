@@ -1,5 +1,6 @@
 [aliases]
 cat = "bat"
+discord_update = "curl -sSo /tmp/eq_install.sh https://raw.githubusercontent.com/Equicord/Equicord/refs/heads/main/misc/install.sh && bash /tmp/eq_install.sh && rm /tmp/eq_install.sh"
 exit_0 = "/home/vaishnav/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
 ff = "fastfetch"
 ga = "git add"
@@ -16,3 +17,5 @@ webcam = "mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --demuxer-la
 zephyr_venv = "source /home/vaishnav/zephyrproject/zephyr_venv/bin/activate"
 
 [shell]
+
+[logging]
