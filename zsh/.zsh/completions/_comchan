@@ -15,7 +15,7 @@ _comchan() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'--completions=[Generate Shell completions]:COMPLETIONS:(bash elvish fish powershell zsh)' \
+'--completions=[Generate Shell completions]:COMPLETIONS:(bash zsh fish elvish power-shell nu)' \
 '-p+[Serial port to connect to]:PORT:_default' \
 '--port=[Serial port to connect to]:PORT:_default' \
 '-r+[Baud Rate of the Serial Monitor]:BAUD:_default' \
@@ -36,6 +36,8 @@ _comchan() {
 '--config=[Path to config file]:CONFIG_FILE:_files' \
 '--export-limit=[Max points to keep in memory for export per sensor]:EXPORT_LIMIT:_default' \
 '--plot-title=[Set the plot title for the exported SVG file]:PLOT_TITLE:_default' \
+'--csv=[Export numeric data to a CSV file while streaming serial data]:CSV_FILE:_default' \
+'--replay=[Replay a previous session from its *.log or *.csv file]:REPLAY_FILE:_default' \
 '--list-ports[List all available ports]' \
 '--auto[Auto-detect USB serial port]' \
 '-v[]' \
