@@ -141,3 +141,100 @@ _run_daily_kanji_once() {
 precmd_functions+=(_run_daily_kanji_once)
 
 source $HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# GOVMAN - Go Version Manager
+export PATH="/home/vaishnav/.govman/bin:$PATH"
+# Ensure GOBIN and GOPATH/bin are available
+if [ -n "$GOBIN" ]; then export PATH="$GOBIN:$PATH"; fi
+if command -v go >/dev/null 2>&1; then export PATH="$(go env GOPATH)/bin:$PATH"; fi
+export PATH="$HOME/go/bin:$PATH"
+export GOTOOLCHAIN=local
+
+# Wrapper function for automatic PATH execution
+govman() {
+    local govman_bin="/home/vaishnav/.govman/bin/govman"
+    if [[ ("$1" == "use" && "$#" -ge 2 && "$2" != "--help" && "$2" != "-h") || "$1" == "refresh" ]]; then
+        local output
+        output="$("$govman_bin" "$@" 2>&1)"
+        local exit_code=$?
+        if [[ $exit_code -eq 0 ]]; then
+            local export_cmd=$(printf '%s\n' "$output" | grep -E '^export PATH=' | head -n 1)
+            if [[ -n "$export_cmd" && "$export_cmd" =~ ^export\ PATH=\"[^\"]*\"$ ]]; then
+                eval "$export_cmd"
+                echo "✓ Go version switched successfully"
+                return 0
+            fi
+        else
+            echo "$output" >&2
+            return $exit_code
+        fi
+    fi
+    "$govman_bin" "$@"
+}
+
+# Auto-switch Go versions based on .govman-goversion file
+govman_auto_switch() {
+    # Check if auto-switch is enabled in config
+    local config_file="$HOME/.govman/config.yaml"
+    local auto_switch_enabled="true"
+    if [[ -f "$config_file" ]]; then
+        auto_switch_enabled=$(awk '/^auto_switch:/,/^[^ ]/ {if (/^[[:space:]]*enabled:/) {print $2; exit}}' "$config_file" 2>/dev/null | tr -d '[:space:]')
+        [[ -z "$auto_switch_enabled" ]] && auto_switch_enabled="true"
+    fi
+    if [[ "$auto_switch_enabled" != "true" ]]; then
+        return 0
+    fi
+
+    # Check file exists and is non-empty (-s), handle permission errors
+    if [[ -s .govman-goversion ]]; then
+        local required_version
+        required_version=$(cat .govman-goversion 2>/dev/null | tr -d '\n\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ $? -ne 0 ]] || [[ -z "$required_version" ]]; then
+            return 0
+        fi
+
+        # Validate version format (e.g., 1.25, 1.25.1, 1.25rc1)
+        if [[ ! "$required_version" =~ ^[0-9]+\.[0-9]+(\.?[0-9]*)(-?(rc|beta|alpha)[0-9]*)?$ ]]; then
+            echo "Warning: Invalid version format in .govman-goversion: $required_version" >&2
+            return 0
+        fi
+
+        # Skip go version call if we already matched this version
+        if [[ "$required_version" == "$__govman_last_version" ]]; then
+            return 0
+        fi
+
+        if ! command -v go >/dev/null 2>&1; then
+            echo "Go not found. Switching to Go $required_version..."
+            govman use "$required_version" >/dev/null 2>&1 || {
+                echo "Warning: Failed to switch to Go $required_version. Install it with 'govman install $required_version'" >&2
+            }
+            return
+        fi
+
+        local current_version=$(go version 2>/dev/null | awk '{print $3}' | sed -E 's/^go//; s/([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
+        if [[ ! "$current_version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then current_version=""; fi
+        # If required_version is major.minor only, truncate current_version for comparison
+        local compare_version="$current_version"
+        if [[ ! "$required_version" == *.*.* ]]; then compare_version="${current_version%%.*}.${current_version#*.}"; compare_version="${compare_version%%.*}"; fi
+        if [[ -n "$current_version" && "$compare_version" != "$required_version" ]]; then
+            echo "Auto-switching to Go $required_version (required by .govman-goversion)"
+            govman use "$required_version" >/dev/null 2>&1 || {
+                echo "Warning: Failed to switch to Go $required_version. Install it with 'govman install $required_version'" >&2
+            }
+            __govman_last_version="$required_version"
+        elif [[ -n "$current_version" ]]; then
+            __govman_last_version="$required_version"
+        fi
+    fi
+}
+
+# Zsh-specific: Hook into chpwd for directory changes
+__govman_last_version=""
+autoload -U add-zsh-hook
+if [[ ! "${chpwd_functions[(r)govman_auto_switch]}" ]]; then
+    add-zsh-hook chpwd govman_auto_switch
+fi
+
+# Run auto-switch on shell startup
+govman_auto_switch
+# END GOVMAN

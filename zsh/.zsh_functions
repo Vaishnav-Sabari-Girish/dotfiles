@@ -355,3 +355,15 @@ gif() {
         wezterm start --cwd "$PWD" -- lpx "$@"
     fi
 }
+
+# Read Books
+readbook() {
+    local script_path="$HOME/dotfiles/zsh/.local/bin/read_book.zsh"
+
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: Script not found or not executable at $script_path"
+        return 1
+    fi
+}
