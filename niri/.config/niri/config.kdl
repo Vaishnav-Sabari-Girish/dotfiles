@@ -351,6 +351,11 @@ window-rule {
 }
 
 window-rule {
+    match app-id="(?i)openscad"
+    open-maximized true
+}
+
+window-rule {
     match app-id="Spotify"
     open-maximized true
 }
