@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, and RP2040-HAL
+# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, and Zephyr
 
 set -e
 
@@ -775,11 +775,17 @@ EOF
   read -r -p "Enter project name: " project_name
 
   # Choose board using fzf
-  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
+  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840\nfrdm_mcxa156" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
 
   if [ -z "$board" ]; then
     echo "Aborted."
     exit 0
+  fi
+
+  # Determine the best runner based on the selected board
+  flash_runner="openocd"
+  if [[ "$board" == "frdm_mcxa156" ]]; then
+    flash_runner="jlink"
   fi
 
   # Create base directories
@@ -831,7 +837,7 @@ pristine:
     @west build -p always -b $board .
 
 flash:
-    @west flash --runner openocd
+    @west flash --runner $flash_runner
 
 clean:
     @rm -rf build compile_commands.json
