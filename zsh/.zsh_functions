@@ -329,7 +329,7 @@ function img() {
     elif [[ "$TERM_PROGRAM" == "ghostty" ]] || [[ "$TERM_PROGRAM" == "kitty" ]]; then
         kitten icat "$@"
     elif [[ "$TERM" == "foot" ]]; then
-        $HOME/.cargo/bin/mcat "$@"
+      $(which chafa) "$@"
     else
         loupe "$@"
     fi
