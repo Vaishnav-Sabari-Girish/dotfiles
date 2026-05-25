@@ -23,6 +23,7 @@ path=(
   /opt/nvim-linux-x86_64/bin
   $HOME/.zvm/bin
   $HOME/.rustup/toolchains/esp/xtensa-esp-elf/esp-15.2.0_20250920/xtensa-esp-elf/bin
+  $HOME/alire/bin
   $path # Appends system paths
 )
 export PATH

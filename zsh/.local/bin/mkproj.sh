@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, Zephyr, and Arduino
+# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, Zephyr, Arduino, and Ada
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language using fzf
 echo "🚀 Project Creator"
-language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nZephyr\nArduino" | fzf --prompt="Choose language: " --height=11 --layout=reverse --border --cycle)
+language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nZephyr\nArduino\nAda" | fzf --prompt="Choose language: " --height=12 --layout=reverse --border --cycle)
 
 # Exit if the user pressed Esc or Ctrl-C in fzf
 if [ -z "$language" ]; then
@@ -770,6 +770,7 @@ EOF
   echo "🔌 NeoPixel on GP16"
   echo "🔨 Run 'just run' to flash."
   ;;
+
 "Zephyr")
   echo "🪁 Creating Zephyr RTOS project..."
   read -r -p "Enter project name: " project_name
@@ -933,6 +934,85 @@ clean:
 EOF
 
   echo "✅ Arduino project '$project_name' created for '$fqbn'!"
+  ;;
+
+"Ada")
+  echo "⚙️ Creating Ada SPARK project..."
+  if ! command -v alr &>/dev/null; then
+    echo "Error: Alire (alr) not found. Please ensure it is in your PATH."
+    exit 1
+  fi
+
+  read -r -p "Enter project name: " project_name
+
+  echo "📦 Initializing Alire project..."
+  alr init --bin "$project_name"
+  cd "$project_name"
+
+  echo "➕ Adding gnatprove dependency..."
+  alr with gnatprove
+
+  echo "📝 Writing SPARK Hello World..."
+  # alr init converts the project name to lowercase for the source file
+  adb_file="src/${project_name,,}.adb"
+
+  cat >"$adb_file" <<EOF
+with Ada.Text_IO;
+
+procedure ${project_name} with SPARK_Mode is
+
+   function Increment (X : Integer) return Integer
+     with Pre  => X < Integer'Last,
+          Post => Increment'Result = X + 1
+   is
+   begin
+      return X + 1;
+   end Increment;
+
+   Number : Integer := 41;
+   Result : Integer;
+begin
+   Result := Increment (Number);
+   Ada.Text_IO.Put_Line ("Hello, SPARK World!");
+   Ada.Text_IO.Put_Line ("41 + 1 = " & Integer'Image (Result));
+end ${project_name};
+EOF
+
+  echo "📝 Writing .gitignore..."
+  cat >.gitignore <<'EOF'
+# Compiled Objects and Executables
+/obj/
+/bin/
+
+# Alire-specific configuration and cache
+/alire/
+/config/
+alire.toml.prev
+alire.lock.prev
+
+# SPARK Verification Artifacts
+gnatprove/
+*.log
+*.spark
+EOF
+
+  echo "📝 Writing Justfile..."
+  cat >Justfile <<'EOF'
+build:
+    @alr build
+
+run:
+    @alr run
+
+prove:
+    @alr gnatprove
+
+clean:
+    @alr clean
+    @rm -rf obj/ bin/
+EOF
+
+  echo "✅ Ada SPARK project '$project_name' created!"
   ;;
 esac
 
