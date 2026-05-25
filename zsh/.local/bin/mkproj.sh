@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, and Zephyr
+# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, Zephyr, and Arduino
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language using fzf
 echo "🚀 Project Creator"
-language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nZephyr" | fzf --prompt="Choose language: " --height=10 --layout=reverse --border --cycle)
+language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nZephyr\nArduino" | fzf --prompt="Choose language: " --height=11 --layout=reverse --border --cycle)
 
 # Exit if the user pressed Esc or Ctrl-C in fzf
 if [ -z "$language" ]; then
@@ -32,8 +32,8 @@ case $language in
 #include <stdio.h>
 
 int main() {
-    printf("Hello, World!\n");
-    return 0;
+  printf("Hello, World!\n");
+  return 0;
 }
 EOF
 
@@ -809,22 +809,22 @@ EOF
   echo "📝 Writing prj.conf..."
   cat >"$project_name/prj.conf" <<'EOF'
 # printk() enable for console output
-CONFIG_PRINTK=y
+# CONFIG_PRINTK=y
+
+# Enable Logging 
+# CONFIG_LOG=y
 
 # Enable GPIOS
-CONFIG_GPIO=y
+# CONFIG_GPIO=y
 EOF
 
   echo "📝 Writing src/main.c..."
   cat >"$project_name/src/main.c" <<'EOF'
-#include <stdint.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
 
 int main(void)
 {
-    printk("Hello World\n");
-    return 0;
+  return 0;
 }
 EOF
 
@@ -882,6 +882,57 @@ EOF
   fi
 
   echo "✅ Zephyr project '$project_name' created for '$board'!"
+  ;;
+
+"Arduino")
+  echo "♾️ Creating Arduino project..."
+
+  if ! command -v arduino-cli &>/dev/null; then
+    echo "Error: arduino-cli not found. Please install it first."
+    exit 1
+  fi
+
+  read -r -p "Enter project name: " project_name
+
+  # Board selection using fzf to parse arduino-cli output
+  # --header-lines=1 skips the table column names
+  board_line=$(arduino-cli board listall | fzf --prompt="Choose board: " --header-lines=1 --height=15 --layout=reverse --border --cycle)
+
+  if [ -z "$board_line" ]; then
+    echo "Aborted."
+    exit 0
+  fi
+
+  # Extract the last column (the FQBN) using awk
+  fqbn=$(echo "$board_line" | awk '{print $NF}')
+
+  # Create the actual sketch files
+  arduino-cli sketch new "$project_name"
+  cd "$project_name"
+
+  # Attach the board (This handles your sketch.yaml LSP requirement)
+  echo "📎 Attaching board $fqbn to generate sketch.yaml..."
+  arduino-cli board attach -b "$fqbn"
+
+  echo "📝 Writing Justfile..."
+  cat >Justfile <<'EOF'
+# By default, compile uses the sketch.yaml configuration
+build:
+    @arduino-cli compile
+
+# Usage: just upload /dev/ttyUSB0
+upload port:
+    @arduino-cli upload -p {{port}}
+
+# Usage: just monitor /dev/ttyUSB0
+monitor port:
+    @arduino-cli monitor -p {{port}}
+
+clean:
+    @rm -rf build
+EOF
+
+  echo "✅ Arduino project '$project_name' created for '$fqbn'!"
   ;;
 esac
 

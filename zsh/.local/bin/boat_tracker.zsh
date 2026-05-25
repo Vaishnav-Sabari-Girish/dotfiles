@@ -8,14 +8,13 @@ _boat_start_tracking() {
     local rel_path="${PWD#$_BOAT_PROJECTS_DIR/}"
     local project_name="${rel_path%%/*}"
     
-    # Append today's date to create a unique daily session name
-    local today=$(date +%Y-%m-%d)
-    local activity_name="${project_name}_${today}"
+    # Use the project name directly as the activity name
+    local activity_name="$project_name"
 
     # Fetch the currently active boat session
     local current_status=$(boat get 2>&1)
 
-    # If boat isn't already tracking this exact daily activity, switch to it
+    # If boat isn't already tracking this activity, switch to it
     if [[ "$current_status" != *"$activity_name"* ]]; then
         
         # Pause any currently running activity to prevent overlap
@@ -30,7 +29,7 @@ _boat_start_tracking() {
             # Activity exists: Resume it by its unique ID
             boat start "$existing_id" >/dev/null 2>&1
         else
-            # Activity doesn't exist today: Create it
+            # Activity doesn't exist: Create it
             boat new "$activity_name" >/dev/null 2>&1
             
             # Fetch its newly assigned ID and start it
@@ -40,7 +39,7 @@ _boat_start_tracking() {
             fi
         fi
         
-        echo -e "\033[0;36m⛵ boat-cli: Tracking $project_name (Session: $activity_name)\033[0m"
+        echo -e "\033[0;36m⛵ boat-cli: Tracking $project_name\033[0m"
     fi
 }
 
