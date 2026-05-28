@@ -38,6 +38,8 @@ _comchan() {
 '--plot-title=[Set the plot title for the exported SVG file]:PLOT_TITLE:_default' \
 '--csv=[Export numeric data to a CSV file while streaming serial data]:CSV_FILE:_default' \
 '--replay=[Replay a previous session from its *.log or *.csv file]:REPLAY_FILE:_default' \
+'--obj=[Path to .obj file]:OBJ_FILE:_default' \
+'--braille=[Select a built-in Braille 3D model (cube, tetrahedron, octahedron) or provide a path to a custom .wrfm file]:BRAILLE:_default' \
 '--list-ports[List all available ports]' \
 '--auto[Auto-detect USB serial port]' \
 '-v[]' \
@@ -46,6 +48,9 @@ _comchan() {
 '--generate-config[]' \
 '--zephyr[Enables Zephyr Shell mode]' \
 '--simulate[Simulate Serial Data with no need for hardware (Use for testing ComChan)]' \
+'-x[Display incoming serial data in hex dump format]' \
+'--hex[Display incoming serial data in hex dump format]' \
+'--hex-pretty[Display incoming serial data in a clean, buffered hex-dump format]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

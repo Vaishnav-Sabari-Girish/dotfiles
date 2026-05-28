@@ -957,24 +957,10 @@ EOF
   adb_file="src/${project_name,,}.adb"
 
   cat >"$adb_file" <<EOF
-with Ada.Text_IO;
+with Ada.Text_IO; use Ada.Text_IO;
 
-procedure ${project_name} with SPARK_Mode is
-
-   function Increment (X : Integer) return Integer
-     with Pre  => X < Integer'Last,
-          Post => Increment'Result = X + 1
-   is
-   begin
-      return X + 1;
-   end Increment;
-
-   Number : Integer := 41;
-   Result : Integer;
+procedure ${project_name} is
 begin
-   Result := Increment (Number);
-   Ada.Text_IO.Put_Line ("Hello, SPARK World!");
-   Ada.Text_IO.Put_Line ("41 + 1 = " & Integer'Image (Result));
 end ${project_name};
 EOF
 

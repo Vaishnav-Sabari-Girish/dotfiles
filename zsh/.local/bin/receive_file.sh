@@ -1,86 +1,69 @@
 #!/usr/bin/env bash
-
 # File: receive_file.sh
-# Magic Wormhole file receiving TUI with gum
+# Magic Wormhole file receiving TUI with fzf
 
 set -e
 
-# Configuration
+# Configuration & Colors
 SCRIPT_NAME="Magic Wormhole Receive"
+RED='\033[38;5;196m'
+GREEN='\033[38;5;46m'
+YELLOW='\033[38;5;214m'
+BLUE='\033[38;5;33m'
+GRAY='\033[38;5;245m'
+NC='\033[0m' # No Color
+BOLD='\033[1m'
+
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --prompt='> ' --pointer='▶' --marker='✓'"
 
 check_dependencies() {
   local missing_deps=()
 
-  command -v gum >/dev/null 2>&1 || missing_deps+=("gum")
+  command -v fzf >/dev/null 2>&1 || missing_deps+=("fzf")
   command -v wormhole >/dev/null 2>&1 || missing_deps+=("magic-wormhole")
   command -v wl-paste >/dev/null 2>&1 || missing_deps+=("wl-clipboard")
 
   if [ ${#missing_deps[@]} -ne 0 ]; then
-    gum style --foreground 196 "Missing dependencies: ${missing_deps[*]}"
+    echo -e "${RED}Missing dependencies: ${missing_deps[*]}${NC}"
     exit 1
   fi
 }
 
 show_header() {
-  gum style \
-    --foreground 33 --border-foreground 33 --border double \
-    --align center --width 60 --margin "1 2" --padding "2 4" \
-    "$SCRIPT_NAME" \
-    'Enter wormhole code to receive files'
+  clear
+  echo -e "${BLUE}${BOLD}========================================${NC}"
+  echo -e "${BLUE}${BOLD}          $SCRIPT_NAME          ${NC}"
+  echo -e "${BLUE}${BOLD}========================================${NC}"
+  echo -e "Enter wormhole code to receive files\n"
 }
 
 get_wormhole_code() {
   local code=""
-
-  # Check if there's a code in clipboard
   local clipboard_content
   clipboard_content=$(wl-paste 2>/dev/null || true)
 
   # Check if clipboard contains a wormhole code pattern
   if [[ "$clipboard_content" =~ ^[0-9]+-[a-zA-Z]+-[a-zA-Z]+$ ]]; then
-    gum style --foreground 46 "📋 Found wormhole code in clipboard: $clipboard_content"
+    # Redirected to stderr (>&2) so it displays to the user but isn't captured by the variable assignment
+    echo -e "${GREEN}📋 Found wormhole code in clipboard: ${BOLD}$clipboard_content${NC}" >&2
+    read -p "Use code from clipboard? [Y/n] " use_clip </dev/tty
 
-    if gum confirm "Use code from clipboard?"; then
-      # Return ONLY the clipboard content, not the display message
+    if [[ ! "$use_clip" =~ ^[Nn]$ ]]; then
       echo "$clipboard_content"
       return 0
     fi
   fi
 
-  # Let user choose input method
-  local input_method
-  input_method=$(gum choose --header "How would you like to enter the code?" \
-    "Type the code manually" \
-    "Paste from clipboard" \
-    "Scan QR code (if available)")
-
-  case "$input_method" in
-  "Type the code manually")
-    code=$(gum input --placeholder "Enter wormhole code (e.g., 7-guitarist-revenge)")
-    ;;
-  "Paste from clipboard")
-    code=$(wl-paste 2>/dev/null || echo "")
-    if [ -z "$code" ]; then
-      gum style --foreground 196 "No content found in clipboard"
-      return 1
-    fi
-    # Clean the code - remove any extra whitespace
-    code=$(echo "$code" | tr -d '[:space:]')
-    ;;
-  "Scan QR code (if available)")
-    gum style --foreground 214 "QR code scanning not implemented yet"
-    gum style --foreground 245 "Please use manual entry or clipboard paste"
-    code=$(gum input --placeholder "Enter wormhole code (e.g., 7-guitarist-revenge)")
-    ;;
-  esac
+  # Manual fallback
+  read -p "Enter wormhole code (e.g., 7-guitarist-revenge): " code </dev/tty
 
   # Clean the code - remove any extra whitespace and newlines
   code=$(echo "$code" | tr -d '[:space:]')
 
   # Validate code format
   if [[ ! "$code" =~ ^[0-9]+-[a-zA-Z]+-[a-zA-Z]+$ ]]; then
-    gum style --foreground 196 "Invalid code format! Expected: number-word-word"
-    gum style --foreground 196 "Received: '$code'"
+    echo -e "${RED}Invalid code format! Expected: number-word-word${NC}" >&2
+    echo -e "${RED}Received: '$code'${NC}" >&2
     return 1
   fi
 
@@ -97,12 +80,13 @@ choose_download_location() {
   )
 
   local choice
-  choice=$(printf '%s\n' "${locations[@]}" | gum choose --header "Choose download location:")
+  choice=$(printf '%s\n' "${locations[@]}" | fzf --header "Choose download location:") || {
+    echo -e "${YELLOW}Cancelled.${NC}" >&2
+    exit 0
+  }
 
   case "$choice" in
-  "Current directory (.)")
-    echo "."
-    ;;
+  "Current directory (.)") echo "." ;;
   "Downloads folder (~/Downloads)")
     mkdir -p ~/Downloads
     echo "$HOME/Downloads"
@@ -116,13 +100,12 @@ choose_download_location() {
     echo "$HOME/Documents"
     ;;
   "Custom location")
-    local custom_path
-    custom_path=$(gum input --placeholder "Enter full path (e.g., /path/to/folder)")
-
+    read -p "Enter full path (e.g., /path/to/folder): " custom_path </dev/tty
     if [ -z "$custom_path" ]; then
       echo "."
     elif [ ! -d "$custom_path" ]; then
-      if gum confirm "Directory doesn't exist. Create it?"; then
+      read -p "Directory doesn't exist. Create it? [Y/n] " create_dir </dev/tty
+      if [[ ! "$create_dir" =~ ^[Nn]$ ]]; then
         mkdir -p "$custom_path" && echo "$custom_path" || echo "."
       else
         echo "."
@@ -131,9 +114,7 @@ choose_download_location() {
       echo "$custom_path"
     fi
     ;;
-  *)
-    echo "."
-    ;;
+  *) echo "." ;;
   esac
 }
 
@@ -146,23 +127,23 @@ main() {
   wormhole_code=$(get_wormhole_code)
 
   if [ -z "$wormhole_code" ]; then
-    gum style --foreground 196 "No code provided. Exiting."
+    echo -e "${RED}No valid code provided. Exiting.${NC}"
     exit 1
   fi
 
-  # Debug: Show the exact code we're using
-  gum style --foreground 245 "Debug: Using code: '$wormhole_code'"
+  echo -e "${GRAY}Debug: Using code: '$wormhole_code'${NC}"
 
   # Choose download location
   local download_path
   download_path=$(choose_download_location)
 
   # Show confirmation
-  gum style --foreground 46 "Code: $wormhole_code"
-  gum style --foreground 46 "Download to: $download_path"
+  echo -e "\n${GREEN}Code: $wormhole_code${NC}"
+  echo -e "${GREEN}Download to: $download_path${NC}"
 
-  if ! gum confirm "Start receiving file?"; then
-    gum style --foreground 214 "Cancelled."
+  read -p "Start receiving file? [Y/n] " confirm </dev/tty
+  if [[ "$confirm" =~ ^[Nn]$ ]]; then
+    echo -e "${YELLOW}Cancelled.${NC}"
     exit 0
   fi
 
@@ -172,252 +153,23 @@ main() {
 
   if [ "$download_path" != "." ]; then
     cd "$download_path" || {
-      gum style --foreground 196 "Failed to change to directory: $download_path"
+      echo -e "${RED}Failed to change to directory: $download_path${NC}"
       exit 1
     }
   fi
 
-  # Clear screen for clean wormhole output
-  clear
-  gum style \
-    --foreground 33 --border-foreground 33 --border double \
-    --align center --width 60 --margin "1 2" --padding "2 4" \
-    "$SCRIPT_NAME"
-
-  gum style --foreground 46 "📥 Receiving file with code: $wormhole_code"
-  gum style --foreground 46 "📁 Download location: $(pwd)"
-  echo ""
-
-  # Start receiving - make sure we pass only the clean code
-  wormhole receive "$wormhole_code"
-  local exit_code=$?
-
-  # Return to original directory
-  cd "$original_pwd"
-
-  # Show final status
-  echo ""
-  if [ $exit_code -eq 0 ]; then
-    gum style \
-      --foreground 46 --border-foreground 46 --border rounded \
-      --align center --width 50 --margin "1 2" --padding "1 2" \
-      "✅ File Received Successfully!" \
-      "📁 Location: $download_path"
-
-    # Offer to open the download location
-    if command -v nautilus >/dev/null 2>&1 || command -v dolphin >/dev/null 2>&1 || command -v thunar >/dev/null 2>&1; then
-      if gum confirm "Open download folder?"; then
-        if command -v nautilus >/dev/null 2>&1; then
-          nautilus "$download_path" 2>/dev/null &
-        elif command -v dolphin >/dev/null 2>&1; then
-          dolphin "$download_path" 2>/dev/null &
-        elif command -v thunar >/dev/null 2>&1; then
-          thunar "$download_path" 2>/dev/null &
-        fi
-      fi
-    fi
-  else
-    gum style \
-      --foreground 196 --border-foreground 196 --border rounded \
-      --align center --width 50 --margin "1 2" --padding "1 2" \
-      "❌ Transfer Failed or Cancelled"
-  fi
-}
-
-main "$@"
-
-# File: receive_file.sh
-# Magic Wormhole file receiving TUI with gum
-
-set -e
-
-alias wormhole="\$HOME/.local/bin/wormhole"
-
-# Configuration
-SCRIPT_NAME="Magic Wormhole Receive"
-
-check_dependencies() {
-  local missing_deps=()
-
-  command -v gum >/dev/null 2>&1 || missing_deps+=("gum")
-  command -v wormhole >/dev/null 2>&1 || missing_deps+=("magic-wormhole")
-  command -v wl-paste >/dev/null 2>&1 || missing_deps+=("wl-clipboard")
-
-  if [ ${#missing_deps[@]} -ne 0 ]; then
-    gum style --foreground 196 "Missing dependencies: ${missing_deps[*]}"
-    exit 1
-  fi
-}
-
-show_header() {
-  gum style \
-    --foreground 33 --border-foreground 33 --border double \
-    --align center --width 60 --margin "1 2" --padding "2 4" \
-    "$SCRIPT_NAME" \
-    'Enter wormhole code to receive files'
-}
-
-get_wormhole_code() {
-  local code=""
-
-  # Check if there's a code in clipboard
-  local clipboard_content
-  clipboard_content=$(wl-paste 2>/dev/null || true)
-
-  # Check if clipboard contains a wormhole code pattern
-  if [[ "$clipboard_content" =~ ^[0-9]+-[a-zA-Z]+-[a-zA-Z]+$ ]]; then
-    gum style --foreground 46 "📋 Found wormhole code in clipboard: $clipboard_content"
-
-    if gum confirm "Use code from clipboard?"; then
-      # Return ONLY the clipboard content, not the display message
-      echo "$clipboard_content"
-      return 0
-    fi
-  fi
-
-  # Let user choose input method
-  local input_method
-  input_method=$(gum choose --header "How would you like to enter the code?" \
-    "Type the code manually" \
-    "Paste from clipboard" \
-    "Scan QR code (if available)")
-
-  case "$input_method" in
-  "Type the code manually")
-    code=$(gum input --placeholder "Enter wormhole code (e.g., 7-guitarist-revenge)")
-    ;;
-  "Paste from clipboard")
-    code=$(wl-paste 2>/dev/null || echo "")
-    if [ -z "$code" ]; then
-      gum style --foreground 196 "No content found in clipboard"
-      return 1
-    fi
-    # Clean the code - remove any extra whitespace
-    code=$(echo "$code" | tr -d '[:space:]')
-    ;;
-  "Scan QR code (if available)")
-    gum style --foreground 214 "QR code scanning not implemented yet"
-    gum style --foreground 245 "Please use manual entry or clipboard paste"
-    code=$(gum input --placeholder "Enter wormhole code (e.g., 7-guitarist-revenge)")
-    ;;
-  esac
-
-  # Clean the code - remove any extra whitespace and newlines
-  code=$(echo "$code" | tr -d '[:space:]')
-
-  # Validate code format
-  if [[ ! "$code" =~ ^[0-9]+-[a-zA-Z]+-[a-zA-Z]+$ ]]; then
-    gum style --foreground 196 "Invalid code format! Expected: number-word-word"
-    gum style --foreground 196 "Received: '$code'"
-    return 1
-  fi
-
-  echo "$code"
-}
-
-choose_download_location() {
-  local locations=(
-    "Current directory (.)"
-    "Downloads folder (~/Downloads)"
-    "Desktop (~/Desktop)"
-    "Documents (~/Documents)"
-    "Custom location"
-  )
-
-  local choice
-  choice=$(printf '%s\n' "${locations[@]}" | gum choose --header "Choose download location:")
-
-  case "$choice" in
-  "Current directory (.)")
-    echo "."
-    ;;
-  "Downloads folder (~/Downloads)")
-    mkdir -p ~/Downloads
-    echo "$HOME/Downloads"
-    ;;
-  "Desktop (~/Desktop)")
-    mkdir -p ~/Desktop
-    echo "$HOME/Desktop"
-    ;;
-  "Documents (~/Documents)")
-    mkdir -p ~/Documents
-    echo "$HOME/Documents"
-    ;;
-  "Custom location")
-    local custom_path
-    custom_path=$(gum input --placeholder "Enter full path (e.g., /path/to/folder)")
-
-    if [ -z "$custom_path" ]; then
-      echo "."
-    elif [ ! -d "$custom_path" ]; then
-      if gum confirm "Directory doesn't exist. Create it?"; then
-        mkdir -p "$custom_path" && echo "$custom_path" || echo "."
-      else
-        echo "."
-      fi
-    else
-      echo "$custom_path"
-    fi
-    ;;
-  *)
-    echo "."
-    ;;
-  esac
-}
-
-main() {
-  check_dependencies
   show_header
+  echo -e "${GREEN}📥 Receiving file with code: $wormhole_code${NC}"
+  echo -e "${GREEN}📁 Download location: $(pwd)${NC}\n"
 
-  # Get wormhole code
-  local wormhole_code
-  wormhole_code=$(get_wormhole_code)
-
-  if [ -z "$wormhole_code" ]; then
-    gum style --foreground 196 "No code provided. Exiting."
-    exit 1
+  # Start receiving
+  # Check if alias/custom binary path was needed
+  local wh_cmd="wormhole"
+  if [ -x "$HOME/.local/bin/wormhole" ]; then
+    wh_cmd="$HOME/.local/bin/wormhole"
   fi
 
-  # Debug: Show the exact code we're using
-  gum style --foreground 245 "Debug: Using code: '$wormhole_code'"
-
-  # Choose download location
-  local download_path
-  download_path=$(choose_download_location)
-
-  # Show confirmation
-  gum style --foreground 46 "Code: $wormhole_code"
-  gum style --foreground 46 "Download to: $download_path"
-
-  if ! gum confirm "Start receiving file?"; then
-    gum style --foreground 214 "Cancelled."
-    exit 0
-  fi
-
-  # Change to download directory
-  local original_pwd
-  original_pwd=$(pwd)
-
-  if [ "$download_path" != "." ]; then
-    cd "$download_path" || {
-      gum style --foreground 196 "Failed to change to directory: $download_path"
-      exit 1
-    }
-  fi
-
-  # Clear screen for clean wormhole output
-  clear
-  gum style \
-    --foreground 33 --border-foreground 33 --border double \
-    --align center --width 60 --margin "1 2" --padding "2 4" \
-    "$SCRIPT_NAME"
-
-  gum style --foreground 46 "📥 Receiving file with code: $wormhole_code"
-  gum style --foreground 46 "📁 Download location: $(pwd)"
-  echo ""
-
-  # Start receiving - make sure we pass only the clean code
-  wormhole receive "$wormhole_code"
+  $wh_cmd receive "$wormhole_code"
   local exit_code=$?
 
   # Return to original directory
@@ -426,15 +178,13 @@ main() {
   # Show final status
   echo ""
   if [ $exit_code -eq 0 ]; then
-    gum style \
-      --foreground 46 --border-foreground 46 --border rounded \
-      --align center --width 50 --margin "1 2" --padding "1 2" \
-      "✅ File Received Successfully!" \
-      "📁 Location: $download_path"
+    echo -e "${GREEN}${BOLD}✅ File Received Successfully!${NC}"
+    echo -e "${GREEN}📁 Location: $download_path${NC}"
 
     # Offer to open the download location
     if command -v nautilus >/dev/null 2>&1 || command -v dolphin >/dev/null 2>&1 || command -v thunar >/dev/null 2>&1; then
-      if gum confirm "Open download folder?"; then
+      read -p "Open download folder? [Y/n] " open_folder </dev/tty
+      if [[ ! "$open_folder" =~ ^[Nn]$ ]]; then
         if command -v nautilus >/dev/null 2>&1; then
           nautilus "$download_path" 2>/dev/null &
         elif command -v dolphin >/dev/null 2>&1; then
@@ -445,10 +195,7 @@ main() {
       fi
     fi
   else
-    gum style \
-      --foreground 196 --border-foreground 196 --border rounded \
-      --align center --width 50 --margin "1 2" --padding "1 2" \
-      "❌ Transfer Failed or Cancelled"
+    echo -e "${RED}${BOLD}❌ Transfer Failed or Cancelled${NC}"
   fi
 }
 

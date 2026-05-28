@@ -12,3 +12,7 @@ hash = "544d8b59cbb34097d9e1aee1ff5817c72ed595619d3a8277d33504ad6e083e27"
 [[trusted]]
 path = "/home/vaishnav/Desktop/My_Projects/PhotonCLI/photoncli_report/.aliases"
 hash = "544d8b59cbb34097d9e1aee1ff5817c72ed595619d3a8277d33504ad6e083e27"
+
+[[trusted]]
+path = "/home/vaishnav/intership_report/.aliases"
+hash = "c4f5682a7d88f1322c5883869e9a91848134f0c697aae938080f69454944e582"
