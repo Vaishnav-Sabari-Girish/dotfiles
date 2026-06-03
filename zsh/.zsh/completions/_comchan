@@ -51,6 +51,7 @@ _comchan() {
 '-x[Display incoming serial data in hex dump format]' \
 '--hex[Display incoming serial data in hex dump format]' \
 '--hex-pretty[Display incoming serial data in a clean, buffered hex-dump format]' \
+'--dark[Exports the plot in Dark Mode]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

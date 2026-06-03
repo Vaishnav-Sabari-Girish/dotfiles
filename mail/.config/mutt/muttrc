@@ -50,9 +50,10 @@ source /home/vaishnav/.config/mutt/accounts/forgamesonly684@gmail.com.muttrc
 # Account switching macros
 macro index,pager i1 '<sync-mailbox><enter-command>source /home/vaishnav/.config/mutt/accounts/forgamesonly684@gmail.com.muttrc<enter><change-folder>!<enter>;<check-stats>' "switch to forgamesonly684@gmail.com"
 macro index,pager i2 '<sync-mailbox><enter-command>source /home/vaishnav/.config/mutt/accounts/write2vaichu@gmail.com.muttrc<enter><change-folder>!<enter>;<check-stats>' "switch to write2vaichu@gmail.com"
+macro index,pager i3 '<sync-mailbox><enter-command>source /home/vaishnav/.config/mutt/accounts/vaishnav.sabari.girish@gmail.com.muttrc<enter><change-folder>!<enter>;<check-stats>' "switch to vaishnav.sabari.girish@gmail.com"
 
 # Compose macros
-macro compose M "F pandoc -s -f markdown -t html \ny^T^Utext/html; charset=utf-8\nn" "Convert MD to HTML"
+macro compose M "<pipe-entry>pandoc -f markdown -t html > /tmp/neomutt-alt.html<enter><attach-file>/tmp/neomutt-alt.html<enter><edit-type><kill-line>text/html; charset=utf-8<enter><toggle-disposition><tag-entry><previous-entry><tag-entry><group-alternatives>" "Create multipart/alternative from Markdown"
 
 # Manual sync macro (optional)
 macro index,pager O '<shell-escape>mbsync -a<enter>' "sync all mail"
@@ -64,4 +65,3 @@ macro attach,compose \cb "<pipe-entry> urlscan<Enter>" "call urlscan to extract 
 # Searching
 macro index S "<shell-escape>mbsync -a<enter><shell-escape>notmuch new<enter>" "sync email"
 macro index \Cf "<enter-command>unset wait_key<enter><shell-escape>read -p 'Enter a search term to find with notmuch: ' x; echo \$x >~/.cache/mutt_terms<enter><limit>~i \"\`notmuch search --output=messages \$(cat ~/.cache/mutt_terms) | head -n 600 | perl -le '@a=<>;s/\^id:// for@a;$,=\"|\";print@a' | perl -le '@a=<>; chomp@a; s/\\+/\\\\+/ for@a;print@a' \`\"<enter>" "show only messages matching a notmuch pattern"
-macro index,pager i3 '<sync-mailbox><enter-command>source /home/vaishnav/.config/mutt/accounts/vaishnav.sabari.girish@gmail.com.muttrc<enter><change-folder>!<enter>;<check-stats>' "switch to vaishnav.sabari.girish@gmail.com"
