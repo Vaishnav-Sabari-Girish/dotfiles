@@ -6,3 +6,6 @@ vim.keymap.set("n", "<leader>ft", ":FloatermToggle<CR>", { desc = "Toggle floati
 
 -- InYourFace toggle
 vim.keymap.set("n", "<leader>fa", ":InYourFace<CR>", { desc = "Toggle Mr.Incredible's face" })
+
+-- Links
+vim.keymap.set("x", "<leader>l", "<Esc>`<i[<Esc>`>la](<C-r>+)<Esc>", { desc = "Apply markdown link to selection" })

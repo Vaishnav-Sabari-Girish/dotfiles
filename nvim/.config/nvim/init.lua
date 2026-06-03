@@ -1,3 +1,5 @@
+vim.g.loaded_python3_provider = nil
+vim.g.python3_host_prog = vim.fn.expand("~/.config/nvim/env/nvim-python/bin/python")
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
 
@@ -13,7 +15,6 @@ end
 
 vim.opt.relativenumber = false -- Disable relative line numbers
 vim.opt.number = true -- Keep absolute line numbers enabled
-vim.g.python3_host_prog = "/usr/bin/python"
 
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = { "*.v" },

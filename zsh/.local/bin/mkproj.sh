@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # mkproj - Multi-language project creator
-# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, Zephyr, Arduino, and Ada
+# Creates project templates for C, Rust, Python, Go, Zig, ESP32-Std, STM32-Embassy, RP2040-HAL, nRF52-Embassy, Zephyr, Arduino, and Ada
 
 set -e
 
@@ -13,7 +13,7 @@ fi
 
 # Choose language using fzf
 echo "🚀 Project Creator"
-language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nZephyr\nArduino\nAda" | fzf --prompt="Choose language: " --height=12 --layout=reverse --border --cycle)
+language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nnRF52-Embassy\nZephyr\nArduino\nAda" | fzf --prompt="Choose language: " --height=13 --layout=reverse --border --cycle)
 
 # Exit if the user pressed Esc or Ctrl-C in fzf
 if [ -z "$language" ]; then
@@ -769,6 +769,300 @@ EOF
   echo "📝 Hardware: Waveshare RP2040 Zero"
   echo "🔌 NeoPixel on GP16"
   echo "🔨 Run 'just run' to flash."
+  ;;
+
+"nRF52-Embassy")
+  echo "📡 Creating nRF52840 Embassy (no-std) project..."
+  read -r -p "Enter project name: " project_name
+
+  echo "⚙️  Checking Rust target..."
+  rustup target add thumbv7em-none-eabi || true
+
+  echo "📦 Initializing Cargo project..."
+  cargo new --bin "$project_name" --vcs none
+  cd "$project_name"
+
+  echo "➕ Adding dependencies..."
+  # Embassy Core
+  cargo add embassy-executor --features "platform-cortex-m,executor-thread,defmt"
+  cargo add embassy-time --features "defmt,defmt-timestamp-uptime,tick-hz-32_768"
+  cargo add embassy-nrf --features "defmt,nrf52840,time-driver-rtc1,gpiote"
+
+  # Logging & Panic Handling
+  cargo add defmt
+  cargo add defmt-rtt
+  cargo add panic-probe --features "print-defmt"
+
+  # ARM Cortex-M Essentials
+  cargo add cortex-m --features "inline-asm,critical-section-single-core"
+  cargo add cortex-m-rt
+
+  echo "⚙️  Configuring build profiles..."
+  cat >>Cargo.toml <<EOF
+
+[profile.release]
+debug = 2
+lto = true
+opt-level = 'z' # Optimize for size
+
+[[bin]]
+name = "$project_name"
+test = false
+bench = false
+doctest = false
+
+EOF
+
+  echo "⚙️  Configuring build target..."
+  mkdir -p .cargo
+  cat >.cargo/config.toml <<'EOF'
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+# replace nRF52840_xxAA with your chip as listed in `probe-rs chip list`
+runner = "probe-rs run --chip nRF52840_xxAA"
+
+[build]
+target = "thumbv7em-none-eabi"
+
+[env]
+DEFMT_LOG = "trace"
+EOF
+
+  echo "🧠 Configuring memory map..."
+  cat >memory.x <<'EOF'
+MEMORY
+{
+  /* NOTE 1 K = 1 KiBi = 1024 bytes */
+  FLASH : ORIGIN = 0x00000000, LENGTH = 1024K
+  RAM : ORIGIN = 0x20000000, LENGTH = 256K
+
+  /* These values correspond to the NRF52840 with Softdevices S140 7.3.0 */
+  /*
+     FLASH : ORIGIN = 0x00027000, LENGTH = 868K
+     RAM : ORIGIN = 0x20020000, LENGTH = 128K
+  */
+}
+EOF
+
+  echo "📝 Writing build.rs..."
+  cat >build.rs <<'EOF'
+//! This build script copies the `memory.x` file from the crate root into
+//! a directory where the linker can always find it at build time.
+
+use std::env;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
+
+fn main() {
+    let out = &PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    File::create(out.join("memory.x"))
+        .unwrap()
+        .write_all(include_bytes!("memory.x"))
+        .unwrap();
+    println!("cargo:rustc-link-search={}", out.display());
+
+    println!("cargo:rerun-if-changed=memory.x");
+
+    println!("cargo:rustc-link-arg-bins=--nmagic");
+    println!("cargo:rustc-link-arg-bins=-Tlink.x");
+    println!("cargo:rustc-link-arg-bins=-Tdefmt.x");
+}
+EOF
+
+  echo "📝 Writing src/main.rs..."
+  cat >src/main.rs <<'EOF'
+#![no_std]
+#![no_main]
+
+use defmt::info;
+use defmt_rtt as _; // Initializes the global defmt logger
+use panic_probe as _; // Catches panics and sends them through defmt
+
+use embassy_executor::Spawner;
+use embassy_nrf::gpio::{Level, Output, OutputDrive};
+use embassy_time::{Duration, Timer};
+
+#[embassy_executor::main]
+async fn main(_spawner: Spawner) {
+    // Initialize the HAL and grab the peripheral singleton
+    let p = embassy_nrf::init(Default::default());
+
+    loop {}
+}
+EOF
+  echo "📊 Adding build-size.sh profiling script..."
+  cat >build-size.sh <<'EOF'
+#!/usr/bin/env zsh
+
+set -e
+
+WORKSPACE_ROOT="$(cd "$(dirname "$0")" && pwd)"
+TARGET="thumbv7em-none-eabi"
+
+# gruvbox colors
+local rst='\033[0m'
+local bold='\033[1m'
+local dim='\033[2m'
+local bg0='\033[38;2;40;40;40m'
+local fg='\033[38;2;235;219;178m'
+local fg0='\033[38;2;251;241;199m'
+local red='\033[38;2;251;73;52m'
+local green='\033[38;2;184;187;38m'
+local yellow='\033[38;2;250;189;47m'
+local blue='\033[38;2;131;165;152m'
+local purple='\033[38;2;211;134;155m'
+local aqua='\033[38;2;142;192;124m'
+local orange='\033[38;2;254;128;25m'
+local gray='\033[38;2;146;131;116m'
+
+# nRF52840 specs
+FLASH_MAX=$((1024 * 1024)) # 1MB
+RAM_MAX=$((256 * 1024))    # 256KB
+
+# prerequisite checks
+missing=()
+if ! command -v cargo &>/dev/null; then
+    missing+=("  ${orange}cargo${rst}        ${gray}https://rustup.rs${rst}")
+fi
+if ! command -v jq &>/dev/null; then
+    missing+=("  ${orange}jq${rst}          ${gray}install via system package manager${rst}")
+fi
+if ! command -v rust-size &>/dev/null; then
+    missing+=("  ${orange}rust-size${rst}   ${gray}cargo install cargo-binutils && rustup component add llvm-tools${rst}")
+fi
+if ! command -v bc &>/dev/null; then
+    missing+=("  ${orange}bc${rst}          ${gray}install via system package manager${rst}")
+fi
+if (( ${#missing} > 0 )); then
+    printf "${red}${bold}missing required tools:${rst}\n"
+    for m in "${missing[@]}"; do
+        printf "$m\n"
+    done
+    exit 1
+fi
+
+usage() {
+    echo "Usage: ./build-size.sh <project>"
+    exit 1
+}
+
+bar() {
+    local used=$1 max=$2 width=40
+    local pct=$((used * 100 / max))
+    local filled=$((used * width / max))
+    (( filled > width )) && filled=$width
+    local empty=$((width - filled))
+
+    local color=$green
+    (( pct > 70 )) && color=$yellow
+    (( pct > 90 )) && color=$orange
+    (( pct > 98 )) && color=$red
+
+    printf "${dim}[${rst}"
+    printf "${color}%${filled}s${rst}" | tr ' ' '#'
+    printf "${gray}%${empty}s${rst}" | tr ' ' '.'
+    printf "${dim}]${rst}"
+    printf " ${color}${bold}%d%%${rst}" "$pct"
+}
+
+print_section() {
+    local name=$1 size=$2 color=$3
+    printf "  ${color}%-18s${rst} ${fg}%'10d${rst} ${gray}bytes${rst}  ${dim}(%6.1f KB)${rst}\n" \
+        "$name" "$size" "$(echo "scale=1; $size / 1024" | bc)"
+}
+
+# 1. Parse arguments and check directories first
+if [[ $# -lt 1 ]]; then
+    usage
+fi
+
+project="$1"
+project_dir="$WORKSPACE_ROOT/$project"
+
+if [[ ! -d "$project_dir" ]]; then
+    echo "${red}error:${rst} project '$project' not found"
+    exit 1
+fi
+
+# 2. Get Cargo metadata
+METADATA="$(cargo metadata --no-deps --format-version 1 --manifest-path "$project_dir/Cargo.toml" 2>/dev/null)"
+
+TARGET_DIR="$(echo "$METADATA" | jq -r '.target_directory')"
+
+if [[ -z "$TARGET_DIR" || "$TARGET_DIR" == "null" ]]; then
+    echo "${red}error:${rst} failed to determine target directory via cargo metadata"
+    exit 1
+fi
+
+# Extract exact binary name
+BIN_NAME="$(echo "$METADATA" | jq -r '.packages[0].targets[] | select(.kind[] == "bin") | .name' | head -n 1)"
+BINARY_DIR="$TARGET_DIR/$TARGET/release"
+
+# 3. Build and calculate sizes
+cd "$project_dir"
+
+printf "${dim}building ${fg0}${bold}$BIN_NAME${rst} ${dim}(release, $TARGET)${rst}\n"
+cargo build --release --target "$TARGET" 2>&1
+
+binary="$BINARY_DIR/$BIN_NAME"
+if [[ ! -f "$binary" ]]; then
+    echo "${red}error:${rst} binary not found at $binary"
+    exit 1
+fi
+
+# parse sections
+typeset -A sections
+while read -r name size _addr; do
+    sections[$name]=$size
+done < <(rust-size -A "$binary" | grep -E '^\.')
+
+# Calculate Flash and RAM for nRF52 (Standard ARM Cortex-M)
+flash_total=$(( ${sections[.vector_table]:-0} + ${sections[.text]:-0} + ${sections[.rodata]:-0} + ${sections[.data]:-0} ))
+ram_total=$(( ${sections[.data]:-0} + ${sections[.bss]:-0} + ${sections[.uninit]:-0} ))
+
+echo ""
+printf "${yellow}${bold}  FLASH${rst}  "
+bar $flash_total $FLASH_MAX
+printf "  ${dim}%'d / %'d bytes${rst}\n" $flash_total $FLASH_MAX
+echo ""
+print_section ".vector_table" "${sections[.vector_table]:-0}" "$aqua"
+print_section ".text"         "${sections[.text]:-0}"         "$blue"
+print_section ".rodata"       "${sections[.rodata]:-0}"       "$purple"
+print_section ".data"         "${sections[.data]:-0}"         "$orange"
+
+echo ""
+printf "${aqua}${bold}  RAM${rst}    "
+bar $ram_total $RAM_MAX
+printf "  ${dim}%'d / %'d bytes${rst}\n" $ram_total $RAM_MAX
+echo ""
+print_section ".bss"    "${sections[.bss]:-0}"    "$blue"
+print_section ".data"   "${sections[.data]:-0}"   "$orange"
+print_section ".uninit" "${sections[.uninit]:-0}" "$gray"
+echo ""
+EOF
+  chmod +x build-size.sh
+
+  echo "📝 Writing Justfile..."
+  cat >Justfile <<'EOF'
+run:
+    @cargo run
+
+build:
+    @cargo build --release
+
+sz:
+    @./build-size.sh .
+
+# A handy alias to build for release, check size, and run
+f: sz
+    @cargo run --release
+
+clean:
+    @cargo clean
+EOF
+
+  echo "✅ nRF52840 Embassy project '$project_name' created!"
+  echo "🔌 Connect your nRF52840-DK and run 'just run' to compile, flash, and view defmt logs."
   ;;
 
 "Zephyr")
