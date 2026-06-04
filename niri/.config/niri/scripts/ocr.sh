@@ -11,7 +11,7 @@ if ! grim -g "$(slurp)" "$IMG_PATH"; then
 fi
 
 # Process the image with Tesseract
-if ! tesseract -l eng "$IMG_PATH" "$TESSE_BASE" &>/dev/null; then
+if ! tesseract -l eng+jpn+jpn_vert "$IMG_PATH" "$TESSE_BASE" &>/dev/null; then
   notify-send -u critical "OCR Failed" "Tesseract failed to process the image."
   rm -f "$IMG_PATH"
   exit 1
