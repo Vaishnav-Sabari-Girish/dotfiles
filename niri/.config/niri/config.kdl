@@ -8,10 +8,12 @@
 // https://yalter.github.io/niri/Configuration:-Input
 
 environment {
-	DISPLAY ":0"
-	XCURSOR_THEME "Nordzy-cursors"
-	XCURSOR_SIZE "24"
-  GTK_THEME "Adwaita:dark"
+    DISPLAY ":0"
+    XCURSOR_THEME "Nordzy-cursors"
+    XCURSOR_SIZE "24"
+    GTK_THEME "Adwaita:dark"
+    EDITOR "nvim"
+    VISUAL "nvim"
 }
 
 input {
@@ -312,6 +314,23 @@ window-rule {
     open-floating true
     
     // Adjust these to match your fsel launcher size
+    default-column-width { fixed 800; }
+    default-window-height { fixed 500; }
+
+    background-effect {
+        blur true
+        xray false
+    }
+
+    draw-border-with-background false
+}
+
+window-rule {
+    match app-id="^ocr-editor$"
+    
+    open-floating true
+    
+    // Size it similarly to your other floating utilities
     default-column-width { fixed 800; }
     default-window-height { fixed 500; }
 
@@ -657,6 +676,9 @@ binds {
   Print       { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/screenshots.sh region"; }
   Ctrl+Print  { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/screenshots.sh screen"; }
   Alt+Print   { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/screenshots.sh window"; }
+  // OCR Script Bind
+  Shift+Print { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh"; }
+
 
 	// Applications such as remote-desktop clients and software KVM switches may
 	// request that niri stops processing the keyboard shortcuts defined here
