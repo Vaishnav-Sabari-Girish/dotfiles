@@ -7,11 +7,11 @@ return {
     log_level = vim.log.levels.OFF,
     editor = {
       client = "neovim",
-      tooltip = "The Superior Text Editor",
+      tooltip = "Skill issue, use Neovim",
       icon = nil,
     },
     display = {
-      theme = "default",
+      theme = "minecraft",
       flavor = "dark",
       view = "full",
       swap_fields = false,
@@ -37,49 +37,64 @@ return {
     },
     text = {
       default = nil,
+
       workspace = function(opts)
-        return "In " .. opts.workspace
+        return "Superior to IDE users in " .. opts.workspace
       end,
+
       viewing = function(opts)
-        return "Viewing " .. opts.filename
+        return "Inspecting " .. opts.filename .. " manually"
       end,
+
       editing = function(opts)
-        return "Editing " .. opts.filename
+        return "Out-editing GUI users in " .. opts.filename
       end,
+
       file_browser = function(opts)
-        return "Browsing files in " .. opts.name
+        return "Browsing files without a mouse in " .. opts.name
       end,
+
       plugin_manager = function(opts)
-        return "Managing plugins in " .. opts.name
+        return "Customizing what others download" .. " in " .. opts.name
       end,
+
       lsp = function(opts)
-        return "Configuring LSP in " .. opts.name
+        return "Using LSP correctly in " .. opts.name
       end,
+
       docs = function(opts)
-        return "Reading " .. opts.name
+        return "Reading documentation voluntarily"
       end,
+
       vcs = function(opts)
-        return "Committing changes in " .. opts.name
+        return "Committing code I actually understand"
       end,
+
       notes = function(opts)
-        return "Taking notes in " .. opts.name
+        return "Writing notes instead of opening Notion"
       end,
+
       debug = function(opts)
-        return "Debugging in " .. opts.name
+        return "Finding bugs without Stack Overflow"
       end,
+
       test = function(opts)
-        return "Testing in " .. opts.name
+        return "Verifying assumptions in " .. opts.name
       end,
+
       diagnostics = function(opts)
-        return "Fixing problems in " .. opts.name
+        return "Fixing my mistakes before production"
       end,
+
       games = function(opts)
-        return "Playing " .. opts.name
+        return "Gaming in my text editor"
       end,
+
       terminal = function(opts)
-        return "Running commands in " .. opts.name
+        return "Using the computer directly"
       end,
-      dashboard = "Home",
+
+      dashboard = "Awaiting less capable developers",
     },
     buttons = nil,
     -- buttons = {
@@ -89,7 +104,7 @@ return {
     --   },
     -- },
     assets = nil,
-    variables = nil,
+    variables = true,
     hooks = {
       ready = nil,
       shutdown = nil,
