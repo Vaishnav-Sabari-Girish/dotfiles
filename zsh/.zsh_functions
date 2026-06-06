@@ -367,3 +367,22 @@ readbook() {
         return 1
     fi
 }
+
+# Compress video for web (720p, crf 28, no audio, h264)
+webvid() {
+    if [ -z "$1" ]; then
+        echo "Error: No input file provided."
+        echo "Usage: webvid <video_file>"
+        return 1
+    fi
+
+    local input="$1"
+    # Extract the filename without the extension and append _web.mp4
+    local output="${input%.*}_web.mp4"
+
+    echo "Compressing '$input' to '$output'..."
+    
+    ffmpeg -i "$input" -vcodec libx264 -crf 28 -preset fast -vf "scale=-2:720" -an "$output"
+    
+    echo -e "\nDone! Saved as: $output"
+}
