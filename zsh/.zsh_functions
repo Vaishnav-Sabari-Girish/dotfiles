@@ -1,14 +1,5 @@
 #!/bin/zsh
 
-# Just for fun 
-precmd() {
-  local exit_status=$?
-  if [ $exit_status -ne 0 ] && [ $exit_status -ne 130 ]; then
-    paplay --volume=200000 "$HOME/Music/FAH Echo Sound Effect [9t9pDnG0SeM].wav" 
-  fi
-}
-
-
 file_upload() {
   if [ -z "$1" ]; then
     echo "Usage: file_upload <path_to_file>"
@@ -253,16 +244,26 @@ wreceive() {
 }
 
 mkproj() {
-    local script_path="$HOME/dotfiles/zsh/.local/bin/mkproj.sh"
+    local script_path="$home/dotfiles/zsh/.local/bin/mkproj.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
     else
-        echo "Error: mkproj.sh not found or not executable at $script_path"
+        echo "error: mkproj.sh not found or not executable at $script_path"
         return 1
     fi
 }
 
+mkpkg() {
+    local script_path="$HOME/dotfiles/zsh/.local/bin/mkpkg.sh"
+    
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "error: mkpkg.sh not found or not executable at $script_path"
+        return 1
+    fi
+}
 
 mp4_to_gif() {
     local script_path="$HOME/dotfiles/zsh/.local/bin/mp4_to_gif.sh"
