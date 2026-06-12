@@ -1,77 +1,87 @@
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "auto",
+    "source": "$HOME/dotfiles/fastfetch/.config/fastfetch/frieren.jpg",
+    "width": 25,
+    "padding": {
+      "top": 1,
+      "left": 2,
+      "right": 2
+    }
+  },
   "display": {
-    "separator": "  ",
+    "separator": "  "
   },
   "modules": [
     {
       "key": "╭───────────╮",
-      "type": "custom",
+      "type": "custom"
     },
     {
       "key": "│ {#31} user    {#keys}│",
       "type": "title",
-      "format": "{user-name}",
+      "format": "{user-name}"
     },
     {
       "key": "│ {#32}󰇅 hname   {#keys}│",
       "type": "title",
-      "format": "{host-name}",
+      "format": "{host-name}"
     },
     {
       "key": "│ {#33}󰅐 uptime  {#keys}│",
-      "type": "uptime",
+      "type": "uptime"
     },
     {
       "key": "│ {#34}{icon} distro  {#keys}│",
-      "type": "os",
+      "type": "os"
     },
     {
       "key": "│ {#35} kernel  {#keys}│",
-      "type": "kernel",
+      "type": "kernel"
     },
     {
       "key": "│ {#36}󰇄 desktop {#keys}│",
-      "type": "de",
+      "type": "de"
     },
     {
       "key": "│ {#37}󰖲 wm      {#keys}│",
-      "type": "wm",
+      "type": "wm"
     },
     {
       "key": "│ {#31} term    {#keys}│",
-      "type": "terminal",
+      "type": "terminal"
     },
     {
       "key": "│ {#32} shell   {#keys}│",
-      "type": "shell",
+      "type": "shell"
     },
     {
       "key": "│ {#33}󰍛 cpu     {#keys}│",
       "type": "cpu",
-      "showPeCoreCount": true,
+      "showPeCoreCount": true
     },
     {
       "key": "│ {#34}󰉉 disk    {#keys}│",
       "type": "disk",
-      "folders": "/",
+      "folders": "/"
     },
     {
       "key": "│ {#35} memory  {#keys}│",
-      "type": "memory",
+      "type": "memory"
     },
     {
       "key": "├───────────┤",
-      "type": "custom",
+      "type": "custom"
     },
     {
       "key": "│ {#39} colors  {#keys}│",
       "type": "colors",
-      "symbol": "circle",
+      "symbol": "circle"
     },
     {
       "key": "╰───────────╯",
-      "type": "custom",
-    },
-  ],
+      "type": "custom"
+    }
+  ]
 }
