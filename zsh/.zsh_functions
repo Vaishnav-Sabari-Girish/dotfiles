@@ -244,7 +244,7 @@ wreceive() {
 }
 
 mkproj() {
-    local script_path="$home/dotfiles/zsh/.local/bin/mkproj.sh"
+    local script_path="$HOME/dotfiles/zsh/.local/bin/mkproj.sh"
     
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
