@@ -284,6 +284,22 @@ window-rule {
 	default-column-width {}
 }
 
+// Firefox transparency
+window-rule {
+    match app-id="^firefox$"
+    
+    // Forces Firefox to be slightly transparent so the blur is visible.
+    // 1.0 is solid, 0.0 is invisible. Adjust to your liking!
+    opacity 0.85 
+
+    background-effect {
+        blur true
+        xray false
+    }
+    
+    // Prevents Niri's default background color from rendering behind the blur
+    draw-border-with-background false
+}
 // Use floating window for fsel
 // Open the fsel launcher as a floating, centered window
 // Open the fsel launcher as a floating, centered window
