@@ -324,6 +324,16 @@ window-rule {
     draw-border-with-background false
 }
 
+// Vesktop transparency
+window-rule {
+    match app-id="^vesktop$"
+    background-effect {
+        blur true
+        xray false
+    }
+    draw-border-with-background false
+}
+
 window-rule {
     match app-id="^emoji-picker$"
     
