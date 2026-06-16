@@ -13,7 +13,7 @@ fi
 
 # Choose language using fzf
 echo "🚀 Project Creator"
-language=$(printf "C\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nnRF52-Embassy\nZephyr\nArduino\nAda" | fzf --prompt="Choose language: " --height=13 --layout=reverse --border --cycle)
+language=$(printf "C\nAda\nD-simple\nRust\nPython\nGo\nZig\nESP32-Std\nSTM32-Embassy\nRP2040-HAL\nnRF52-Embassy\nZephyr\nArduino" | fzf --prompt="Choose language: " --height=13 --layout=reverse --border --cycle)
 
 # Exit if the user pressed Esc or Ctrl-C in fzf
 if [ -z "$language" ]; then
@@ -1294,6 +1294,38 @@ EOF
 
   echo "✅ Ada SPARK project '$project_name' created!"
   ;;
+
+"D-simple")
+  echo "🇩 Creating D (simple) project..."
+  read -r -p "Enter project name: " project_name
+  read -r -p "Enter project description: " description
+
+  mkdir -p "$project_name"
+  cd "$project_name"
+
+  # Create the D file with embedded dub.sdl configuration
+  cat >"${project_name}.d" <<EOF
+#!/usr/bin/env dub
+
+/+ dub.sdl:
+      name "${project_name}"
+      description "${description}"
+ +/
+
+import std.stdio : writeln;
+
+void main() {
+    writeln("Hello from D!");
+}
+EOF
+
+  # Ensure the file is executable
+  chmod +x "${project_name}.d"
+
+  echo "✅ D-simple project '$project_name' created!"
+  echo "🚀 You can run it directly using: ./${project_name}.d"
+  ;;
+
 esac
 
 echo "🎉 Happy coding!"
