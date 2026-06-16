@@ -387,3 +387,10 @@ webvid() {
     
     echo -e "\nDone! Saved as: $output"
 }
+
+# URL shortener 
+short_url() {
+    curl -s -X POST "https://1yr.ca/api/shorten" \
+        -H "Content-Type: application/json" \
+        -d "{\"url\":\"$1\"}"
+}
