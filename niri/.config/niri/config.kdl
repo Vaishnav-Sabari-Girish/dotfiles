@@ -462,7 +462,7 @@ binds {
 	Mod+Return hotkey-overlay-title="Open a Terminal: Foot" { spawn "foot"; }
 	//Mod+A hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
 	//Mod+A hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
-  Mod+A hotkey-overlay-title="Run an Application: fsel" { spawn "foot" "--app-id=fsel-launcher" "-o" "initial-window-mode=windowed" "-o" "colors.alpha=0.8" "fsel" "-t" "-d"; }
+  Mod+A hotkey-overlay-title="Run an Application: fsel" { spawn "foot" "--app-id=fsel-launcher" "-o" "initial-window-mode=windowed" "-o" "=0.8" "fsel" "-t" "-d"; }
 	// Mod+S opens STM32CubeIDE
 	Mod+S hotkey-overlay-title="Open STM32CubeIDE" { spawn "stm32cubeide"; }
 	// Super+L hotkey-overlay-title="Lock the Screen" {
@@ -475,9 +475,9 @@ binds {
 	Super+F hotkey-overlay-title="Open Firefox: firefox" { spawn "firefox"; }
   Super+C hotkey-overlay-title="Open Microsoft Teams" { spawn "/snap/bin/teams-for-linux"; }
   Mod+Alt+E hotkey-overlay-title="Emoji Picker" { 
-    spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/emoji-picker.sh" 
+    spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/emoji-picker.sh" 
   }
-  Super+D hotkey-overlay-title="Define Word" { spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors.alpha=0.8 $HOME/.config/niri/scripts/define.sh"; }
+  Super+D hotkey-overlay-title="Define Word" { spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/define.sh"; }
 
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
