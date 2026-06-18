@@ -1,6 +1,5 @@
 [aliases]
 cat = "bat"
-discord_update = "curl -sSo /tmp/eq_install.sh https://raw.githubusercontent.com/Equicord/Equicord/refs/heads/main/misc/install.sh && bash /tmp/eq_install.sh && rm /tmp/eq_install.sh"
 exit_0 = "/home/vaishnav/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
 ff = "fastfetch"
 ga = "git add"
