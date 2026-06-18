@@ -239,3 +239,6 @@ fi
 # Run auto-switch on shell startup
 govman_auto_switch
 # END GOVMAN
+
+# bun completions
+[ -s "/home/vaishnav/.bun/_bun" ] && source "/home/vaishnav/.bun/_bun"

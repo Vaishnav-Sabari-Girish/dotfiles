@@ -1,4 +1,5 @@
 {
+  "Handcode.nvim": { "branch": "main", "commit": "aa98247e237998258b759ce21bb8b5f5b2b97511" },
   "LazyVim": { "branch": "main", "commit": "c10948c50b18fae7f256433afdef09e432410480" },
   "base16-nvim": { "branch": "master", "commit": "23e5128eb5f629c29532c24a1e733cbe019f05bb" },
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },

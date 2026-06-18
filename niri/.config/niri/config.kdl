@@ -352,6 +352,22 @@ window-rule {
 }
 
 window-rule {
+    match app-id="^dict-floating$"
+    
+    open-floating true
+    
+    default-column-width { fixed 800; }
+    default-window-height { fixed 500; }
+
+    background-effect {
+        blur true
+        xray false
+    }
+
+    draw-border-with-background false
+}
+
+window-rule {
     match app-id="^ocr-editor$"
     
     open-floating true
@@ -461,6 +477,7 @@ binds {
   Mod+Alt+E hotkey-overlay-title="Emoji Picker" { 
     spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/emoji-picker.sh" 
   }
+  Super+D hotkey-overlay-title="Define Word" { spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors.alpha=0.8 $HOME/.config/niri/scripts/define.sh"; }
 
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.

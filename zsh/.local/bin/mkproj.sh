@@ -1070,7 +1070,7 @@ EOF
   read -r -p "Enter project name: " project_name
 
   # Choose board using fzf
-  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840\nfrdm_mcxa156" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
+  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840\nfrdm_mcxa156\nfrdm_mcxn236" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
 
   if [ -z "$board" ]; then
     echo "Aborted."
@@ -1079,7 +1079,7 @@ EOF
 
   # Determine the best runner based on the selected board
   flash_runner="openocd"
-  if [[ "$board" == "frdm_mcxa156" ]]; then
+  if [[ "$board" == "frdm_mcxa156" || "$board" == "frdm_mcxn236" ]]; then
     flash_runner="jlink"
   fi
 
