@@ -1,4 +1,5 @@
 [aliases]
+brown_noise = "ffplay -hide_banner -loglevel error -nodisp -f lavfi 'anoisesrc=color=brown:amplitude=0.354,lowpass=f=550:poles=1,bass=g=12:f=60,afade=t=in:d=3'"
 cat = "bat"
 exit_0 = "/home/vaishnav/Desktop/My_Projects/exit_0/scripts/welcome_menu.sh"
 ff = "fastfetch"
