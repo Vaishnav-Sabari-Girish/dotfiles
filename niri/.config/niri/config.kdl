@@ -384,6 +384,23 @@ window-rule {
     draw-border-with-background false
 }
 
+window-rule {
+    match app-id="^gcal-tui-floating$"
+    
+    open-floating true
+    
+    // Matched to the exact size of your other floating utilities
+    default-column-width { fixed 800; }
+    default-window-height { fixed 500; }
+
+    background-effect {
+        blur true
+        xray false
+    }
+
+    draw-border-with-background false
+}
+
 // Blur wezterm background
 window-rule {
     // Match WezTerm's app-id
@@ -473,12 +490,14 @@ binds {
   }
   Mod+E hotkey-overlay-title="Open files" { spawn "nautilus"; }
 	Super+F hotkey-overlay-title="Open Firefox: firefox" { spawn "firefox"; }
-  Super+C hotkey-overlay-title="Open Microsoft Teams" { spawn "/snap/bin/teams-for-linux"; }
+  Super+Alt+C hotkey-overlay-title="Open Microsoft Teams" { spawn "/snap/bin/teams-for-linux"; }
   Mod+Alt+E hotkey-overlay-title="Emoji Picker" { 
     spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/emoji-picker.sh" 
   }
   Super+D hotkey-overlay-title="Define Word" { spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/define.sh"; }
-
+  Super+C hotkey-overlay-title="Google Calendar TUI" { 
+        spawn-sh "foot --app-id=gcal-tui-floating -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/gcal-tui.sh" 
+  }
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
 	// For example, this is a standard bind to toggle the screen reader (orca).
