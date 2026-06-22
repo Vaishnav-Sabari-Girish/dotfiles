@@ -233,6 +233,7 @@ layout {
 }
 
 // Add lines like this to spawn processes at startup.
+spawn-at-startup "$HOME/dotfiles/niri/.config/niri/scripts/gcal-notifier.sh"
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.

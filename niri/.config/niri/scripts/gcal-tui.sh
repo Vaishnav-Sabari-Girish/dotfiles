@@ -10,25 +10,8 @@
 #   "client_secret": "...",
 #   "refresh_token": "..."
 # }
-#
-# Navigation:
-#   Arrow keys   move the cursor day-by-day across the grid
-#   Tab          jump to the next day that has an event
-#   Shift+Tab    jump to the previous day that has an event
-#   Enter        open the selected day's events in nvim (only if it has events)
-#   q / Esc      quit
-#
-# Usage:
-#   ./gcal-tui.sh                  # show current month
-#   ./gcal-tui.sh 2026 7           # show July 2026
-#   ./gcal-tui.sh -c /path/creds.json [year] [month]
 
 set -uo pipefail
-# Note: deliberately NOT using `set -e` in this script. The interactive
-# render loop relies on commands like `read` and `[[ ]]` tests returning
-# non-zero in entirely expected, non-error situations (EOF, no-match,
-# timeouts on escape-sequence reads), and letting set -e govern those
-# leads to the whole program exiting silently and unpredictably.
 
 # ---------------------------------------------------------------------------
 # Cleanup / Terminal State Restoration
@@ -48,14 +31,18 @@ CACHE_DIR="${GCAL_TUI_CACHE_DIR:-$HOME/.cache/gcal-tui}"
 TOKEN_CACHE="$CACHE_DIR/access_token.json"
 CALENDAR_ID="${GCAL_TUI_CALENDAR_ID:-primary}"
 
+# Dynamically locate the gcal.jq file located in the same directory as this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+JQ_FILE="${SCRIPT_DIR}/gcal.jq"
+
 RESET=$'\e[0m'
 BOLD=$'\e[1m'
 DIM=$'\e[2m'
 TODAY_FG=$'\e[97m'
-TODAY_BG=$'\e[44m' # blue bg: today
-EVENT_BG=$'\e[42m' # green bg: has events
+TODAY_BG=$'\e[44m'
+EVENT_BG=$'\e[42m'
 EVENT_FG=$'\e[30m'
-CURSOR_BG=$'\e[45m' # magenta bg: cursor (takes priority over today/event colors)
+CURSOR_BG=$'\e[45m'
 CURSOR_FG=$'\e[97m'
 HEADER_FG=$'\e[36m'
 DOW_FG=$'\e[90m'
@@ -105,14 +92,19 @@ need nvim
 
 if [[ ! -f "$CREDS_FILE" ]]; then
   echo "Credentials file not found: $CREDS_FILE" >&2
-  echo "Expected JSON with client_id, client_secret, refresh_token." >&2
+  exit 1
+fi
+
+if [[ ! -f "$JQ_FILE" ]]; then
+  echo "Missing helper script: $JQ_FILE" >&2
+  echo "Please ensure gcal.jq is in the same directory as this script." >&2
   exit 1
 fi
 
 mkdir -p "$CACHE_DIR"
 
 # ---------------------------------------------------------------------------
-# OAuth: get a valid access token (cached, refreshed when expired)
+# OAuth
 # ---------------------------------------------------------------------------
 
 get_access_token() {
@@ -172,7 +164,7 @@ get_access_token() {
 }
 
 # ---------------------------------------------------------------------------
-# Fetch events for the visible month
+# Fetch events
 # ---------------------------------------------------------------------------
 
 fetch_events() {
@@ -214,7 +206,11 @@ first_weekday() { date -d "$1-$2-01" +%w; }
 days_in_month() { date -d "$1-$2-01 +1 month -1 day" +%d; }
 
 # ---------------------------------------------------------------------------
-# Build day -> events index from raw API JSON (tsv: day, time, summary)
+# EXTERNAL JQ PROCESSORS
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# EXTERNAL JQ PROCESSORS
 # ---------------------------------------------------------------------------
 
 build_day_index() {
@@ -222,21 +218,10 @@ build_day_index() {
   local ym
   ym=$(printf '%04d-%02d' "$year" "$month")
 
-  jq -r --arg ym "$ym" '
-    .items[]? |
-    ( .start.dateTime // (.start.date + "T00:00:00") ) as $startraw |
-    ( $startraw[0:7] ) as $eventym |
-    select($eventym == $ym) |
-    ( $startraw[8:10] ) as $day |
-    ( if .start.dateTime then $startraw[11:16] else "All day" end ) as $time |
-    ( .summary // "(no title)" ) as $summary |
-    [$day, $time, $summary] | @tsv
-  ' <<<"$json"
+  # Route to 'index' logic in gcal.jq
+  # Passing an empty --arg day "" to satisfy the strict jq compiler
+  jq -r --arg action "index" --arg ym "$ym" --arg day "" -f "$JQ_FILE" <<<"$json"
 }
-
-# ---------------------------------------------------------------------------
-# Build a markdown file of a single day's events (full details) for nvim
-# ---------------------------------------------------------------------------
 
 build_day_markdown() {
   local json="$1" year="$2" month="$3" day="$4" out_file="$5"
@@ -250,31 +235,13 @@ build_day_markdown() {
   {
     echo "# Events on ${heading}"
     echo
-    jq -r --arg ym "$ym" --arg day "$dd" '
-      .items[]? |
-      ( .start.dateTime // (.start.date + "T00:00:00") ) as $startraw |
-      select($startraw[0:7] == $ym and $startraw[8:10] == $day) |
-      "## " + (.summary // "(no title)") + "\n" +
-      ( if .start.dateTime then
-          "**Time:** " + .start.dateTime[11:16] + " - " + (.end.dateTime // .start.dateTime)[11:16] + "\n"
-        else
-          "**All day**\n"
-        end ) +
-      ( if .location then "**Location:** " + .location + "\n" else "" end ) +
-      ( if .description then "\n" + .description + "\n" else "" end ) +
-      ( if .attendees then
-          "\n**Attendees:**\n" +
-          ( [ .attendees[] | "- " + .email + (if .responseStatus then " (" + .responseStatus + ")" else "" end) ] | join("\n") ) +
-          "\n"
-        else "" end ) +
-      ( if .htmlLink then "\n[Open in Google Calendar](" + .htmlLink + ")\n" else "" end ) +
-      "\n---\n"
-    ' <<<"$json"
+    # Route to 'markdown' logic in gcal.jq
+    jq -r --arg action "markdown" --arg ym "$ym" --arg day "$dd" -f "$JQ_FILE" <<<"$json"
   } >"$out_file"
 }
 
 # ---------------------------------------------------------------------------
-# Rendering: print the initial full grid, and helpers to redraw single cells
+# Rendering
 # ---------------------------------------------------------------------------
 
 GRID_FW=0
@@ -377,7 +344,7 @@ redraw_cell() {
 }
 
 # ---------------------------------------------------------------------------
-# Keyboard input decoding
+# Keyboard input
 # ---------------------------------------------------------------------------
 
 read_key() {
@@ -437,8 +404,6 @@ main() {
     mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
   fi
 
-  # --- FIX APPLIED HERE ---
-  # Enter the alternate screen buffer, then clear the screen and set cursor to 1;1
   printf '\e[?1049h'
   printf '\e[2J\e[H'
 
@@ -455,7 +420,6 @@ main() {
     return 0
   fi
 
-  # --- WRAP INSTRUCTIONS HERE ---
   echo "Arrows: move   Tab/Shift+Tab: jump between events"
   echo "Enter: open in nvim   q: quit"
 
@@ -469,7 +433,6 @@ main() {
     cursor_day="$today_day"
   fi
 
-  # --- STATUS ROW +1 OFFSET ---
   local status_row=$((GRID_TITLE_ROWS + 1 + ((GRID_FW + GRID_DIM + 6) / 7) + 5))
 
   print_status() {
@@ -565,7 +528,6 @@ main() {
         printf '\e[2J\e[H'
         render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
 
-        # --- WRAP INSTRUCTIONS HERE TOO ---
         echo "Arrows: move   Tab/Shift+Tab: jump between events"
         echo "Enter: open in nvim   q: quit"
 
@@ -586,8 +548,6 @@ main() {
       print_status "$cursor_day"
     fi
   done
-
-  # Exit handled by trap cleanup
 }
 
 main
