@@ -11,7 +11,7 @@
 #   "refresh_token": "..."
 # }
 
-set -uo pipefail
+set -o pipefail
 
 # ---------------------------------------------------------------------------
 # Cleanup / Terminal State Restoration
@@ -413,15 +413,13 @@ main() {
 
   render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
 
-  if [[ ${#event_days[@]} -eq 0 ]]; then
-    echo "No events found in ${CALENDAR_ID} for this month."
-    echo "(If you expect events here, your events might be on a different"
-    echo " calendar. Run ./gcal-list-calendars.sh to see all calendar IDs,"
-    echo " then: GCAL_TUI_CALENDAR_ID=\"...\" ./gcal-tui.sh)"
-    echo
-    echo "Press any key to exit."
-    IFS= read -rsn1 -t 10 _ 2>/dev/null
-    return 0
+  local cursor_day=1
+  if [[ ${#event_days[@]} -gt 0 ]]; then
+    cursor_day="${event_days[0]}"
+  fi
+
+  if [[ "$YEAR" == "$today_year" && "$MONTH" == "$today_month" ]]; then
+    cursor_day="$today_day"
   fi
 
   echo "Arrows: move   Tab/Shift+Tab: jump"
@@ -465,6 +463,10 @@ main() {
 
   next_event_day() {
     local day="$1" d best=""
+    if [[ ${#event_days[@]} -eq 0 ]]; then
+      printf '%s' "$day"
+      return 0
+    fi
     for d in "${event_days[@]}"; do
       if ((d > day)); then
         best="$d"
@@ -477,6 +479,10 @@ main() {
 
   prev_event_day() {
     local day="$1" d best=""
+    if [[ ${#event_days[@]} -eq 0 ]]; then
+      printf '%s' "$day"
+      return 0
+    fi
     for d in "${event_days[@]}"; do
       if ((d < day)); then best="$d"; fi
     done
