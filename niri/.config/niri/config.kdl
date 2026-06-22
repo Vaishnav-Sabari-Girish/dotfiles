@@ -391,8 +391,8 @@ window-rule {
     open-floating true
     
     // Matched to the exact size of your other floating utilities
-    default-column-width { fixed 800; }
-    default-window-height { fixed 500; }
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
 
     background-effect {
         blur true

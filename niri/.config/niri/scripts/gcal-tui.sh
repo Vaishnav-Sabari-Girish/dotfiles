@@ -370,6 +370,10 @@ read_key() {
     fi
   elif [[ "$key" == $'\t' ]]; then
     printf 'TAB'
+  elif [[ "$key" == "c" || "$key" == "C" ]]; then
+    printf 'CREATE'
+  elif [[ "$key" == "" ]]; then
+    printf 'ENTER'
   elif [[ "$key" == "" ]]; then
     printf 'ENTER'
   elif [[ "$key" == "q" || "$key" == "Q" ]]; then
@@ -515,6 +519,43 @@ main() {
       ;;
     SHIFT_TAB)
       new_day=$(prev_event_day "$cursor_day")
+      ;;
+    CREATE)
+      # Calculate the YYYY-MM-DD string for the currently hovered day
+      local target_date
+      target_date=$(printf '%04d-%02d-%02d' "$YEAR" "$MONTH" "$cursor_day")
+
+      # Restore cursor and call the external creation script
+      tput cnorm 2>/dev/null
+      "${SCRIPT_DIR}/gcal-create.sh" "$target_date"
+      tput civis 2>/dev/null
+
+      # After creation, we MUST fetch fresh data from Google so the new event appears
+      events_json=$(fetch_events "$token" "$YEAR" "$MONTH")
+      day_index=$(build_day_index "$events_json" "$YEAR" "$MONTH")
+
+      event_days=()
+      if [[ -n "$day_index" ]]; then
+        local d _t _s
+        while IFS=$'\t' read -r d _t _s; do
+          [[ -z "$d" ]] && continue
+          event_days+=("$((10#$d))")
+        done <<<"$day_index"
+        mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
+      fi
+
+      # Redraw the entire interface
+      printf '\e[2J\e[H'
+      render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
+
+      echo "Arrows: move   Tab/Shift+Tab: jump"
+      echo "Enter: open in nvim   c: Create Event"
+      echo "q: quit"
+
+      redraw_cell "$cursor_day" cursor
+      print_status "$cursor_day"
+
+      new_day="$cursor_day"
       ;;
     ENTER)
       if is_event_day "$cursor_day"; then
