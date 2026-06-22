@@ -424,8 +424,9 @@ main() {
     return 0
   fi
 
-  echo "Arrows: move   Tab/Shift+Tab: jump between events"
-  echo "Enter: open in nvim   q: quit"
+  echo "Arrows: move   Tab/Shift+Tab: jump"
+  echo "Enter: open in nvim   c: Create Event"
+  echo "q: quit"
 
   local today_year today_month today_day
   today_year=$(date +%Y)
@@ -569,8 +570,9 @@ main() {
         printf '\e[2J\e[H'
         render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
 
-        echo "Arrows: move   Tab/Shift+Tab: jump between events"
-        echo "Enter: open in nvim   q: quit"
+        echo "Arrows: move   Tab/Shift+Tab: jump"
+        echo "Enter: open in nvim   c: Create Event"
+        echo "q: quit"
 
         redraw_cell "$cursor_day" cursor
         print_status "$cursor_day"

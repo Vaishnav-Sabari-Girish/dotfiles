@@ -135,18 +135,10 @@ PAYLOAD=$(jq -n \
     else . end
   ')
 
-echo -e "\n--- SENDING TO GOOGLE ---"
-echo "$PAYLOAD" | jq .
-echo -e "\n--- GOOGLE API RESPONSE ---"
-
+# Send to Google Calendar API
 curl -sS -X POST "https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events?conferenceDataVersion=1" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d "$PAYLOAD"
+  -d "$PAYLOAD" >/dev/null
 
-echo -e "\n---------------------------"
 rm -f "$TEMPLATE_FILE"
-
-# Pause the screen so you can actually read the error before the TUI redraws
-echo "Read the error above. Press Enter to return to the calendar..."
-read -r
