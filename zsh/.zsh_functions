@@ -330,7 +330,7 @@ function img() {
     elif [[ "$TERM_PROGRAM" == "ghostty" ]] || [[ "$TERM_PROGRAM" == "kitty" ]]; then
         kitten icat "$@"
     elif [[ "$TERM" == "foot" ]]; then
-      $(which chafa) "$@"
+      command chafa "$@"
     else
         loupe "$@"
     fi
@@ -393,4 +393,12 @@ short_url() {
     curl -s -X POST "https://1yr.ca/api/shorten" \
         -H "Content-Type: application/json" \
         -d "{\"url\":\"$1\"}"
+}
+
+tpdf() {
+    if [[ -n "$WEZTERM_EXECUTABLE" ]]; then
+        fancy-cat "$@"
+    else
+        wezterm start --cwd "$PWD" -- fancy-cat "$@"
+    fi
 }
