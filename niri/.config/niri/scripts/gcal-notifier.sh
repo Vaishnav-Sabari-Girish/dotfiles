@@ -9,7 +9,14 @@ CREDS_FILE="${GCAL_TUI_CREDS:-$HOME/.config/gcal-tui/credentials.json}"
 CACHE_DIR="${GCAL_TUI_CACHE_DIR:-$HOME/.cache/gcal-tui}"
 TOKEN_CACHE="$CACHE_DIR/access_token.json"
 NOTIFIED_LOG="$CACHE_DIR/notified_events.log"
-CALENDAR_ID="${GCAL_TUI_CALENDAR_ID:-primary}"
+
+# Source the local untracked config
+source "$HOME/.config/gcal-tui/calendars.conf"
+
+CALENDARS=(
+  "$PRIMARY_EMAIL"
+  "$CLASS_CALENDAR"
+)
 
 mkdir -p "$CACHE_DIR"
 touch "$NOTIFIED_LOG"
@@ -43,12 +50,17 @@ get_access_token() {
 }
 
 check_events() {
+  local target_calendar="$1"
   local token
   token=$(get_access_token) || return 1
 
   local time_min=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   local time_max=$(date -d "+1 day" -u +%Y-%m-%dT%H:%M:%SZ)
-  local url="https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events"
+
+  # Ensure the ugly ID is properly URL-encoded for the curl request
+  local encoded_cal
+  encoded_cal=$(jq -rn --arg x "$target_calendar" '$x|@uri')
+  local url="https://www.googleapis.com/calendar/v3/calendars/${encoded_cal}/events"
 
   local json
   json=$(curl -sS -G "$url" -H "Authorization: Bearer $token" \
@@ -68,7 +80,7 @@ check_events() {
     (if .reminders.useDefault == false and .reminders.overrides != null then
       (.reminders.overrides[] | select(.method == "popup") | .minutes)
     else
-      10
+      (30, 10)
     end) as $mins |
     [$start, $mins, $title] | @tsv
   ' <<<"$json" | while IFS=$'\t' read -r start mins title; do
@@ -79,22 +91,20 @@ check_events() {
     start_epoch=$(date -d "$start" +%s)
     notify_epoch=$((start_epoch - (mins * 60)))
 
-    # Create a unique ID for this specific notification trigger
-    # So we don't spam the desktop every 60 seconds
-    event_id="${notify_epoch}_${title}"
+    # Append the calendar ID to make the log entry truly unique
+    event_id="${notify_epoch}_${title}_${target_calendar}"
 
     # If the notification time has passed, but the event hasn't started yet...
     if ((now >= notify_epoch)) && ((now < start_epoch)); then
-      # Check if we already notified the user
       if ! grep -Fxq "$event_id" "$NOTIFIED_LOG"; then
 
-        # Fire the desktop notification!
         notify-send "Upcoming Event" "$title starts in $mins minutes." \
           -a "Google Calendar" \
           -u normal \
           -i "x-office-calendar"
+        # Play the notification sound for exactly 1 second in the background
+        timeout 1 paplay /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga &
 
-        # Log it so it doesn't fire again
         echo "$event_id" >>"$NOTIFIED_LOG"
       fi
     fi
@@ -106,6 +116,8 @@ check_events() {
 
 # The main daemon loop
 while true; do
-  check_events
-  sleep 60 # Check every 60 seconds
+  for cal in "${CALENDARS[@]}"; do
+    check_events "$cal"
+  done
+  sleep 10 # Check every 10 seconds
 done

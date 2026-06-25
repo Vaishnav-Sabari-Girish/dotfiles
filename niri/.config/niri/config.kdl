@@ -233,7 +233,7 @@ layout {
 }
 
 // Add lines like this to spawn processes at startup.
-spawn-at-startup "$HOME/dotfiles/niri/.config/niri/scripts/gcal-notifier.sh"
+spawn-at-startup "bash" "-c" "~/dotfiles/niri/.config/niri/scripts/gcal-notifier.sh"
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
@@ -497,7 +497,7 @@ binds {
   }
   Super+D hotkey-overlay-title="Define Word" { spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/define.sh"; }
   Super+C hotkey-overlay-title="Google Calendar TUI" { 
-        spawn-sh "foot --app-id=gcal-tui-floating -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/gcal-tui.sh" 
+        spawn-sh "foot --app-id=gcal-tui-floating -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/gcal-launcher.sh" 
   }
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
