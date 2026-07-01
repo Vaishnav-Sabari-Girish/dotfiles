@@ -6,7 +6,7 @@ TESSE_BASE="/tmp/ocr_text_$$"
 TXT_PATH="${TESSE_BASE}.txt"
 
 # Select and capture the region
-if ! grim -g "$(slurp)" "$IMG_PATH"; then
+if ! /usr/bin/grim -g "$(slurp)" "$IMG_PATH"; then
   exit 0
 fi
 
