@@ -11,7 +11,7 @@ TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
 
 case "${1:-region}" in
 region)
-  grim -g "$(slurp)" - | satty \
+  /usr/bin/grim -g "$(slurp)" - | satty \
     --filename - \
     --output-filename "$OUTPUT_DIR/screenshot-$TIMESTAMP.png" \
     --early-exit \
@@ -20,7 +20,7 @@ region)
     --copy-command 'wl-copy'
   ;;
 screen)
-  grim - | satty \
+  /usr/bin/grim - | satty \
     --filename - \
     --output-filename "$OUTPUT_DIR/screenshot-$TIMESTAMP.png" \
     --early-exit \
@@ -30,7 +30,7 @@ screen)
   ;;
 window)
   GEOMETRY=$(niri msg focused-window | grep -oP 'at \(\K[^)]+' | sed 's/, /,/; s/ size /+/; s/x/+/')
-  grim -g "$GEOMETRY" - | satty \
+  /usr/bin/grim -g "$GEOMETRY" - | satty \
     --filename - \
     --output-filename "$OUTPUT_DIR/screenshot-$TIMESTAMP.png" \
     --early-exit \
