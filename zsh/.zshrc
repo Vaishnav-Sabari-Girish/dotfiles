@@ -75,7 +75,7 @@ export ZVM_INSTALL="$HOME/.zvm/self"
 export ZEPHYR_BASE="$HOME/zephyrproject/zephyr/"
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export BAT_THEME="Nord"
-
+export GPG_TTY=$(tty)
 # --- COMPLETIONS & FUNCTIONS ---
 # Add custom completions to fpath (Stow path)
 fpath=($HOME/.zsh/completions $fpath)
