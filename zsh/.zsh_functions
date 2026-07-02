@@ -402,3 +402,25 @@ tpdf() {
         wezterm start --cwd "$PWD" -- fancy-cat "$@"
     fi
 }
+
+# File conteent copy
+ccat() {
+    local files=()
+    local cat_opts=""
+    # Parse arguments
+    for arg in "$@"; do
+        if [[ "$arg" == "--number" || "$arg" == "-n" ]]; then
+            cat_opts="-n"
+        else
+            files+=("$arg")
+        fi
+    done
+    # Run cat (with optional -n) and copy to clipboard
+    cat $cat_opts "${files[@]}" | wl-copy
+    # Confirm execution
+    if [[ ${#files[@]} -eq 1 ]]; then
+        echo "Contents of '${files[0]}' copied to clipboard."
+    else
+        echo "Contents of ${#files[@]} files copied to clipboard."
+    fi
+}
