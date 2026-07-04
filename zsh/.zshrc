@@ -57,7 +57,7 @@ alias stm32erase="/opt/stm32cubeprog/bin/STM32_Programmer_CLI -c port=SWD freq=4
 bindkey "^[[H" beginning-of-line    # Home
 bindkey "^[[F" end-of-line          # End  
 bindkey "^[[3~" delete-char         # Delete
-
+bindkey -s '\ec' '^U$EDITOR .\n'    # Open $EDITOR
 # --- ENVIRONMENT VARIABLES ---
 export EDITOR=nvim
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
