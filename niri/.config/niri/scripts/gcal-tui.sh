@@ -209,10 +209,6 @@ days_in_month() { date -d "$1-$2-01 +1 month -1 day" +%d; }
 # EXTERNAL JQ PROCESSORS
 # ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# EXTERNAL JQ PROCESSORS
-# ---------------------------------------------------------------------------
-
 build_day_index() {
   local json="$1" year="$2" month="$3"
   local ym
@@ -372,6 +368,8 @@ read_key() {
     printf 'TAB'
   elif [[ "$key" == "c" || "$key" == "C" ]]; then
     printf 'CREATE'
+  elif [[ "$key" == "d" || "$key" == "D" ]]; then
+    printf 'DELETE'
   elif [[ "$key" == "" ]]; then
     printf 'ENTER'
   elif [[ "$key" == "" ]]; then
@@ -400,8 +398,8 @@ main() {
 
   local -a event_days=()
   if [[ -n "$day_index" ]]; then
-    local d _t _s
-    while IFS=$'\t' read -r d _t _s; do
+    local d _t _s _id
+    while IFS=$'\t' read -r d _t _s _id; do
       [[ -z "$d" ]] && continue
       event_days+=("$((10#$d))")
     done <<<"$day_index"
@@ -423,7 +421,7 @@ main() {
   fi
 
   echo "Arrows: move   Tab/Shift+Tab: jump"
-  echo "Enter: open in nvim   c: Create Event"
+  echo "Enter: view   c: Create   d: Delete"
   echo "q: quit"
 
   local today_year today_month today_day
@@ -543,8 +541,8 @@ main() {
 
       event_days=()
       if [[ -n "$day_index" ]]; then
-        local d _t _s
-        while IFS=$'\t' read -r d _t _s; do
+        local d _t _s _id
+        while IFS=$'\t' read -r d _t _s _id; do
           [[ -z "$d" ]] && continue
           event_days+=("$((10#$d))")
         done <<<"$day_index"
@@ -556,12 +554,75 @@ main() {
       render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
 
       echo "Arrows: move   Tab/Shift+Tab: jump"
-      echo "Enter: open in nvim   c: Create Event"
+      echo "Enter: view   c: Create   d: Delete"
       echo "q: quit"
 
       redraw_cell "$cursor_day" cursor
       print_status "$cursor_day"
 
+      new_day="$cursor_day"
+      ;;
+    DELETE)
+      if is_event_day "$cursor_day"; then
+        tput cnorm 2>/dev/null
+        printf '\e[2J\e[H'
+
+        # Extract events for the selected day: "Time - Summary" <tab> "ID"
+        local d_fmt
+        d_fmt=$(printf '%02d' "$cursor_day")
+        local day_events
+        day_events=$(awk -F'\t' -v d="$d_fmt" '$1==d {print $2 " - " $3 "\t" $4}' <<<"$day_index")
+
+        # Pop up fzf to select which event to delete (hiding the ID column)
+        local selected_event
+        selected_event=$(printf '%s\n' "$day_events" | fzf \
+          --prompt="Select event to DELETE ❯ " \
+          --pointer="▶" \
+          --border=rounded \
+          --with-nth=1 \
+          --delimiter=$'\t')
+
+        if [[ -n "$selected_event" ]]; then
+          local event_id event_name
+          event_id=$(awk -F'\t' '{print $2}' <<<"$selected_event")
+          event_name=$(awk -F'\t' '{print $1}' <<<"$selected_event")
+
+          # Confirmation prompt
+          echo -n "Are you sure you want to delete '$event_name'? (y/N): "
+          read -r confirm
+          if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            # Delete from Google Calendar
+            curl -sS -X DELETE "https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events/${event_id}" \
+              -H "Authorization: Bearer $token" >/dev/null
+
+            # Fetch fresh data so the deleted event vanishes from the grid
+            events_json=$(fetch_events "$token" "$YEAR" "$MONTH")
+            day_index=$(build_day_index "$events_json" "$YEAR" "$MONTH")
+
+            event_days=()
+            if [[ -n "$day_index" ]]; then
+              local d _t _s _id
+              while IFS=$'\t' read -r d _t _s _id; do
+                [[ -z "$d" ]] && continue
+                event_days+=("$((10#$d))")
+              done <<<"$day_index"
+              mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
+            fi
+          fi
+        fi
+
+        # Cleanly redraw the UI
+        tput civis 2>/dev/null
+        printf '\e[2J\e[H'
+        render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
+
+        echo "Arrows: move   Tab/Shift+Tab: jump"
+        echo "Enter: view   c: Create   d: Delete"
+        echo "q: quit"
+
+        redraw_cell "$cursor_day" cursor
+        print_status "$cursor_day"
+      fi
       new_day="$cursor_day"
       ;;
     ENTER)
@@ -577,7 +638,7 @@ main() {
         render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
 
         echo "Arrows: move   Tab/Shift+Tab: jump"
-        echo "Enter: open in nvim   c: Create Event"
+        echo "Enter: view   c: Create   d: Delete"
         echo "q: quit"
 
         redraw_cell "$cursor_day" cursor

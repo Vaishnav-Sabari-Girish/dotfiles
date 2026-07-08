@@ -1,7 +1,7 @@
 #!/usr/bin/env jq -f
 
 # ---------------------------------------------------------------------------
-# Build day -> events index (TSV format: day, time, summary)
+# Build day -> events index (TSV format: day, time, summary, id)
 # ---------------------------------------------------------------------------
 def build_day_index(ym):
   .items[]? |
@@ -11,7 +11,8 @@ def build_day_index(ym):
   ( $startraw[8:10] ) as $day |
   ( if .start.dateTime then $startraw[11:16] else "All day" end ) as $time |
   ( .summary // "(no title)" ) as $summary |
-  [$day, $time, $summary] | @tsv;
+  ( .id ) as $id |
+  [$day, $time, $summary, $id] | @tsv;
 
 # ---------------------------------------------------------------------------
 # Build the Markdown payload for Neovim

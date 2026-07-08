@@ -55,7 +55,7 @@ check_events() {
   token=$(get_access_token) || return 1
 
   local time_min=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  local time_max=$(date -d "+1 day" -u +%Y-%m-%dT%H:%M:%SZ)
+  local time_max=$(date -d "+14 days" -u +%Y-%m-%dT%H:%M:%SZ)
 
   # Ensure the ugly ID is properly URL-encoded for the curl request
   local encoded_cal
@@ -72,16 +72,21 @@ check_events() {
   local now=$(date +%s)
 
   # Extract events, start times, and popup reminder minutes
+  # Extract events, start times, and popup reminder minutes
   jq -r '
     .items[]? |
     select(.start.dateTime != null) |
     .summary as $title |
     .start.dateTime as $start |
-    (if .reminders.useDefault == false and .reminders.overrides != null then
-      (.reminders.overrides[] | select(.method == "popup") | .minutes)
-    else
-      (30, 10)
-    end) as $mins |
+    (
+      if .reminders.useDefault == true then
+        10
+      elif .reminders.useDefault == false and .reminders.overrides != null then
+        (.reminders.overrides[] | select(.method == "popup") | .minutes)
+      else
+        empty
+      end
+    ) as $mins |
     [$start, $mins, $title] | @tsv
   ' <<<"$json" | while IFS=$'\t' read -r start mins title; do
 
