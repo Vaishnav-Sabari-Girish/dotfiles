@@ -7,6 +7,7 @@ noto-fonts-emoji
 noto-fonts-extra
 otf-font-awesome
 tex-gyre-fonts
+ttf-anonymouspro-nerd
 ttf-bitstream-vera
 ttf-dejavu
 ttf-jetbrains-mono-nerd
@@ -15,4 +16,3 @@ ttf-ms-fonts
 ttf-nerd-fonts-symbols-mono
 ttf-opensans
 ttf-sourcesanspro
-ttf-terminus-nerd
