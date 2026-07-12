@@ -416,6 +416,13 @@ window-rule {
     }
 }
 
+// Black out certain tabs when streaming
+window-rule {
+  match app-id="one.ablaze.floorp" title="Claude|Gemini|ChatGPT"
+
+  block-out-from "screencast"
+}
+
 // Open the Firefox picture-in-picture player as floating by default.
 window-rule {
 	// This app-id regular expression will work for both:
@@ -499,6 +506,8 @@ binds {
   Super+C hotkey-overlay-title="Google Calendar TUI" { 
         spawn-sh "foot --app-id=gcal-tui-floating -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/gcal-launcher.sh" 
   }
+  // Starting soon
+  Mod+Shift+S { spawn "mpv" "--fs=yes" "--osc=no" "/home/vaishnav/Desktop/My_Projects/starting_soon.gif" "--loop"; }
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
 	// For example, this is a standard bind to toggle the screen reader (orca).
