@@ -6,6 +6,7 @@ return {
     config = function()
       vim.g.rustaceanvim = {
         server = {
+          auto_attach = false,
           cmd = { "rustup", "run", "stable", "rust-analyzer" },
         },
       }
