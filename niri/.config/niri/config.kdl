@@ -456,6 +456,23 @@ window-rule {
     open-maximized true
 }
 
+window-rule {
+    match app-id="^silicon-launcher$"
+    
+    open-floating true
+    
+    // A smaller, prompt-sized window
+    default-column-width { fixed 600; }
+    default-window-height { fixed 200; }
+
+    background-effect {
+        blur true
+        xray false
+    }
+
+    draw-border-with-background false
+}
+
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
 /-window-rule {
@@ -514,7 +531,9 @@ binds {
   }
   // Starting soon
   Mod+Shift+S hotkey-overlay-title="Starting Soon GIF" { spawn "mpv" "--fs=yes" "--osc=no" "/home/vaishnav/Desktop/My_Projects/starting_soon.gif" "--loop"; }
-  Mod+Alt+S hotkey-overlay-title="Silicon Sundays GIF" { spawn "mpv" "--fs=yes" "--osc=no" "/home/vaishnav/Desktop/My_Projects/silicon_sundays/silicon_sundays.gif" "--loop"; }
+  Mod+Alt+S hotkey-overlay-title="Silicon Sundays Banner" { 
+    spawn-sh "foot --app-id=silicon-launcher -o initial-window-mode=windowed -o colors-dark.alpha=0.8 bash -c 'read -p \"Speaker Name: \" name; cd /home/vaishnav/Desktop/My_Projects/silicon_sundays && ls output/*.png | sort | tail -n +241 | xargs -r rm && cargo run --release -- --speaker \"$name\"'" 
+  }
 
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
