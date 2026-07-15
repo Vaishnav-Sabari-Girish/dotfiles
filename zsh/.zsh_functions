@@ -424,3 +424,27 @@ ccat() {
         echo "Contents of ${#files[@]} files copied to clipboard."
     fi
 }
+
+# Discord date and time
+distime() {
+    echo -n "Enter date/time: "
+    read -r raw_dt
+    
+    if [[ -n "$raw_dt" ]]; then
+        # Use sed to flip DD/MM/YYYY or DD-MM-YYYY into YYYY-MM-DD
+        local dt=$(echo "$raw_dt" | sed -E 's/^([0-9]{1,2})[/-]([0-9]{1,2})[/-]([0-9]{2,4})/\3-\2-\1/')
+        
+        # Generate the Discord timestamp
+        local ts="<t:$(date -d "$dt" +%s):R>"
+        
+        # Display the timestamp in the terminal
+        echo "$ts"
+        
+        # Copy to Wayland clipboard without a trailing newline
+        echo -n "$ts" | wl-copy
+        
+        echo -e "\e[32mCopied to clipboard!\e[0m"
+    else
+        echo "No input provided."
+    fi
+}
