@@ -448,3 +448,15 @@ distime() {
         echo "No input provided."
     fi
 }
+
+# Timezone helper
+tz() {
+    local script_path="$HOME/dotfiles/zsh/.local/bin/tz.sh"
+
+    if [[ -x "$script_path" ]]; then
+        "$script_path" "$@"
+    else
+        echo "Error: Script not found or not executable at $script_path"
+        return 1
+    fi
+}
