@@ -518,6 +518,9 @@ binds {
     spawn-sh "name=$(zenity --entry --title='Silicon Sundays' --text='Enter Speaker Name:'); if [ -n \"$name\" ]; then cd /home/vaishnav/Desktop/My_Projects/silicon_sundays && rm -rf output/*.png && cargo run --release -- --speaker \"$name\" && ls output/*.png 2>/dev/null | sort | tail -n +241 | xargs -r rm; fi" 
   }
 
+  // miru
+  Mod+Z hotkey-overlay-title="toggle miru (testing)" { spawn-sh "/home/vaishnav/Desktop/My_Projects/miru/build/miructl toggle >> /tmp/miructl.log 2>&1"; }
+
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
 	// For example, this is a standard bind to toggle the screen reader (orca).
