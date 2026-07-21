@@ -232,8 +232,35 @@ build_day_markdown() {
     echo "# Events on ${heading}"
     echo
     # Route to 'markdown' logic in gcal.jq
-    jq -r --arg action "markdown" --arg ym "$ym" --arg day "$dd" -f "$JQ_FILE" <<<"$json"
-  } >"$out_file"
+    jq -r --arg action "markdown" --arg ym "$ym" --arg day "$dd" -f "$JQ_FILE" <<<"$json" | html_to_md
+  } | cat -s >"$out_file"
+}
+
+# Google Calendar event descriptions are often stored as HTML (Google's
+# rich-text editor writes <p>, <strong>, <span>, <a>, etc). This converts
+# the common tags to markdown and strips/decodes the rest so events don't
+# show up as a soup of HTML in nvim.
+html_to_md() {
+  sed -E \
+    -e 's/<br[[:space:]]*\/?>/\n/gI' \
+    -e 's/<\/p>/\n\n/gI' \
+    -e 's/<p[^>]*>//gI' \
+    -e 's/<\/div>/\n/gI' \
+    -e 's/<div[^>]*>//gI' \
+    -e 's/<(strong|b)[^>]*>/**/gI' \
+    -e 's/<\/(strong|b)>/**/gI' \
+    -e 's/<(em|i)[^>]*>/*/gI' \
+    -e 's/<\/(em|i)>/*/gI' \
+    -e 's/<li[^>]*>/- /gI' \
+    -e 's/<\/li>//gI' \
+    -e 's/<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/[\2](\1)/gI' \
+    -e 's/<[^>]+>//g' \
+    -e 's/&amp;/\&/g' \
+    -e 's/&lt;/</g' \
+    -e 's/&gt;/>/g' \
+    -e "s/&#39;/'/g" \
+    -e 's/&quot;/"/g' \
+    -e 's/&nbsp;/ /g'
 }
 
 # ---------------------------------------------------------------------------
@@ -370,6 +397,10 @@ read_key() {
     printf 'CREATE'
   elif [[ "$key" == "d" || "$key" == "D" ]]; then
     printf 'DELETE'
+  elif [[ "$key" == "n" || "$key" == "N" ]]; then
+    printf 'NEXT_MONTH'
+  elif [[ "$key" == "p" || "$key" == "P" ]]; then
+    printf 'PREV_MONTH'
   elif [[ "$key" == "" ]]; then
     printf 'ENTER'
   elif [[ "$key" == "" ]]; then
@@ -386,6 +417,33 @@ read_key() {
 # Main
 # ---------------------------------------------------------------------------
 
+# Rebuilds event_days[] from a freshly-fetched day_index for the given month.
+# Reads: day_index (must already be set by caller)
+# Writes: event_days array
+rebuild_event_days() {
+  event_days=()
+  if [[ -n "$day_index" ]]; then
+    local d _t _s _id
+    while IFS=$'\t' read -r d _t _s _id; do
+      [[ -z "$d" ]] && continue
+      event_days+=("$((10#$d))")
+    done <<<"$day_index"
+    mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
+  fi
+}
+
+print_help_lines() {
+  echo "Arrows: move   Tab/Shift+Tab: jump"
+  echo "n/p: prev/next month"
+  echo "Enter: view   c: Create   d: Delete"
+  echo "q: quit"
+}
+
+# Computes the screen row for the status line based on the current grid size.
+calc_status_row() {
+  printf '%d' "$((GRID_TITLE_ROWS + 1 + ((GRID_FW + GRID_DIM + 6) / 7) + 6))"
+}
+
 main() {
   local token
   token=$(get_access_token) || exit 1
@@ -397,44 +455,27 @@ main() {
   day_index=$(build_day_index "$events_json" "$YEAR" "$MONTH")
 
   local -a event_days=()
-  if [[ -n "$day_index" ]]; then
-    local d _t _s _id
-    while IFS=$'\t' read -r d _t _s _id; do
-      [[ -z "$d" ]] && continue
-      event_days+=("$((10#$d))")
-    done <<<"$day_index"
-    mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
-  fi
+  rebuild_event_days
 
   printf '\e[?1049h'
   printf '\e[2J\e[H'
 
   render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
 
-  local cursor_day=1
-  if [[ ${#event_days[@]} -gt 0 ]]; then
-    cursor_day="${event_days[0]}"
-  fi
-
-  if [[ "$YEAR" == "$today_year" && "$MONTH" == "$today_month" ]]; then
-    cursor_day="$today_day"
-  fi
-
-  echo "Arrows: move   Tab/Shift+Tab: jump"
-  echo "Enter: view   c: Create   d: Delete"
-  echo "q: quit"
-
   local today_year today_month today_day
   today_year=$(date +%Y)
   today_month=$(date +%-m)
   today_day=$(date +%-d)
 
-  local cursor_day="${event_days[0]}"
+  local cursor_day="${event_days[0]:-1}"
   if [[ "$YEAR" == "$today_year" && "$MONTH" == "$today_month" ]]; then
     cursor_day="$today_day"
   fi
 
-  local status_row=$((GRID_TITLE_ROWS + 1 + ((GRID_FW + GRID_DIM + 6) / 7) + 5))
+  print_help_lines
+
+  local status_row
+  status_row=$(calc_status_row)
 
   print_status() {
     local day="$1"
@@ -488,6 +529,18 @@ main() {
     printf '%s' "$best"
   }
 
+  # Redraws the whole screen (grid + help + cursor + status) for the
+  # month currently held in YEAR/MONTH. Used after month navigation,
+  # and after any action that may have changed the event set.
+  full_redraw() {
+    printf '\e[2J\e[H'
+    render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
+    print_help_lines
+    status_row=$(calc_status_row)
+    redraw_cell "$cursor_day" cursor
+    print_status "$cursor_day"
+  }
+
   tput civis 2>/dev/null
   redraw_cell "$cursor_day" cursor
   print_status "$cursor_day"
@@ -525,6 +578,37 @@ main() {
     SHIFT_TAB)
       new_day=$(prev_event_day "$cursor_day")
       ;;
+    NEXT_MONTH | PREV_MONTH)
+      local delta=1
+      [[ "$action" == "PREV_MONTH" ]] && delta=-1
+
+      MONTH=$((MONTH + delta))
+      if ((MONTH > 12)); then
+        MONTH=1
+        YEAR=$((YEAR + 1))
+      elif ((MONTH < 1)); then
+        MONTH=12
+        YEAR=$((YEAR - 1))
+      fi
+
+      events_json=$(fetch_events "$token" "$YEAR" "$MONTH")
+      day_index=$(build_day_index "$events_json" "$YEAR" "$MONTH")
+      rebuild_event_days
+
+      # Pick a sensible cursor day for the newly-shown month: today (if
+      # we've navigated back to the current month), else the first day
+      # with an event, else the 1st.
+      if [[ "$YEAR" == "$today_year" && "$MONTH" == "$today_month" ]]; then
+        cursor_day="$today_day"
+      elif [[ ${#event_days[@]} -gt 0 ]]; then
+        cursor_day="${event_days[0]}"
+      else
+        cursor_day=1
+      fi
+
+      full_redraw
+      new_day="$cursor_day"
+      ;;
     CREATE)
       # Calculate the YYYY-MM-DD string for the currently hovered day
       local target_date
@@ -538,28 +622,9 @@ main() {
       # After creation, we MUST fetch fresh data from Google so the new event appears
       events_json=$(fetch_events "$token" "$YEAR" "$MONTH")
       day_index=$(build_day_index "$events_json" "$YEAR" "$MONTH")
+      rebuild_event_days
 
-      event_days=()
-      if [[ -n "$day_index" ]]; then
-        local d _t _s _id
-        while IFS=$'\t' read -r d _t _s _id; do
-          [[ -z "$d" ]] && continue
-          event_days+=("$((10#$d))")
-        done <<<"$day_index"
-        mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
-      fi
-
-      # Redraw the entire interface
-      printf '\e[2J\e[H'
-      render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
-
-      echo "Arrows: move   Tab/Shift+Tab: jump"
-      echo "Enter: view   c: Create   d: Delete"
-      echo "q: quit"
-
-      redraw_cell "$cursor_day" cursor
-      print_status "$cursor_day"
-
+      full_redraw
       new_day="$cursor_day"
       ;;
     DELETE)
@@ -598,30 +663,13 @@ main() {
             # Fetch fresh data so the deleted event vanishes from the grid
             events_json=$(fetch_events "$token" "$YEAR" "$MONTH")
             day_index=$(build_day_index "$events_json" "$YEAR" "$MONTH")
-
-            event_days=()
-            if [[ -n "$day_index" ]]; then
-              local d _t _s _id
-              while IFS=$'\t' read -r d _t _s _id; do
-                [[ -z "$d" ]] && continue
-                event_days+=("$((10#$d))")
-              done <<<"$day_index"
-              mapfile -t event_days < <(printf '%s\n' "${event_days[@]}" | sort -un)
-            fi
+            rebuild_event_days
           fi
         fi
 
         # Cleanly redraw the UI
         tput civis 2>/dev/null
-        printf '\e[2J\e[H'
-        render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
-
-        echo "Arrows: move   Tab/Shift+Tab: jump"
-        echo "Enter: view   c: Create   d: Delete"
-        echo "q: quit"
-
-        redraw_cell "$cursor_day" cursor
-        print_status "$cursor_day"
+        full_redraw
       fi
       new_day="$cursor_day"
       ;;
@@ -634,15 +682,7 @@ main() {
         nvim "$md_file"
         rm -f "$md_file"
         tput civis 2>/dev/null
-        printf '\e[2J\e[H'
-        render_initial_grid "$YEAR" "$MONTH" "${event_days[@]}"
-
-        echo "Arrows: move   Tab/Shift+Tab: jump"
-        echo "Enter: view   c: Create   d: Delete"
-        echo "q: quit"
-
-        redraw_cell "$cursor_day" cursor
-        print_status "$cursor_day"
+        full_redraw
       fi
       new_day="$cursor_day"
       ;;
