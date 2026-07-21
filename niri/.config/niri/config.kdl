@@ -521,6 +521,10 @@ binds {
   // miru
   Mod+Z hotkey-overlay-title="toggle miru (testing)" { spawn-sh "/home/vaishnav/Desktop/My_Projects/miru/build/miructl toggle >> /tmp/miructl.log 2>&1"; }
 
+  // miru
+  Mod+Alt+K hotkey-overlay-title="Start hibiki (Keystrokes)" { spawn "/home/vaishnav/.cargo/bin/hibiki"; }
+  Mod+Alt+Shift+K hotkey-overlay-title="Stop hibiki (Keystrokes)" { spawn-sh "pkill hibiki"; }
+
 	// Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
 	// Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
 	// For example, this is a standard bind to toggle the screen reader (orca).
