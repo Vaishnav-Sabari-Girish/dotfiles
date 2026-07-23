@@ -460,3 +460,15 @@ tz() {
         return 1
     fi
 }
+
+# PKGBUILD creator
+pkgbuild_create() {
+    local script_path="$HOME/dotfiles/zsh/.local/bin/create-pkgbuild.rs"
+
+    if [[ -x "$script_path" ]]; then
+        "$script_path"
+    else
+        echo "Error: Script not found or not executable at $script_path"
+        return 1
+    fi
+}
