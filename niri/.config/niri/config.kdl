@@ -416,9 +416,9 @@ window-rule {
     }
 }
 
-// Black out certain tabs when streaming
+// Black out floorp when streaming
 window-rule {
-  match app-id="one.ablaze.floorp" title="Claude|Gemini|ChatGPT"
+  match app-id="one.ablaze.floorp"
 
   block-out-from "screencast"
 }
