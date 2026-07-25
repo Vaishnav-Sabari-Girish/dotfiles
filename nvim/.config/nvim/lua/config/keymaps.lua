@@ -3,13 +3,16 @@
 -- Add any additional keymaps here
 
 -- Toggle floating terminal with vim-floaterm
-vim.keymap.set("n", "<leader>ft", ":FloatermToggle<CR>", { desc = "Toggle floating terminal" })
+vim.keymap.set("n", "<leader>ft", ":terminal<CR>", { desc = "Toggle terminal" })
 
 -- InYourFace toggle
 vim.keymap.set("n", "<leader>fa", ":InYourFace<CR>", { desc = "Toggle Mr.Incredible's face" })
 
 -- Links
 vim.keymap.set("x", "<leader>l", "<Esc>`<i[<Esc>`>la](<C-r>+)<Esc>", { desc = "Apply markdown link to selection" })
+
+-- Code
+vim.keymap.set("x", "<leader>c", "<Esc>`<i`<Esc>`>la`<Esc>", { desc = "Apply markdown code to selection" })
 
 -----------------------------------------------------------
 -- Dictionary Script Integrations
@@ -70,4 +73,4 @@ end, { desc = "Play Music with nvim.sfx_player" })
 
 -- Latex
 vim.keymap.set({ "v" }, "<leader>tx", "<Plug>(TxmPreview)")
-vim.keymap.set({ "n", "v" }, "<leader>tt", ":TxmToggle")
+vim.keymap.set({ "n", "v" }, "<leader>tt", ":TxmToggle<CR>")
