@@ -1,3 +1,6 @@
+# Iris Autocomplete
+eval "$(iris init zsh)"
+
 # ~/.zshrc
 
 # --- PATH CONFIGURATION ---
@@ -30,7 +33,7 @@ export PATH
 
 # --- BASICS ---
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)
-source <(fzf --zsh)
+[[ -f ~/.zsh_fzf ]] && source ~/.zsh_fzf
 
 # Options
 setopt autocd             # Change to a directory by typing its name
@@ -90,8 +93,16 @@ if [[ -f ~/.zsh_secrets ]]; then
     source ~/.zsh_secrets
 fi
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm() {
+  unset -f nvm node npm yarn pnpm
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  nvm "$@"
+}
+node() { nvm use default >/dev/null && node "$@"; }
+npm() { nvm use default >/dev/null && npm "$@"; }
+yarn() { nvm use default >/dev/null && yarn "$@"; }
+pnpm() { nvm use default >/dev/null && pnpm "$@"; }
 hash -r
 
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
@@ -100,10 +111,14 @@ hash -r
 
 # Custom Startup Scripts (Now calling from .local/bin)
 if [[ -f $HOME/.local/bin/anime_quote.sh ]]; then
-    bash $HOME/.local/bin/anime_quote.sh
+    (bash $HOME/.local/bin/anime_quote.sh &)
 fi
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Instead of: eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
+export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
+export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin${PATH+:$PATH}"
 
 # --- INITIALIZATION (MUST BE LAST) ---
 # Initialize plugins and completions
