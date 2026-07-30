@@ -1,6 +1,3 @@
-# Iris Autocomplete
-eval "$(iris init zsh)"
-
 # ~/.zshrc
 
 # --- PATH CONFIGURATION ---
@@ -32,8 +29,16 @@ path=(
 export PATH
 
 # --- BASICS ---
-# Set-up FZF key bindings (CTRL R for fuzzy history finder)
-[[ -f ~/.zsh_fzf ]] && source ~/.zsh_fzf
+# --- FZF Key Bindings (System-wide search) ---
+for fzf_script in \
+  /usr/share/fzf/key-bindings.zsh \
+  /usr/share/doc/fzf/examples/key-bindings.zsh \
+  /usr/share/fzf/shell/key-bindings.zsh; do
+  if [[ -f "$fzf_script" ]]; then
+    source "$fzf_script"
+    break
+  fi
+done
 
 # Options
 setopt autocd             # Change to a directory by typing its name
