@@ -1,0 +1,10 @@
+[Unit]
+Description=Schedule mbsync to run every 5 minutes
+
+[Timer]
+OnBootSec=2m
+OnUnitActiveSec=5m
+Unit=mbsync.service
+
+[Install]
+WantedBy=timers.target
