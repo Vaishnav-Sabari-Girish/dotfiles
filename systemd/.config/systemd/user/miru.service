@@ -3,10 +3,10 @@ Description=Miru Zooming Daemon
 PartOf=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
-ConditionPathExists=/usr/local/bin/miru-daemon
+ConditionPathExists=%h/.local/bin/miru-daemon
 
 [Service]
-ExecStart=/usr/local/bin/miru-daemon
+ExecStart=%h/.local/bin/miru-daemon
 Restart=on-failure
 RestartSec=1
 
