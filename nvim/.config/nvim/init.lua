@@ -116,3 +116,11 @@ end, {
 
 -- Global keymap to open terminal via <leader>T
 vim.keymap.set("n", "<leader>T", ":Shell ", { desc = "Open Shell command terminal" })
+
+vim.keymap.set("n", "<leader>F", function()
+  require("cflow_to_mermaid").generate_flowchart()
+end, { desc = "Generate call-graph flowchart (dot)" })
+
+vim.keymap.set("n", "<leader>fL", function()
+  require("cflow_to_mermaid").generate_flowchart({ include_libc = true })
+end, { desc = "Generate call-graph flowchart (with libc calls)" })
