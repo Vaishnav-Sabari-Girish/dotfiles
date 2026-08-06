@@ -473,7 +473,10 @@ pkgbuild_create() {
     fi
 }
 
-# in your .bashrc/.zshrc/*rc
 help() {
-    "$@" --help 2>&1 | bat --plain --language=help
+  if (( $# == 0 )); then
+    print -u2 "Usage: help <command> [args...]"
+    return 1
+  fi
+  "$@" --help 2>&1 | bat --plain --language=help
 }
