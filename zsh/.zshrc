@@ -84,6 +84,8 @@ export ZEPHYR_BASE="$HOME/zephyrproject/zephyr/"
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export BAT_THEME="Nord"
 export GPG_TTY=$(tty)
+export MANPAGER='nvim +Man!'
+export MANWIDTH=999
 # --- COMPLETIONS & FUNCTIONS ---
 # Add custom completions to fpath (Stow path)
 fpath=($HOME/.zsh/completions $fpath)
