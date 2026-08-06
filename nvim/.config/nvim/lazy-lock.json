@@ -1,5 +1,6 @@
 {
   "LazyVim": { "branch": "main", "commit": "c10948c50b18fae7f256433afdef09e432410480" },
+  "amber-vim": { "branch": "main", "commit": "0cd0acda4e3d168ac7a3d1a8fa6a361e37bbb6bc" },
   "base16-nvim": { "branch": "master", "commit": "cf82c4be16334c7cdf9883296eacfba50ff93b26" },
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "btw.nvim": { "branch": "master", "commit": "47f6419e90d3383987fd06e8f3e06a4bc032ac83" },

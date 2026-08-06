@@ -75,6 +75,9 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'arcticicestudio/nord-vim'
 Plug 'ryanoasis/vim-devicons'
 
+" Amber language
+Plug 'amber-lang/amber-vim'
+
 call plug#end()
 
 
