@@ -472,3 +472,8 @@ pkgbuild_create() {
         return 1
     fi
 }
+
+# in your .bashrc/.zshrc/*rc
+help() {
+    "$@" --help 2>&1 | bat --plain --language=help
+}

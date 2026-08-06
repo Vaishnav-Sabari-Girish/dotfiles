@@ -61,11 +61,6 @@ setopt HIST_VERIFY               # Show command before running with history expa
 # --- ALIASES ---
 alias stm32erase="/opt/stm32cubeprog/bin/STM32_Programmer_CLI -c port=SWD freq=480 mode=HotPlug -e all"
 
-# GLOBAL ALIASES
-alias -g -- -h='-h 2>&1 | bat --language=help --style=plain'
-alias -g -- --help='--help ②>&① | bat --language=help --style=plain'
-
-
 # Key bindings
 bindkey "^[[H" beginning-of-line    # Home
 bindkey "^[[F" end-of-line          # End  
