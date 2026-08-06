@@ -10,7 +10,7 @@ return {
   opts = {
     feeds = {},
     search = {
-      default_query = "@1-day-ago",
+      default_query = "@1-day-ago +unread",
       backend = { "fzf-lua" },
     },
   },
