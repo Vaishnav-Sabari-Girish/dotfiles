@@ -1,7 +1,7 @@
 ;;; keybinds.el -*- lexical-binding: t; -*-
 
 ;; Open terminal buffer
-(global-set-key (kbd "C-c t") 'vterm)
+(global-set-key (kbd "C-c t") 'ghostel)
 
 ;; Run shell command inline
 (global-set-key (kbd "C-c s") 'shell-command)

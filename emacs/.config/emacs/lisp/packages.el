@@ -25,7 +25,8 @@
 ;; Rust mode
 (use-package rust-mode)
 
-;; Change ansi-term to vterm
-(use-package vterm)
+;; Change ansi-term to ghostel
+(use-package ghostel
+  :ensure t)
 
 (provide 'packages)

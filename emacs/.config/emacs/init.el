@@ -6,6 +6,10 @@
 (prefer-coding-system 'utf-8)
 (setq locale-coding-system 'utf-8)
 
+;; Redirect Custom-generated code to lisp/custom-vars.el instead of init.el
+(setq custom-file (expand-file-name "lisp/custom-vars.el" user-emacs-directory))
+(load custom-file 'noerror)
+
 ;; Startup screen disable
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message nil)
@@ -38,15 +42,3 @@
 (require 'keybinds)
 (require 'packages)
 (require 'lsp)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

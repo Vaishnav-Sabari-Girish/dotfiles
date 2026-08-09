@@ -1,8 +1,7 @@
 ;;; custom-vars.el -*- lexical-binding: t; -*-
 
 (custom-set-variables
- '(package-selected-packages '(company nord-theme which-key)))
-
+ '(package-selected-packages '(company ghostel nord-theme rust-mode treemacs vterm)))
 (custom-set-faces
  )
 
