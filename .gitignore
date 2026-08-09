@@ -5,3 +5,6 @@ checkouts/
 history.txt
 .gitconfig
 .mailsynclastrun
+auto-save-list/
+eln-cache/
+elpa/
