@@ -12,4 +12,8 @@
 		  (cond ((looking-at "\\s(") (forward-sexp 1) (backward-char 1))
 			((looking-at "\\s)") (forward-char 1) (backward-sexp 1))
 			(t (message "Not on a bracket")))))
+
+;; org-capture - note taking from anywhere
+(global-set-key (kbd "C-c n") 'org-capture)
+
 (provide 'keybinds)
