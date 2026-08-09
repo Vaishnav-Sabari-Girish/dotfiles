@@ -14,6 +14,11 @@
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message nil)
 
+;; Emacs server
+(require 'server)
+(unless (server-running-p)
+  (server-start))
+
 ;; package-manager (MELPA)
 (require 'package)
 (setq package-archives

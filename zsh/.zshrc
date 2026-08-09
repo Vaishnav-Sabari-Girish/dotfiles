@@ -86,6 +86,15 @@ export BAT_THEME="Nord"
 export GPG_TTY=$(tty)
 export MANPAGER='nvim +Man!'
 export MANWIDTH=999
+
+if [[ -n "$INSIDE_EMACS" ]]; then
+    export EDITOR="emacsclient -a ''"
+    export GIT_EDITOR="emacsclient -a ''"
+else
+    export EDITOR="nvim"
+    export GIT_EDITOR="nvim"
+fi
+
 # --- COMPLETIONS & FUNCTIONS ---
 # Add custom completions to fpath (Stow path)
 fpath=($HOME/.zsh/completions $fpath)
