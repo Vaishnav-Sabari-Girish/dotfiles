@@ -6,4 +6,10 @@
 ;; Run shell command inline
 (global-set-key (kbd "C-c s") 'shell-command)
 
+;; Jump between delimiters
+(global-set-key (kbd "C-%")
+		(lambda () (interactive)
+		  (cond ((looking-at "\\s(") (forward-sexp 1) (backward-char 1))
+			((looking-at "\\s)") (forward-char 1) (backward-sexp 1))
+			(t (message "Not on a bracket")))))
 (provide 'keybinds)

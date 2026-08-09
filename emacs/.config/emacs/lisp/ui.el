@@ -6,8 +6,13 @@
 (tooltip-mode -1)
 
 (set-face-attribute 'default nil
-                     :font "JetBrains Mono Nerd Font"
-                     :height 180)
+                     :font "JetBrainsMono Nerd Font"
+                     :height 160)
+
+;; Ensure Nerd Font icons (Private Use Area glyphs) render correctly
+(set-fontset-font t '(#xe000 . #xf8ff) "JetBrainsMono Nerd Font")
+(set-fontset-font t '(#xf0000 . #xffffd) "JetBrainsMono Nerd Font")
+(set-fontset-font t '(#x100000 . #x10fffd) "JetBrainsMono Nerd Font")
 
 (add-to-list 'default-frame-alist '(undecorated . t))
 
