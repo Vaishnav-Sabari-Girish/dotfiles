@@ -34,9 +34,17 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;; Backup stuff (Emacs noise)
+(let ((auto-save-dir "/tmp/emacs/auto-saves/")
+      (auto-save-list-dir "/tmp/emacs/auto-save-list/")
+      (backup-dir "/tmp/emacs/backups/"))
+  (make-directory auto-save-dir t)
+  (make-directory auto-save-list-dir t)
+  (make-directory backup-dir t))
+     
 (setq auto-save-list-file-prefix "/tmp/emacs/auto-save-list/.saves-")
 (setq backup-directory-alist '(("." . "/tmp/emacs/backups")))
 (setq auto-save-file-name-transforms '((".*" "/tmp/emacs/auto-saves/" t)))
+
 
 ;; y/n instead of yes/no
 (setq use-short-answers t)

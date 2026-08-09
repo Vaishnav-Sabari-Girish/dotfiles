@@ -33,4 +33,14 @@
 (use-package ghostel
   :ensure t)
 
+;; Multiple cursors
+(use-package multiple-cursors)
+
+;; Markdown support
+;; Markdown support (md-mode, Org-style)
+(use-package md-mode
+  :vc (:url "https://github.com/yibie/md-mode"
+	    :rev :newest))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . md-mode))
+
 (provide 'packages)
