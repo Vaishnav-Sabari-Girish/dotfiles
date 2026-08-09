@@ -22,6 +22,10 @@
   :config
   (add-hook 'treemacs-mode-hook (lambda () (treemacs-follow-mode t))))
 
+;; Discord RPC
+(use-package elcord)
+(elcord-mode)
+
 ;; Rust mode
 (use-package rust-mode)
 
