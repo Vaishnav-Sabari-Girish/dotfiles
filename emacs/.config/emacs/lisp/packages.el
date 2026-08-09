@@ -25,4 +25,7 @@
 ;; Rust mode
 (use-package rust-mode)
 
+;; Change ansi-term to vterm
+(use-package vterm)
+
 (provide 'packages)
