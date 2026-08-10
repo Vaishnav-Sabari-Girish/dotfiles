@@ -7,7 +7,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(company elcord ghostel md-mode multiple-cursors nord-theme rust-mode
-	     treemacs vterm))
+	     treemacs))
  '(package-vc-selected-packages '((md-mode :url "https://github.com/yibie/md-mode"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

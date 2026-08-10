@@ -16,6 +16,7 @@
 
 (add-to-list 'default-frame-alist '(undecorated . t))
 
+(setq nord-region-highlight "snowstorm")
 (use-package nord-theme
   :config
   (load-theme 'nord t))
