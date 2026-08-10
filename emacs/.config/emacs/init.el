@@ -55,4 +55,4 @@
 (require 'keybinds)
 (require 'packages)
 (require 'lsp)
-(require 'org)
+(require 'org-config)
