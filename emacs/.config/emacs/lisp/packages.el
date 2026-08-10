@@ -47,4 +47,40 @@
 (use-package move-text)
 (move-text-default-bindings)
 
+;; RSS feeds
+(use-package elfeed
+  :bind ("C-c w" . elfeed)
+  :config
+  (setq-default elfeed-search-filter "@2days +unread")
+  (setq elfeed-feeds
+        '("https://andrewkelley.me/rss.xml"
+          "https://blog.orhun.dev/rss"
+          "https://blog.rust-embedded.org/rss.xml"
+          "https://blog.vaishnavs.is-a.dev/atom.xml"
+          "https://carlosbecker.com/index.xml"
+          "https://cliffle.com/rss.xml"
+          "https://corrode.dev/rss.xml"
+          "https://crescentro.se/posts/rss.xml"
+          "https://eli.thegreenplace.net/feeds/all.atom.xml"
+          "https://embeddedartistry.com/feed/"
+          "https://fabiensanglard.net/rss.xml"
+          "https://fasterthanli.me/index.xml"
+          "https://ferrous-systems.com/blog/feed.xml"
+          "https://interrupt.memfault.com/feed.xml"
+          "https://keithp.com/blog/index.rss"
+          "https://kristoff.it/index.xml"
+          "https://lemire.me/blog/feed/"
+          "https://lwn.net/headlines/rss"
+          "https://mitchellh.com/feed.xml"
+          "https://nullprogram.com/feed/"
+          "https://opensourcepledge.com/rss.xml"
+          "https://os.phil-opp.com/rss.xml"
+          "https://oxide.computer/blog/feed"
+          "https://preshing.com/feed"
+          "https://terminaltrove.com/blog.xml"
+          "https://terminaltrove.com/new.xml"
+          "https://www.pro-110-119.jp/news_cat/news_info/feed/"
+          "https://xn--gckvb8fzb.com/index.xml"
+          "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml")))
+
 (provide 'packages)

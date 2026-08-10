@@ -37,6 +37,7 @@ return {
       "https://terminaltrove.com/new.xml",
       "https://www.pro-110-119.jp/news_cat/news_info/feed/",
       "https://xn--gckvb8fzb.com/index.xml",
+      "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml",
     },
     search = {
       default_query = "@1-day-ago +unread",
