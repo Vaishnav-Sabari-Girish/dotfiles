@@ -43,4 +43,8 @@
 	    :rev :newest))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . md-mode))
 
+;; Move text
+(use-package move-text)
+(move-text-default-bindings)
+
 (provide 'packages)
