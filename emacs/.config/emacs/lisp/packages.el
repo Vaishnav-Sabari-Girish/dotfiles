@@ -29,6 +29,9 @@
 ;; Rust mode
 (use-package rust-mode)
 
+;; Lua mode
+(use-package lua-mode)
+
 ;; Change ansi-term to ghostel
 (use-package ghostel
   :ensure t)
@@ -81,6 +84,19 @@
           "https://terminaltrove.com/new.xml"
           "https://www.pro-110-119.jp/news_cat/news_info/feed/"
           "https://xn--gckvb8fzb.com/index.xml"
-          "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml")))
+          "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml"
+	  "https://this-week-in-rust.org/rss.xml")))
+
+;; Git changes
+(use-package diff-hl
+  :ensure t
+  :init
+  ;; Enable it globally
+  (global-diff-hl-mode)
+  :config
+  ;; Update the highlights on the fly
+  (diff-hl-flydiff-mode 1)
+  (unless (display-graphic-p)
+    (diff-hl-margin-mode 1)))
 
 (provide 'packages)

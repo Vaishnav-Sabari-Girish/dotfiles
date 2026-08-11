@@ -38,6 +38,7 @@ return {
       "https://www.pro-110-119.jp/news_cat/news_info/feed/",
       "https://xn--gckvb8fzb.com/index.xml",
       "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml",
+      "https://this-week-in-rust.org/rss.xml",
     },
     search = {
       default_query = "@1-day-ago +unread",
