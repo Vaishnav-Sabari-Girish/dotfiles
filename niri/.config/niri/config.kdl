@@ -556,6 +556,10 @@ binds {
 	// For example, this is a standard bind to toggle the screen reader (orca).
 	Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
+  // OBS
+  Mod+Shift+F1 hotkey-overlay-title="Switch to Silicon Sundays scene in OBS" { spawn-sh "obs-cmd --websocket $(cat ~/.config/niri/obs-websocket) scene switch 'Silicon Sundays'"; }
+  Mod+Shift+F2 hotkey-overlay-title="Switch to Discord scene in OBS" { spawn-sh "obs-cmd --websocket $(cat ~/.config/niri/obs-websocket) scene switch 'Discord'"; }
+
 	// Example volume keys mappings for PipeWire & WirePlumber.
 	// The allow-when-locked=true property makes them work even when the session is locked.
 	// Using spawn-sh allows to pass multiple arguments together with the command.

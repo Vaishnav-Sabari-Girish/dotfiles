@@ -6,6 +6,9 @@
 (prefer-coding-system 'utf-8)
 (setq locale-coding-system 'utf-8)
 
+;; Auto closing brackets
+(electric-pair-mode 1)
+
 ;; Redirect Custom-generated code to lisp/custom-vars.el instead of init.el
 (setq custom-file (expand-file-name "lisp/custom-vars.el" user-emacs-directory))
 (load custom-file 'noerror)

@@ -8,3 +8,4 @@ history.txt
 auto-save-list/
 eln-cache/
 elpa/
+obs-websocket

@@ -6,8 +6,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(company diff-hl elcord elfeed ghostel lua-mode md-mode
-	     move-text multiple-cursors nord-theme rust-mode treemacs))
+   '(cmake-mode company diff-hl elcord elfeed ghostel lua-mode md-mode
+		move-text multiple-cursors nord-theme rust-mode
+		treemacs))
  '(package-vc-selected-packages '((md-mode :url "https://github.com/yibie/md-mode"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
