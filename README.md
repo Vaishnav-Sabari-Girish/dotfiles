@@ -20,6 +20,25 @@ Contains the dotfiles for my Linux system
 8. [Wallpapers](./assets/wallpapers/)
 9. [`mpv`](./mpv/.config/mpv/)
 
+
+## My Custom Scripts
+
+I store my custom scripts in 3 places. 
+
+1. [`zsh`](./zsh/.local/bin/)
+2. [`zsh_functions`](./zsh/.zsh_functions)
+3. [`niri`](./niri/.config/niri/scripts/)
+
+
+Some scripts I use (Everyday)
+
+1. OCR script (Image to Text)
+2. Google Calendar
+3. Project Creation (`mkproj`)
+4. Screenshot  (Tools used are `grim`, `slurp` and `satty`)
+5. Define selected words (Dictionary API)
+6. Send and Receive Files (Using `magic-wormhole`)
+
 ## Some Images
 
 
