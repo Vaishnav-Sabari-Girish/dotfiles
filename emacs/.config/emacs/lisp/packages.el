@@ -85,7 +85,9 @@
           "https://www.pro-110-119.jp/news_cat/news_info/feed/"
           "https://xn--gckvb8fzb.com/index.xml"
           "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml"
-	  "https://this-week-in-rust.org/rss.xml")))
+	        "https://this-week-in-rust.org/rss.xml"
+          "https://linkarzu.com/feed.xml"
+    )))
 
 ;; Git changes
 (use-package diff-hl
