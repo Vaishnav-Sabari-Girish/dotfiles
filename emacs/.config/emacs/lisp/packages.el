@@ -87,6 +87,7 @@
           "https://rss.beehiiv.com/feeds/LyzGmG4pKl.xml"
 	        "https://this-week-in-rust.org/rss.xml"
           "https://linkarzu.com/feed.xml"
+          "https://ianwwagner.com/index.rss"
     )))
 
 ;; Git changes

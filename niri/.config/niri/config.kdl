@@ -537,7 +537,7 @@ binds {
   // Starting soon
   Mod+Shift+S hotkey-overlay-title="Starting Soon GIF" { spawn "mpv" "--fs=yes" "--osc=no" "/home/vaishnav/Desktop/My_Projects/starting_soon.gif" "--loop"; }
   Mod+Alt+S hotkey-overlay-title="Silicon Sundays Banner" { 
-    spawn-sh "name=$(zenity --entry --title='Silicon Sundays' --text='Enter Speaker Name:'); if [ -n \"$name\" ]; then cd /home/vaishnav/Desktop/My_Projects/silicon_sundays && rm -rf output/*.png && cargo run --release -- --speaker \"$name\" && ls output/*.png 2>/dev/null | sort | tail -n +241 | xargs -r rm; fi" 
+    spawn-sh "name=$(zenity --entry --title='Silicon Sundays' --text='Enter Speaker Name:'); if [ -n \"$name\" ]; then cd /home/vaishnav/Desktop/My_Projects/SiliconSundaysOrg/silicon_sundays/ && rm -rf output/*.png && cargo run --release -- --speaker \"$name\" && ls output/*.png 2>/dev/null | sort | tail -n +241 | xargs -r rm; fi" 
   }
 
   // miru
