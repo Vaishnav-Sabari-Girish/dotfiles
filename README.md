@@ -96,4 +96,4 @@ Some scripts I use (Everyday)
 
 <br>
 
-I nordified non-nord images using the [`nodify`](https://github.com/kikefdezl/nordify) tool
+I nordified non-nord images using the [`nordify`](https://github.com/kikefdezl/nordify) tool
