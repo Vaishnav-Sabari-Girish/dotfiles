@@ -93,3 +93,7 @@ Some scripts I use (Everyday)
     </tr>
   </tbody>
 </table>
+
+<br>
+
+I nordified non-nord images using the [`nodify`](https://github.com/kikefdezl/nordify) tool
