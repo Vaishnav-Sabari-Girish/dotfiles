@@ -88,6 +88,7 @@
 	        "https://this-week-in-rust.org/rss.xml"
           "https://linkarzu.com/feed.xml"
           "https://ianwwagner.com/index.rss"
+          "https://blog.implrust.com/atom.xml"
     )))
 
 ;; Git changes

@@ -41,6 +41,7 @@ return {
       "https://this-week-in-rust.org/rss.xml",
       "https://linkarzu.com/feed.xml",
       "https://ianwwagner.com/index.rss",
+      "https://blog.implrust.com/atom.xml",
     },
     search = {
       default_query = "@2-day-ago +unread",
