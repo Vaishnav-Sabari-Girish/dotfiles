@@ -43,7 +43,7 @@ return {
       "https://ianwwagner.com/index.rss",
     },
     search = {
-      default_query = "@1-day-ago +unread",
+      default_query = "@2-day-ago +unread",
       backend = { "fzf-lua" },
     },
   },
