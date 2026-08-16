@@ -427,22 +427,45 @@ ccat() {
 
 # Discord date and time
 distime() {
+    local style="R"  # default: relative time
+
+    # Parse flags
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --time|-t)
+                style="R"
+                shift
+                ;;
+            --full|-f)
+                style="F"
+                shift
+                ;;
+            --help|-h)
+                echo "Usage: distime [--time|-t] [--full|-f]"
+                echo "  --time / -t   Relative time (:R)  [default]"
+                echo "  --full / -f   Full date + time (:F)"
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1"
+                return 1
+                ;;
+        esac
+    done
+
     echo -n "Enter date/time: "
     read -r raw_dt
-    
+
     if [[ -n "$raw_dt" ]]; then
-        # Use sed to flip DD/MM/YYYY or DD-MM-YYYY into YYYY-MM-DD
-        local dt=$(echo "$raw_dt" | sed -E 's/^([0-9]{1,2})[/-]([0-9]{1,2})[/-]([0-9]{2,4})/\3-\2-\1/')
-        
+        # Flip DD/MM/YYYY or DD-MM-YYYY into YYYY-MM-DD
+        local dt
+        dt=$(echo "$raw_dt" | sed -E 's/^([0-9]{1,2})[/-]([0-9]{1,2})[/-]([0-9]{2,4})/\3-\2-\1/')
+
         # Generate the Discord timestamp
-        local ts="<t:$(date -d "$dt" +%s):R>"
-        
-        # Display the timestamp in the terminal
+        local ts="<t:$(date -d "$dt" +%s):${style}>"
+
         echo "$ts"
-        
-        # Copy to Wayland clipboard without a trailing newline
         echo -n "$ts" | wl-copy
-        
         echo -e "\e[32mCopied to clipboard!\e[0m"
     else
         echo "No input provided."
