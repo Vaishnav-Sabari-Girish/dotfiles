@@ -32,6 +32,12 @@
 ;; Lua mode
 (use-package lua-mode)
 
+;; D mode
+(use-package d-mode)
+
+;; Brainfuck mode
+(use-package brainfuck-mode)
+
 ;; Change ansi-term to ghostel
 (use-package ghostel
   :ensure t)

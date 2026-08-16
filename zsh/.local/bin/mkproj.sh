@@ -1070,8 +1070,7 @@ EOF
   read -r -p "Enter project name: " project_name
 
   # Choose board using fzf
-  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840\nfrdm_mcxa156\nfrdm_mcxn236" | fzf --prompt="Choose board: " --height=10 --layout=reverse --border --cycle)
-
+  board=$(printf "nucleo_l433rc_p\nnrf52840dk/nrf52840\nfrdm_mcxa156\nfrdm_mcxn236\nrp2040_zero" | fzf --prompt="Choose board: " --height=12 --layout=reverse --border --cycle)
   if [ -z "$board" ]; then
     echo "Aborted."
     exit 0
@@ -1081,6 +1080,8 @@ EOF
   flash_runner="openocd"
   if [[ "$board" == "frdm_mcxa156" || "$board" == "frdm_mcxn236" ]]; then
     flash_runner="jlink"
+  elif [[ "$board" == "rp2040_zero" ]]; then
+    flash_runner="uf2"
   fi
 
   # Create base directories
@@ -1089,13 +1090,10 @@ EOF
   echo "📝 Writing CMakeLists.txt..."
   cat >"$project_name/CMakeLists.txt" <<EOF
 cmake_minimum_required(VERSION 3.20.0)
-
-# Pull in the Zephyr build system
 find_package(Zephyr REQUIRED HINTS \$ENV{ZEPHYR_BASE})
-
 project($project_name)
 
-# Export compile commands for clangd (Neovim)
+# Export compile commands for clangd / Neovim
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 target_sources(app PRIVATE src/main.c)
@@ -1103,13 +1101,8 @@ EOF
 
   echo "📝 Writing prj.conf..."
   cat >"$project_name/prj.conf" <<'EOF'
-# printk() enable for console output
 # CONFIG_PRINTK=y
-
-# Enable Logging 
 # CONFIG_LOG=y
-
-# Enable GPIOS
 # CONFIG_GPIO=y
 EOF
 
@@ -1119,12 +1112,97 @@ EOF
 
 int main(void)
 {
-  return 0;
+    return 0;
 }
 EOF
 
   echo "📝 Writing Justfile..."
-  cat >"$project_name/Justfile" <<EOF
+
+  if [[ "$board" == "rp2040_zero" ]]; then
+    # -------------------------------------------------
+    # Special Justfile for RP2040-Zero (UF2 + auto-detect)
+    # -------------------------------------------------
+    cat >"$project_name/Justfile" <<'EOF'
+# Zephyr RP2040-Zero helper
+
+BUILD_DIR := "build"
+
+build:
+    @west build -b rp2040_zero .
+
+pristine:
+    @west build -p always -b rp2040_zero .
+
+flash:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "Looking for RP2040 in bootloader mode..."
+
+    DEV=$(lsblk -o NAME,LABEL -n -l | awk '$2=="RPI-RP2" {print "/dev/"$1}')
+
+    if [ -z "$DEV" ]; then
+        echo "❌ No RPI-RP2 found!"
+        echo "   → Hold BOOT button, plug in USB (or press RESET while holding BOOT)"
+        echo "   → Then run 'just flash' again"
+        exit 1
+    fi
+
+    echo "✓ Found board at $DEV"
+
+    sudo mkdir -p /mnt/rp2
+    if ! mountpoint -q /mnt/rp2; then
+        sudo mount -t vfat -o sync,uid=$(id -u),gid=$(id -g) "$DEV" /mnt/rp2
+    fi
+
+    echo "⚡ Flashing..."
+    cp {{BUILD_DIR}}/zephyr/zephyr.uf2 /mnt/rp2/
+
+    echo "✅ Done! Board should reboot."
+    sleep 1.5
+    sudo umount /mnt/rp2 || true
+
+nuke:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "🧹 Nuking RP2040 flash memory..."
+
+    DEV=$(lsblk -o NAME,LABEL -n -l | awk '$2=="RPI-RP2" {print "/dev/"$1}')
+
+    if [ -z "$DEV" ]; then
+        echo "❌ No RPI-RP2 found! Put the board into bootloader mode first."
+        exit 1
+    fi
+
+    sudo mkdir -p /mnt/rp2
+    if ! mountpoint -q /mnt/rp2; then
+        sudo mount -t vfat -o sync,uid=$(id -u),gid=$(id -g) "$DEV" /mnt/rp2
+    fi
+
+    if [ ! -f flash_nuke.uf2 ]; then
+        echo "⬇️  Downloading flash_nuke.uf2..."
+        curl -L -s -o flash_nuke.uf2 https://raw.githubusercontent.com/Pwea/Flash-Nuke/main/flash_nuke.uf2
+    fi
+
+    echo "💣 Copying flash_nuke.uf2..."
+    cp flash_nuke.uf2 /mnt/rp2/
+
+    echo "⏳ Waiting for flash erase..."
+    sleep 2
+    sudo umount /mnt/rp2 || true
+    echo "✅ Flash memory nuked! Board will reboot."
+
+clean:
+    @rm -rf {{BUILD_DIR}} compile_commands.json
+    @echo "Cleaned"
+EOF
+
+  else
+    # -------------------------------------------------
+    # Generic Justfile for other boards
+    # -------------------------------------------------
+    cat >"$project_name/Justfile" <<EOF
 build:
     @west build -b $board .
 
@@ -1137,6 +1215,7 @@ flash:
 clean:
     @rm -rf build compile_commands.json
 EOF
+  fi
 
   # Conditionally append the recover command only for Nordic boards
   if [[ "$board" == *"nrf52840dk"* ]]; then
@@ -1154,25 +1233,19 @@ EOF
   fi
 
   echo "🔨 Running initial pristine build to generate Devicetree headers..."
-
-  # Verify west is accessible (Python venv is active)
   if ! command -v west &>/dev/null; then
-    echo "⚠️  'west' command not found! Make sure your Zephyr Python venv is active."
+    echo "⚠️ 'west' command not found! Make sure your Zephyr Python venv is active."
     echo "Project files created, but skipping automatic build and symlinking."
   else
-    # Explicitly tell west to use project folder as source and put build folder inside it
     west build -p always -b "$board" -d "$project_name/build" "$project_name"
 
     echo "🔗 Symlinking compile_commands.json for Neovim/clangd..."
     if [ -f "$project_name/build/compile_commands.json" ]; then
-      # Create symlink inside the project folder pointing to the build directory
-      ln -s build/compile_commands.json "$project_name/compile_commands.json"
-
-      # Add build artifacts to gitignore using explicit paths
+      ln -sf build/compile_commands.json "$project_name/compile_commands.json"
       echo "build/" >"$project_name/.gitignore"
       echo "compile_commands.json" >>"$project_name/.gitignore"
     else
-      echo "⚠️  compile_commands.json not found in build directory."
+      echo "⚠️ compile_commands.json not found in build directory."
     fi
   fi
 
