@@ -244,15 +244,26 @@ wreceive() {
 }
 
 mkproj() {
-    local script_path="$HOME/dotfiles/zsh/.local/bin/mkproj.sh"
-    
+    local script_path="$HOME/dotfiles/zsh/.local/bin/mkproj.rs"
+   
     if [[ -x "$script_path" ]]; then
         "$script_path" "$@"
     else
-        echo "error: mkproj.sh not found or not executable at $script_path"
+        echo "error: mkproj.rs not found or not executable at $script_path"
         return 1
     fi
 }
+
+# mkproj() {
+#     local script_path="$HOME/dotfiles/zsh/.local/bin/mkproj.sh"
+#
+#     if [[ -x "$script_path" ]]; then
+#         "$script_path" "$@"
+#     else
+#         echo "error: mkproj.sh not found or not executable at $script_path"
+#         return 1
+#     fi
+# }
 
 mkpkg() {
     local script_path="$HOME/dotfiles/zsh/.local/bin/mkpkg.sh"
