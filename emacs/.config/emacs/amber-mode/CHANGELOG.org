@@ -1,0 +1,14 @@
+#+title: amber-mode.el - Changelog
+#+author: Georgios Davakos
+#+language: en
+
+* Version 1.1.0 (2026-08-15)
+- Add support for running the amber binary from emacs
+  
+* Version 1.0.1 (2026-08-04)
+- Introduce documentation about the project
+
+* Version 1.0.0 (2026-08-04)
+- Initial release of ~amber-mode~
+  - Supports syntax highlighting
+  - Automatic indentation 

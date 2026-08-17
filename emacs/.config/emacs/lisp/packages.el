@@ -38,6 +38,12 @@
 ;; Brainfuck mode
 (use-package brainfuck-mode)
 
+;; Amber mode
+(unless (version< emacs-version "26")
+  (add-to-list 'load-path "~/dotfiles/emacs/.config/emacs/amber-mode/")
+  (autoload 'amber-mode "amber-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.ab\\'" . amber-mode)))
+
 ;; Change ansi-term to ghostel
 (use-package ghostel
   :ensure t)
@@ -95,6 +101,7 @@
           "https://linkarzu.com/feed.xml"
           "https://ianwwagner.com/index.rss"
           "https://blog.implrust.com/atom.xml"
+          "https://cdacamar.github.io/feed.xml"
     )))
 
 ;; Git changes

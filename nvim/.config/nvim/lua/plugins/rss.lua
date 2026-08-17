@@ -42,6 +42,7 @@ return {
       "https://linkarzu.com/feed.xml",
       "https://ianwwagner.com/index.rss",
       "https://blog.implrust.com/atom.xml",
+      "https://cdacamar.github.io/feed.xml",
     },
     search = {
       default_query = "@2-day-ago +unread",
