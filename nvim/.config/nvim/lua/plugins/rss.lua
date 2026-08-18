@@ -44,6 +44,7 @@ return {
       "https://blog.implrust.com/atom.xml",
       "https://cdacamar.github.io/feed.xml",
       "https://trix.is-a.dev/blog/rss.xml",
+      "https://zephyrproject.org/feed/rss/",
     },
     search = {
       default_query = "@2-day-ago +unread",

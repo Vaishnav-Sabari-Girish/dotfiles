@@ -102,7 +102,8 @@
           "https://ianwwagner.com/index.rss"
           "https://blog.implrust.com/atom.xml"
           "https://cdacamar.github.io/feed.xml"
-	  "https://trix.is-a.dev/blog/rss.xml"
+          "https://zephyrproject.org/feed/rss/"
+          "https://trix.is-a.dev/blog/rss.xml"
     )))
 
 ;; Git changes
