@@ -18,12 +18,12 @@
 
 ;; Background-only transparency (text stays fully opaque)
 ;; 0 = fully transparent, 100 = fully opaque. 70–85 is a good range.
-(set-frame-parameter nil 'alpha-background 75)
-(add-to-list 'default-frame-alist '(alpha-background . 75))
+(set-frame-parameter nil 'alpha-background 85)
+(add-to-list 'default-frame-alist '(alpha-background . 85))
 
 (add-hook 'after-make-frame-functions
           (lambda (frame)
-            (set-frame-parameter frame 'alpha-background 75)))
+            (set-frame-parameter frame 'alpha-background 85)))
 
 (setq nord-region-highlight "snowstorm")
 
