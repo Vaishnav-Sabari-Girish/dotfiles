@@ -1,7 +1,7 @@
 #!/usr/bin/env rust-script
 //! ```cargo
 //! [dependencies]
-//! inquire = "0.7"
+//! inquire = "*"
 //! ```
 
 use inquire::{Select, Text};

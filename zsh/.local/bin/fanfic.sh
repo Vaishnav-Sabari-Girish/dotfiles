@@ -3,18 +3,17 @@
 # Usage:
 #   fanfic i <url>   Download EPUB to ~/fanfic/ and open it
 #   fanfic           Browse downloaded fanfics with fzf and open selected one
-
 set -euo pipefail
 
 FANFIC_DIR="${HOME}/fanfic"
 READER="bookokrat"
 DOWNLOADER="fichub_cli"
 
-# Colors for messages
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 err() { echo -e "${RED}error:${NC} $*" >&2; }
 warn() { echo -e "${YELLOW}warning:${NC} $*" >&2; }
@@ -23,8 +22,8 @@ ok() { echo -e "${GREEN}$*${NC}"; }
 usage() {
   cat <<EOF
 Usage:
-  fanfic i <url>     Download fanfic as EPUB to ~/fanfic/ and open with bookokrat
-  fanfic             Open fzf picker of downloaded fanfics in ~/fanfic/
+  fanfic i <url>   Download fanfic as EPUB to ~/fanfic/ and open with bookokrat
+  fanfic           Open fzf picker of downloaded fanfics in ~/fanfic/
 
 Examples:
   fanfic i "https://archiveofourown.org/works/12345"
@@ -32,20 +31,22 @@ Examples:
 EOF
 }
 
-# Ensure required commands exist
 require_cmd() {
   if ! command -v "$1" &>/dev/null; then
     err "'$1' is not installed or not in PATH."
     case "$1" in
     fichub_cli)
-      echo "  Install with:  pip install -U fichub-cli" >&2
+      echo "  Install with: pip install -U fichub-cli" >&2
       ;;
     bookokrat)
-      echo "  Install from:  https://github.com/bugzmanov/bookokrat" >&2
+      echo "  Install from: https://github.com/bugzmanov/bookokrat" >&2
       echo "  (Homebrew: brew install bookokrat, or cargo install bookokrat)" >&2
       ;;
     fzf)
-      echo "  Install fzf:   https://github.com/junegunn/fzf" >&2
+      echo "  Install fzf: https://github.com/junegunn/fzf" >&2
+      ;;
+    unzip | zipgrep)
+      echo "  Install unzip / zipgrep (usually part of the unzip package)" >&2
       ;;
     esac
     exit 1
@@ -62,10 +63,36 @@ ensure_dir() {
   fi
 }
 
-# Find the most recently modified .epub in a directory (or under it)
+# Extract <dc:title> from an EPUB (same logic as the minfo snippet)
+epub_title() {
+  local epub="$1"
+  local title="" opf
+
+  # --- try to read real title from OPF ---
+  if command -v unzip >/dev/null && command -v zipgrep >/dev/null; then
+    # find any .opf file
+    opf=$(unzip -l "$epub" 2>/dev/null | awk '/\.opf$/ {print $NF; exit}')
+    if [[ -n "$opf" ]]; then
+      # try a few patterns
+      title=$(zipgrep -h '<dc:title' "$epub" "$opf" 2>/dev/null |
+        head -n1 |
+        sed -E 's/.*<dc:title[^>]*>//; s/<\/dc:title>.*//; s/^[[:space:]]+//; s/[[:space:]]+$//')
+    fi
+  fi
+
+  # --- fallback to cleaned filename ---
+  if [[ -z "$title" ]]; then
+    title=$(basename "$epub" .epub | tr '_' ' ')
+  fi
+
+  # Always strip trailing " by Author-xxxx" (works for both metadata and filename)
+  title=$(echo "$title" | sed -E 's/[[:space:]]+[Bb][Yy][[:space:]].+$//')
+
+  echo "$title"
+}
+
 find_newest_epub() {
   local dir="$1"
-  # Prefer files directly in the dir, then any nested
   local file
   file=$(find "$dir" -maxdepth 1 -type f -iname '*.epub' -printf '%T@ %p\n' 2>/dev/null |
     sort -nr | head -n1 | cut -d' ' -f2-)
@@ -78,14 +105,11 @@ find_newest_epub() {
 
 download_and_open() {
   local url="$1"
-
   if [[ -z "$url" ]]; then
     err "No URL provided."
     usage
     exit 1
   fi
-
-  # Basic URL sanity check
   if [[ ! "$url" =~ ^https?:// ]]; then
     err "URL must start with http:// or https://"
     exit 1
@@ -95,17 +119,14 @@ download_and_open() {
   require_cmd "$READER"
   ensure_dir
 
-  # Snapshot existing epubs so we can detect the new one
   local before_list
   before_list=$(find "$FANFIC_DIR" -type f -iname '*.epub' -print 2>/dev/null | sort || true)
 
   ok "Downloading to $FANFIC_DIR ..."
   echo "  URL: $url"
 
-  # Run fichub_cli. We capture exit status ourselves so set -e doesn't kill us early.
   local exit_code=0
-  "$DOWNLOADER" -u "$url" -o "$FANFIC_DIR" --format epub || exit_code=$?
-
+  "$DOWNLOADER" -u "$url" -o "$FANFIC_DIR" --format epub --force || exit_code=$?
   if [[ $exit_code -ne 0 ]]; then
     err "fichub_cli failed (exit code $exit_code)."
     if [[ -f ./err.log ]]; then
@@ -114,18 +135,15 @@ download_and_open() {
     exit "$exit_code"
   fi
 
-  # Find the newly created epub
   local after_list new_epubs epub
   after_list=$(find "$FANFIC_DIR" -type f -iname '*.epub' -print 2>/dev/null | sort || true)
   new_epubs=$(comm -13 <(echo "$before_list") <(echo "$after_list") || true)
 
   if [[ -n "$new_epubs" ]]; then
-    # Prefer the single new file; if multiple, take the newest
     epub=$(echo "$new_epubs" | while read -r f; do
       stat -c '%Y %n' "$f" 2>/dev/null || stat -f '%m %N' "$f" 2>/dev/null
     done | sort -nr | head -n1 | cut -d' ' -f2-)
   else
-    # Fallback: maybe it overwrote an existing file, or filename matched previous
     warn "Could not detect a brand-new file. Using most recent EPUB in $FANFIC_DIR"
     epub=$(find_newest_epub "$FANFIC_DIR")
   fi
@@ -144,23 +162,30 @@ download_and_open() {
 browse_and_open() {
   require_cmd fzf
   require_cmd "$READER"
+  require_cmd unzip
+  require_cmd zipgrep
   ensure_dir
 
   local count
   count=$(find "$FANFIC_DIR" -type f -iname '*.epub' 2>/dev/null | wc -l | tr -d ' ')
-
   if [[ "$count" -eq 0 ]]; then
     err "No EPUB files found in $FANFIC_DIR"
-    echo "  Download one first with:  fanfic i <url>" >&2
+    echo "  Download one first with: fanfic i <url>" >&2
     exit 1
   fi
 
-  # Use relative paths for cleaner fzf display, then resolve
+  # Build "title<TAB>fullpath" list for fzf
+  local list
+  list=$(find "$FANFIC_DIR" -type f -iname '*.epub' -print 2>/dev/null | while read -r f; do
+    title=$(epub_title "$f")
+    printf '%s\t%s\n' "$title" "$f"
+  done | sort -f)
+
   local selected
-  selected=$(find "$FANFIC_DIR" -type f -iname '*.epub' -printf '%P\n' 2>/dev/null |
-    sort -f |
+  selected=$(echo "$list" |
     fzf --prompt="fanfic> " \
-      --preview 'echo {}' \
+      --delimiter=$'\t' \
+      --with-nth=1 \
       --height=40% \
       --reverse \
       --border \
@@ -171,13 +196,15 @@ browse_and_open() {
     exit 0
   fi
 
-  local fullpath="${FANFIC_DIR}/${selected}"
+  # Extract the path (everything after the first tab)
+  local fullpath="${selected#*$'\t'}"
+
   if [[ ! -f "$fullpath" ]]; then
     err "Selected file no longer exists: $fullpath"
     exit 1
   fi
 
-  ok "Opening: $selected"
+  ok "Opening: ${selected%%$'\t'*}"
   exec "$READER" "$fullpath"
 }
 
