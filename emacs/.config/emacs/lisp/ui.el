@@ -16,6 +16,15 @@
 
 (add-to-list 'default-frame-alist '(undecorated . t))
 
+;; Background-only transparency (text stays fully opaque)
+;; 0 = fully transparent, 100 = fully opaque. 70–85 is a good range.
+(set-frame-parameter nil 'alpha-background 75)
+(add-to-list 'default-frame-alist '(alpha-background . 75))
+
+(add-hook 'after-make-frame-functions
+          (lambda (frame)
+            (set-frame-parameter frame 'alpha-background 75)))
+
 (setq nord-region-highlight "snowstorm")
 
 (use-package nord-theme
@@ -30,6 +39,59 @@
   (if (daemonp)
       (add-hook 'after-make-frame-functions #'my/load-nord-theme)
     (my/load-nord-theme)))
+
+;; Startup screen
+;; Startup screen variables
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq inhibit-startup-echo-area-message (user-login-name))
+(setq initial-scratch-message nil)
+
+(defun my-draw-startup-screen (&rest _)
+  "Calculate terminal dimensions and draw the centered text."
+  (let ((w (get-buffer-window "*startup*")))
+    ;; Only execute if the *startup* buffer is actively visible in a window
+    (when w
+      (with-current-buffer "*startup*"
+        (let ((inhibit-read-only t)
+              (text "Vaishnav's Emacs"))
+          (erase-buffer)
+          
+          ;; Fetch the true dimensions of the specific window displaying the buffer
+          (let* ((w-height (window-body-height w))
+                 (w-width (window-body-width w))
+                 (v-pad (max 0 (/ w-height 2)))
+                 (text-len (length text))
+                 (h-pad (max 0 (/ (- w-width text-len) 2))))
+            
+            ;; Insert the precise amount of padding
+            (insert (make-string v-pad ?\n))
+            (insert (make-string h-pad ?\s))
+            (insert text)))))))
+
+(defun my-minimal-startup-screen ()
+  "Initialize the stripped-down startup buffer."
+  (let ((buf (get-buffer-create "*startup*")))
+    (with-current-buffer buf
+      (fundamental-mode)
+      
+      ;; Strip away UI elements
+      (when (bound-and-true-p display-line-numbers-mode)
+        (display-line-numbers-mode -1))
+      (setq-local cursor-type nil)
+      (setq-local mode-line-format nil)
+      
+      (setq buffer-read-only t))
+    buf))
+
+;; Set the initial buffer
+(setq initial-buffer-choice #'my-minimal-startup-screen)
+
+;; Hook the drawing function to run after the frame fully initializes
+(add-hook 'window-setup-hook #'my-draw-startup-screen)
+
+;; Hook the drawing function to run whenever the window is resized
+(add-hook 'window-size-change-functions #'my-draw-startup-screen)
 
 ;; Ghostel — match Nord palette (deferred until ghostel loads)
 (with-eval-after-load 'ghostel
