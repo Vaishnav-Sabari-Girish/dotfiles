@@ -43,6 +43,7 @@ return {
       "https://ianwwagner.com/index.rss",
       "https://blog.implrust.com/atom.xml",
       "https://cdacamar.github.io/feed.xml",
+      "https://trix.is-a.dev/blog/rss.xml",
     },
     search = {
       default_query = "@2-day-ago +unread",
