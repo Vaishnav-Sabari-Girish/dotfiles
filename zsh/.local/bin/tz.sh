@@ -301,9 +301,9 @@ if [ $# -eq 2 ]; then
       echo -e "${RED}Error: Could not parse time '$TIME_ARG' in zone '$SRC_ZONE'.${NC}"
       exit 1
     fi
-    echo -e "${BOLD}Converting ${YELLOW}${TIME_ARG}${NC} ${DIM}(${SRC_RAW} → ${SRC_ZONE})${NC} ${BOLD}to${NC} ${CYAN}${DST_RAW}${NC}\n"
+    echo -e "${BOLD}Converting ${YELLOW}${TIME_ARG}${NC} ${DIM}(${SRC_RAW} --> ${SRC_ZONE})${NC} ${BOLD}to${NC} ${CYAN}${DST_RAW}${NC}\n"
   else
-    echo -e "${BOLD}Current time comparison: ${SRC_RAW} ↔ ${DST_RAW}${NC}\n"
+    echo -e "${BOLD}Current time comparison: ${SRC_RAW} <--> ${DST_RAW}${NC}\n"
   fi
 
   print_header
