@@ -1,0 +1,29 @@
+[Unit]
+Description=Music Player Daemon
+Documentation=man:mpd(1) man:mpd.conf(5)
+After=network.target sound.target
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/mpd --systemd
+# Optional: point to a specific config if needed
+# ExecStart=/usr/bin/mpd --systemd ~/.config/mpd/mpd.conf
+
+# Real-time priority (good for audio)
+LimitRTPRIO=40
+LimitRTTIME=infinity
+
+# io_uring support
+LimitMEMLOCK=64M
+
+# Security hardening
+PrivateUsers=yes
+ProtectSystem=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+
+[Install]
+WantedBy=default.target
