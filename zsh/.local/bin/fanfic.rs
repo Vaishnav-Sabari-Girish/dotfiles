@@ -3,13 +3,14 @@
 //!
 //! ```cargo
 //! [dependencies]
-//! colored = "2"
-//! inquire = "0.7"
-//! zip = "2"
-//! regex = "1"
+//! colored = "*"
+//! inquire = "*"
+//! zip = "*"
+//! regex = "*"
+//! serde_json = "*"
 //! ```
 
-use colored::Colorize;
+use colored::*;
 use inquire::Select;
 use regex::Regex;
 use std::collections::HashSet;
@@ -26,6 +27,10 @@ const FANFIC_DIR_NAME: &str = "fanfic";
 const READER: &str = "bookokrat";
 const DOWNLOADER: &str = "fichub_cli";
 
+// ----------------------------------------------------------------------
+// Helper functions
+// ----------------------------------------------------------------------
+
 fn fanfic_dir() -> PathBuf {
     dirs_next_home().join(FANFIC_DIR_NAME)
 }
@@ -36,8 +41,9 @@ fn dirs_next_home() -> PathBuf {
         .expect("$HOME is not set")
 }
 
-fn err(msg: &str) {
+fn err(msg: &str) -> ! {
     eprintln!("{} {}", "error:".red().bold(), msg);
+    std::process::exit(1);
 }
 
 fn warn(msg: &str) {
@@ -52,11 +58,13 @@ fn usage() {
     println!(
         "\
 Usage:
-  fanfic i <url>   Download fanfic as EPUB to ~/fanfic/ and open with bookokrat
-  fanfic           Open interactive picker of downloaded fanfics in ~/fanfic/
+  fanfic i <url>    Download fanfic as EPUB to ~/fanfic/ and open with bookokrat
+  fanfic s <query>  Search fanfiction.net, select a story, download & open
+  fanfic             Open interactive picker of downloaded fanfics in ~/fanfic/
 
 Examples:
   fanfic i \"https://archiveofourown.org/works/12345\"
+  fanfic s \"Rise of the Solar God\"
   fanfic"
     );
 }
@@ -76,7 +84,7 @@ fn require_cmd(cmd: &str) {
     if command_exists(cmd) {
         return;
     }
-    err(&format!("'{cmd}' is not installed or not in PATH."));
+    let msg = format!("'{cmd}' is not installed or not in PATH.");
     match cmd {
         "fichub_cli" => eprintln!("  Install with: pip install -U fichub-cli"),
         "bookokrat" => {
@@ -85,14 +93,13 @@ fn require_cmd(cmd: &str) {
         }
         _ => {}
     }
-    std::process::exit(1);
+    err(&msg);
 }
 
 fn ensure_dir(dir: &Path) {
     if !dir.is_dir() {
         if let Err(e) = fs::create_dir_all(dir) {
             err(&format!("Could not create directory {}: {e}", dir.display()));
-            std::process::exit(1);
         }
         ok(&format!("Created {}", dir.display()));
     }
@@ -132,10 +139,8 @@ fn find_newest_epub(dir: &Path) -> Option<PathBuf> {
 }
 
 fn epub_title(path: &Path) -> String {
-    // Try to read real title from the OPF
     if let Ok(file) = fs::File::open(path) {
         if let Ok(mut archive) = ZipArchive::new(file) {
-            // find the .opf
             let opf_name = (0..archive.len()).find_map(|i| {
                 let name = archive.by_index(i).ok()?.name().to_string();
                 if name.ends_with(".opf") {
@@ -149,7 +154,6 @@ fn epub_title(path: &Path) -> String {
                 if let Ok(mut opf) = archive.by_name(&opf_name) {
                     let mut content = String::new();
                     if opf.read_to_string(&mut content).is_ok() {
-                        // match <dc:title>...</dc:title>
                         let re = Regex::new(r"<dc:title[^>]*>([^<]+)</dc:title>").unwrap();
                         if let Some(caps) = re.captures(&content) {
                             let title = caps[1].trim();
@@ -163,11 +167,9 @@ fn epub_title(path: &Path) -> String {
         }
     }
 
-    // Fallback: prettify the filename
     path.file_stem()
         .map(|s| {
             let s = s.to_string_lossy().replace('_', " ");
-            // strip trailing " - id" if present
             s.rsplit_once(" - ")
                 .map(|(title, _)| title.to_string())
                 .unwrap_or(s)
@@ -178,12 +180,9 @@ fn epub_title(path: &Path) -> String {
 fn download_and_open(url: &str) {
     if url.is_empty() {
         err("No URL provided.");
-        usage();
-        std::process::exit(1);
     }
     if !(url.starts_with("http://") || url.starts_with("https://")) {
         err("URL must start with http:// or https://");
-        std::process::exit(1);
     }
 
     require_cmd(DOWNLOADER);
@@ -210,14 +209,9 @@ fn download_and_open(url: &str) {
                 "fichub_cli failed (exit code {}).",
                 s.code().unwrap_or(-1)
             ));
-            if Path::new("./err.log").is_file() {
-                warn("Check err.log in the current directory for details.");
-            }
-            std::process::exit(s.code().unwrap_or(1));
         }
         Err(e) => {
             err(&format!("failed to run {DOWNLOADER}: {e}"));
-            std::process::exit(1);
         }
     }
 
@@ -243,8 +237,6 @@ fn download_and_open(url: &str) {
                     "Download appeared to succeed but no EPUB was found in {}",
                     dir.display()
                 ));
-                err("Check that fichub_cli supports this site and try again.");
-                std::process::exit(1);
             }
         }
     };
@@ -257,7 +249,6 @@ fn download_and_open(url: &str) {
 
     let e = Command::new(READER).arg(&epub).exec();
     err(&format!("failed to exec {READER}: {e}"));
-    std::process::exit(1);
 }
 
 fn browse_and_open() {
@@ -269,17 +260,13 @@ fn browse_and_open() {
     let epubs = list_epubs(&dir);
     if epubs.is_empty() {
         err(&format!("No EPUB files found in {}", dir.display()));
-        eprintln!("  Download one first with: fanfic i <url>");
-        std::process::exit(1);
     }
 
-    // (display title, full path)
     let mut items: Vec<(String, PathBuf)> = epubs
         .into_iter()
         .map(|p| (epub_title(&p), p))
         .collect();
 
-    // sort by title
     items.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
 
     let titles: Vec<String> = items.iter().map(|(t, _)| t.clone()).collect();
@@ -308,14 +295,111 @@ fn browse_and_open() {
             "Selected file no longer exists: {}",
             fullpath.display()
         ));
-        std::process::exit(1);
     }
 
     ok(&format!("Opening: {selected_title}"));
     let e = Command::new(READER).arg(&fullpath).exec();
     err(&format!("failed to exec {READER}: {e}"));
-    std::process::exit(1);
 }
+
+// ----------------------------------------------------------------------
+// Search and select using JSON from Python script
+// ----------------------------------------------------------------------
+
+fn search_and_select(query: &str) {
+    if query.is_empty() {
+        err("No search query provided.");
+    }
+
+    let home = dirs_next_home();
+    let script_dir = home.join("dotfiles/zsh/.local/bin");
+    let py_script = script_dir.join("ff_search.py");
+    if !py_script.is_file() {
+        err(&format!(
+            "Python search script not found at {}",
+            py_script.display()
+        ));
+    }
+    if !command_exists(&py_script.to_string_lossy()) {
+        err(&format!(
+            "{} is not executable. Please run: chmod +x {}",
+            py_script.display(),
+            py_script.display()
+        ));
+    }
+
+    ok(&format!("Searching for: {}", query));
+    let status = Command::new(&py_script)
+        .arg(query)
+        .arg("20")
+        .status()
+        .expect("Failed to run ff_search.py");
+    if !status.success() {
+        err("Search script failed. Check stderr for details.");
+    }
+
+    let json_file = PathBuf::from("urls.json");
+    if !json_file.is_file() {
+        err("urls.json not found after search.");
+    }
+    let json_content = fs::read_to_string(&json_file)
+        .unwrap_or_else(|_| err("Failed to read urls.json"));
+
+    let items: Vec<serde_json::Value> = serde_json::from_str(&json_content)
+        .unwrap_or_else(|_| err("Invalid JSON in urls.json"));
+
+    if items.is_empty() {
+        err("No results found in urls.json.");
+    }
+
+    let mut display_list: Vec<String> = Vec::new();
+    let mut url_map: Vec<(String, String)> = Vec::new();
+
+    for item in &items {
+        let title = item["title"].as_str().unwrap_or("Untitled");
+        let author = item["author"].as_str().unwrap_or("Unknown");
+        let url = item["url"].as_str().unwrap_or("");
+        if url.is_empty() { continue; }
+        let display = format!("{} — by {}", title, author);
+        display_list.push(display.clone());
+        url_map.push((display, url.to_string()));
+    }
+
+    if display_list.is_empty() {
+        err("No valid entries in urls.json.");
+    }
+
+    let selected_display = match Select::new("Select a fanfic:", display_list)
+        .with_page_size(15)
+        .with_vim_mode(true)
+        .without_help_message()
+        .prompt()
+    {
+        Ok(choice) => choice,
+        Err(_) => {
+            println!("Cancelled.");
+            let _ = fs::remove_file(&json_file);
+            let _ = fs::remove_file("urls.txt");
+            std::process::exit(0);
+        }
+    };
+
+    let selected_url = url_map
+        .into_iter()
+        .find(|(d, _)| d == &selected_display)
+        .map(|(_, url)| url)
+        .expect("Selected display should always exist");
+
+    // Clean up temporary files
+    let _ = fs::remove_file(&json_file);
+    let _ = fs::remove_file("urls.txt");
+
+    download_and_open(&selected_url);
+}
+
+// ----------------------------------------------------------------------
+// main
+// ----------------------------------------------------------------------
 
 fn main() {
     let mut args: Vec<String> = env::args().skip(1).collect();
@@ -326,6 +410,14 @@ fn main() {
             let url = args.first().map(String::as_str).unwrap_or("");
             download_and_open(url);
         }
+        Some("s") | Some("search") => {
+            args.remove(0);
+            let query = args.join(" ");
+            if query.is_empty() {
+                err("Please provide a search query.\nExample: fanfic s \"Rise of the Solar God\"");
+            }
+            search_and_select(&query);
+        }
         Some("-h") | Some("--help") | Some("help") => {
             usage();
         }
@@ -333,9 +425,7 @@ fn main() {
             browse_and_open();
         }
         Some(other) => {
-            err(&format!("Unknown command: {other}"));
-            usage();
-            std::process::exit(1);
+            err(&format!("Unknown command: {}", other));
         }
     }
 }
