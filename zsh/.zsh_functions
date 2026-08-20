@@ -546,3 +546,9 @@ fanfic () {
   fi
 }
 
+sha256copy() {
+    local hash
+    hash=$(curl -sL "$1" | sha256sum | awk '{print $1}')
+    echo "$hash" | wl-copy
+    echo "SHA256: $hash (copied to clipboard)"
+}
