@@ -19,3 +19,42 @@ mpd/.config/mpd/pid
 mpd/.config/mpd/*.db
 mpd/.config/mpd/*.sql
 mpd/.config/mpd/*.log
+
+# FreeTube – keep only the useful data files
+freetube/.config/FreeTube/*
+!freetube/.config/FreeTube/profiles.db
+!freetube/.config/FreeTube/settings.db
+!freetube/.config/FreeTube/playlists.db
+!freetube/.config/FreeTube/history.db
+!freetube/.config/FreeTube/search-history.db
+!freetube/.config/FreeTube/subscription-cache.db
+!freetube/.config/FreeTube/Preferences
+
+# Explicitly ignore the noisy / machine-specific stuff
+freetube/.config/FreeTube/Cache/
+freetube/.config/FreeTube/Code Cache/
+freetube/.config/FreeTube/GPUCache/
+freetube/.config/FreeTube/DawnGraphiteCache/
+freetube/.config/FreeTube/DawnWebGPUCache/
+freetube/.config/FreeTube/blob_storage/
+freetube/.config/FreeTube/Dictionaries/
+freetube/.config/FreeTube/Local Storage/
+freetube/.config/FreeTube/Session Storage/
+freetube/.config/FreeTube/Shared Dictionary/
+freetube/.config/FreeTube/SharedStorage/
+freetube/.config/FreeTube/SharedStorage-wal
+freetube/.config/FreeTube/WebStorage/
+freetube/.config/FreeTube/Crashpad/
+freetube/.config/FreeTube/player_cache/
+freetube/.config/FreeTube/VideoDecodeStats/
+freetube/.config/FreeTube/Cookies
+freetube/.config/FreeTube/Cookies-journal
+freetube/.config/FreeTube/DIPS
+freetube/.config/FreeTube/DIPS-wal
+freetube/.config/FreeTube/'Local State'
+freetube/.config/FreeTube/'Network Persistent State'
+freetube/.config/FreeTube/TransportSecurity
+freetube/.config/FreeTube/'Trust Tokens'
+freetube/.config/FreeTube/'Trust Tokens-journal'
+freetube/.config/FreeTube/Singleton*
+freetube/.config/FreeTube/shared_proto_db/
