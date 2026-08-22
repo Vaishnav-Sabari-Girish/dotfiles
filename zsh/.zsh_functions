@@ -552,3 +552,13 @@ sha256copy() {
     echo "$hash" | wl-copy
     echo "SHA256: $hash (copied to clipboard)"
 }
+
+# Markdown rendering
+mdroll() {
+    if [[ -n "$WEZTERM_EXECUTABLE" ]]; then
+        command mdroll "$@"
+    else
+        wezterm start --cwd "$PWD" -- mdroll "$@"
+    fi
+}
+
