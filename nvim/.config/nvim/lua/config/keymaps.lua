@@ -14,6 +14,10 @@ vim.keymap.set("x", "<leader>l", "<Esc>`<i[<Esc>`>la](<C-r>+)<Esc>", { desc = "A
 -- Code
 vim.keymap.set("x", "<leader>c", "<Esc>`<i`<Esc>`>la`<Esc>", { desc = "Apply markdown code to selection" })
 
+-- Move selection up or down
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { silent = true })
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { silent = true })
+
 -----------------------------------------------------------
 -- Dictionary Script Integrations
 -----------------------------------------------------------
