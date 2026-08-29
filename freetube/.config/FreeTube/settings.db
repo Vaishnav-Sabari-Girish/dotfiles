@@ -1,6 +1,8 @@
+{"_id":"backendFallback","value":true}
 {"_id":"barColor","value":false}
 {"_id":"baseTheme","value":"nordic"}
 {"_id":"bounds","value":{"x":0,"y":0,"width":1504,"height":888,"maximized":false,"fullScreen":false}}
+{"_id":"enableScreenshot","value":true}
 {"_id":"expandSideBar","value":false}
 {"_id":"externalPlayer","value":"mpv"}
 {"_id":"hideHeaderLogo","value":false}

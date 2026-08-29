@@ -1,0 +1,37 @@
+// OBS related binds + window rule
+
+window-rule {
+    match app-id="^obs-launcher$"
+    open-floating true
+    default-column-width { fixed 700; }
+    default-window-height { fixed 350; }
+    background-effect {
+        blur true
+        xray false
+    }
+    draw-border-with-background false
+}
+
+binds {
+    // Launch / switch profile + collection
+    Mod+Shift+O hotkey-overlay-title="OBS: Choose Profile + Scene Collection" {
+        spawn-sh "foot --app-id=obs-launcher -o initial-window-mode=windowed -o colors.dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/obs-launcher.sh"
+    }
+
+    // Scene switching
+    Mod+Shift+F1 hotkey-overlay-title="OBS: Silicon Sundays scene" {
+        spawn-sh "obs-cmd --websocket $(cat $HOME/dotfiles/niri/.config/niri/obs-websocket) scene switch 'Silicon Sundays'"
+    }
+    Mod+Shift+F2 hotkey-overlay-title="OBS: Discord scene" {
+        spawn-sh "obs-cmd --websocket $(cat $HOME/dotfiles/niri/.config/niri/obs-websocket) scene switch 'Discord'"
+    }
+
+    // Recording controls (uses helper script)
+    Mod+Alt+R hotkey-overlay-title="OBS: Toggle Recording" {
+        spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/obs-recording.sh toggle"
+    }
+
+    Mod+Alt+P hotkey-overlay-title="OBS: Pause/Resume Recording" {
+        spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/obs-recording.sh toggle-pause"
+    }
+}
