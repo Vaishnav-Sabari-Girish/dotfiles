@@ -1,0 +1,22 @@
+window-rule {
+    match app-id="^emoji-picker$"
+    
+    open-floating true
+    
+    // Adjust these to match your fsel launcher size
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
+
+    background-effect {
+        blur true
+        xray false
+    }
+
+    draw-border-with-background false
+}
+
+binds {
+  Mod+Ctrl+E hotkey-overlay-title="Emoji Picker" {
+    spawn-sh "foot --app-id=emoji-picker -o initial-window-mode=windowed -o initial-window-size-chars=120x40 -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/emoji-picker.sh"
+  }
+}
