@@ -47,6 +47,7 @@ return {
       "https://zephyrproject.org/feed/rss/",
       "https://pointersgonewild.com/rss.xml",
       "https://rgbcu.be/blog.rss",
+      "https://emschwartz.me/feed/?type=rss",
     },
     search = {
       default_query = "@2-day-ago +unread",

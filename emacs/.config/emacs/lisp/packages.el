@@ -106,6 +106,7 @@
           "https://trix.is-a.dev/blog/rss.xml"
           "https://pointersgonewild.com/rss.xml"
           "https://rgbcu.be/blog.rss"
+          "https://emschwartz.me/feed/?type=rss"
     )))
 
 ;; Git changes
