@@ -1,4 +1,9 @@
-// OBS related binds + window rule
+workspace "obs"
+
+window-rule {
+    match app-id="com.obsproject.Studio"
+    open-on-workspace "obs"
+}
 
 window-rule {
     match app-id="^obs-launcher$"

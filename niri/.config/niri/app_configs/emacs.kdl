@@ -1,0 +1,16 @@
+// Emacs
+window-rule {
+  match app-id="emacs"
+  default-column-width { proportion 1.0; }
+  open-maximized true
+
+  background-effect {
+    blur true
+    xray true
+  }
+  draw-border-with-background false
+}
+
+binds {
+  Mod+Alt+E hotkey-overlay-title="Open Emacs" { spawn-sh "emacsclient -c -a ''"; }
+}
