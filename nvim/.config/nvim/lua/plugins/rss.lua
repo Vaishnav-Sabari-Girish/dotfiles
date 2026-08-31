@@ -46,6 +46,7 @@ return {
       "https://trix.is-a.dev/blog/rss.xml",
       "https://zephyrproject.org/feed/rss/",
       "https://pointersgonewild.com/rss.xml",
+      "https://rgbcu.be/blog.rss",
     },
     search = {
       default_query = "@2-day-ago +unread",

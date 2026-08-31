@@ -105,6 +105,7 @@
           "https://zephyrproject.org/feed/rss/"
           "https://trix.is-a.dev/blog/rss.xml"
           "https://pointersgonewild.com/rss.xml"
+          "https://rgbcu.be/blog.rss"
     )))
 
 ;; Git changes
