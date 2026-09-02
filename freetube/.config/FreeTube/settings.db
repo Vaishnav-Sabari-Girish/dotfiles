@@ -2,6 +2,7 @@
 {"_id":"barColor","value":false}
 {"_id":"baseTheme","value":"nordic"}
 {"_id":"bounds","value":{"x":0,"y":0,"width":1504,"height":888,"maximized":false,"fullScreen":false}}
+{"_id":"defaultInvidiousInstance","value":"https://inv.nadeko.net"}
 {"_id":"enableScreenshot","value":true}
 {"_id":"expandSideBar","value":false}
 {"_id":"externalPlayer","value":"mpv"}
