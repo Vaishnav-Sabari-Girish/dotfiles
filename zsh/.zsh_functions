@@ -439,22 +439,46 @@ ccat() {
 # Discord date and time
 distime() {
     local style="R"  # default: relative time
-
     # Parse flags
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --time|-t)
-                style="R"
+            -t|--short-time)
+                style="t"
                 shift
                 ;;
-            --full|-f)
+            -T|--long-time)
+                style="T"
+                shift
+                ;;
+            -d|--short-date)
+                style="d"
+                shift
+                ;;
+            -D|--full-date)
+                style="D"
+                shift
+                ;;
+            -f|--full-short)
+                style="f"
+                shift
+                ;;
+            -F|--full-long)
                 style="F"
                 shift
                 ;;
+            -r|-R|--relative)
+                style="R"
+                shift
+                ;;
             --help|-h)
-                echo "Usage: distime [--time|-t] [--full|-f]"
-                echo "  --time / -t   Relative time (:R)  [default]"
-                echo "  --full / -f   Full date + time (:F)"
+                echo "Usage: distime [OPTION]"
+                echo "  -t, --short-time   Short time         (8:48 pm)"
+                echo "  -T, --long-time    Long time           (8:48:00 pm)"
+                echo "  -d, --short-date   Short date          (03/09/26)"
+                echo "  -D, --full-date    Full date           (3 September 2026)"
+                echo "  -f, --full-short   Full date+short time (3 September 2026 at 8:48 pm)"
+                echo "  -F, --full-long    Long date+short time (Thursday, 3 September 2026 at 8:48 pm)"
+                echo "  -r, -R, --relative Relative time        (1 minute ago)  [default]"
                 return 0
                 ;;
             *)
@@ -463,18 +487,14 @@ distime() {
                 ;;
         esac
     done
-
     echo -n "Enter date/time: "
     read -r raw_dt
-
     if [[ -n "$raw_dt" ]]; then
         # Flip DD/MM/YYYY or DD-MM-YYYY into YYYY-MM-DD
         local dt
         dt=$(echo "$raw_dt" | sed -E 's/^([0-9]{1,2})[/-]([0-9]{1,2})[/-]([0-9]{2,4})/\3-\2-\1/')
-
         # Generate the Discord timestamp
         local ts="<t:$(date -d "$dt" +%s):${style}>"
-
         echo "$ts"
         echo -n "$ts" | wl-copy
         echo -e "\e[32mCopied to clipboard!\e[0m"
