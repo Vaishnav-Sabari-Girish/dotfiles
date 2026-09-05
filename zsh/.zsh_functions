@@ -535,27 +535,7 @@ help() {
   "$@" --help 2>&1 | bat --plain --language=help
 }
 
-# Suwayomi server
-manga() {
-  local jar=$(ls $HOME/Desktop/My_Projects/Suwayomi-Server/server/build/Suwayomi-Server-*.jar 2>/dev/null | head -n1)
-  if [[ -z "$jar" ]]; then
-    echo "Suwayomi jar not found!"
-    return 1
-  fi
-  echo "Starting Suwayomi..."
-  java -jar "$jar"
-}
 
-# Fanfics
-# fanfic () {
-#   local script_path="$HOME/dotfiles/zsh/.local/bin/fanfic.sh"
-#   if [[ -x "$script_path" ]]; then
-#     "$script_path" "$@"
-#   else
-#     echo "Error: Script not found or not executable at $script_path"
-#     return 1
-#   fi
-# }
 fanfic () {
   local script_path="$HOME/dotfiles/zsh/.local/bin/fanfic.rs"
   if [[ -x "$script_path" ]]; then
