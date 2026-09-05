@@ -1,0 +1,29 @@
+[profiles."example.com"]
+user_id = "@vaishnavs:matrix.org"
+
+[dirs]
+downloads = "$HOME/Downloads/iamb/"
+
+[settings.image_preview]
+protocol.type = "sixel"
+size = { height = 10, width = 66 }
+
+[settings.notifications]
+enabled = true
+
+[settings.mouse]
+enabled = true
+
+[macros.normal]
+"gd" = ":dms<Enter>"
+"gc" = ":chats<Enter>"
+"gr" = ":rooms<Enter>"
+"gs" = ":spaces<Enter>"
+"gh" = ":welcome<Enter>"
+"gu" = ":unreads<Enter>"
+"r"  = ":reply<Enter>"
+"e"  = ":edit<Enter>"
+"R"  = ":react"
+"D"  = ":download<Enter>:open<Enter>"
+"O"  = ":open<Enter>"
+"q"  = ":quit<Enter>"
