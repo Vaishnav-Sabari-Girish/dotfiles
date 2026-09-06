@@ -5,6 +5,8 @@
 (set-default-coding-systems 'utf-8)
 (prefer-coding-system 'utf-8)
 (setq locale-coding-system 'utf-8)
+(setq warning-minimum-level :error)
+(add-to-list 'warning-suppress-types '(files missing-lexbind-cookie))
 
 ;; Auto closing brackets
 (electric-pair-mode 1)

@@ -1,4 +1,4 @@
-;; Packages
+;;; packages.el --- Package management -*- lexical-binding: t; -*-
 ;;; which-key
 (use-package which-key
   :init
@@ -23,8 +23,9 @@
   (add-hook 'treemacs-mode-hook (lambda () (treemacs-follow-mode t))))
 
 ;; Discord RPC
-(use-package elcord)
-(elcord-mode)
+(use-package elcord
+  :config
+  (elcord-mode))
 
 ;; Rust mode
 (use-package rust-mode)
