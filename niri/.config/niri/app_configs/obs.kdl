@@ -1,3 +1,4 @@
+workspace "1"
 workspace "obs"
 
 window-rule {
