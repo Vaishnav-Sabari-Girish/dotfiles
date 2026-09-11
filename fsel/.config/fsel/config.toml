@@ -1,0 +1,7 @@
+[app_launcher]
+filter_desktop = true              # Filter apps by desktop environment
+filter_actions = false            # Keep desktop actions visible; set true to hide them
+list_executables_in_path = false   # Show CLI tools from $PATH
+match_mode = "fuzzy"               # "fuzzy" or "exact"
+ranking_mode = "frecency"          # "frecency", "recency", or "frequency"
+pinned_order = "ranking"           # "ranking", "alphabetical", "oldest_pinned", "newest_pinned"
