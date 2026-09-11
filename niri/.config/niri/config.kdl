@@ -531,7 +531,7 @@ binds {
 	Mod+Return hotkey-overlay-title="Open a Terminal: Foot" { spawn "foot"; }
 	//Mod+A hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
 	//Mod+A hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
-  Mod+A hotkey-overlay-title="Run an Application: fsel" { spawn "foot" "--app-id=fsel-launcher" "-o" "initial-window-mode=windowed" "-o" "=0.8" "fsel" "-t" "-d"; }
+  Mod+A hotkey-overlay-title="Run an Application: fsel" { spawn "foot" "--app-id=fsel-launcher" "-o" "initial-window-mode=windowed" "-o" "=0.8" "fsel" "-t" "-d" "--icon-position" "center"; }
 	// Mod+S opens STM32CubeIDE
 	Mod+S hotkey-overlay-title="Open STM32CubeIDE" { spawn "stm32cubeide"; }
   Super+L hotkey-overlay-title="Lock the Screen" {
