@@ -240,6 +240,7 @@ layout {
 
 // Add lines like this to spawn processes at startup.
 spawn-at-startup "bash" "-c" "~/dotfiles/niri/.config/niri/scripts/gcal-notifier.sh"
+spawn-at-startup "~/dotfiles/niri/.config/niri/scripts/anilist-chk.rs"
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
@@ -331,6 +332,11 @@ window-rule {
     draw-border-with-background false
 }
 
+window-rule {
+    match app-id="zenity"
+    match title="AniList Checker"
+    open-maximized true
+}
 
 window-rule {
     match app-id="^define-word$"
