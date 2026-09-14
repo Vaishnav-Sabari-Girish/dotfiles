@@ -108,6 +108,7 @@
           "https://pointersgonewild.com/rss.xml"
           "https://rgbcu.be/blog.rss"
           "https://emschwartz.me/feed/?type=rss"
+          "https://kerkour.com/feed.xml"
     )))
 
 ;; Git changes
