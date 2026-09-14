@@ -46,6 +46,78 @@ _pick_pdf() {
 # ─────────────────────────────────────────────────────────────────────────────
 
 pdf_manager() {
+  case "$1" in
+  --features | -h | --help)
+    _pdf_manager_features
+    return 0
+    ;;
+  --merge)
+    shift
+    _cli_merge "$@"
+    return $?
+    ;;
+  --separate)
+    shift
+    _cli_separate "$@"
+    return $?
+    ;;
+  --remove-pages)
+    shift
+    _cli_remove_pages "$@"
+    return $?
+    ;;
+  --to-images)
+    shift
+    _cli_to_images "$@"
+    return $?
+    ;;
+  --images-to-pdf)
+    shift
+    _cli_images_to_pdf "$@"
+    return $?
+    ;;
+  --to-text)
+    shift
+    _cli_to_text "$@"
+    return $?
+    ;;
+  --to-pdf)
+    shift
+    _cli_to_pdf "$@"
+    return $?
+    ;;
+  --rotate)
+    shift
+    _cli_rotate "$@"
+    return $?
+    ;;
+  --encrypt)
+    shift
+    _cli_encrypt "$@"
+    return $?
+    ;;
+  --decrypt)
+    shift
+    _cli_decrypt "$@"
+    return $?
+    ;;
+  --extract-images)
+    shift
+    _cli_extract_images "$@"
+    return $?
+    ;;
+  --ocr)
+    shift
+    _cli_ocr "$@"
+    return $?
+    ;;
+  -*)
+    _err "Unknown flag: $1"
+    _step "Run ${_BOLD}${_WHITE}pdf_manager --features${_RESET} to see everything it can do."
+    return 1
+    ;;
+  esac
+
   if ! command -v fzf &>/dev/null; then
     _err "fzf is not installed. Install: ${_BOLD}${_WHITE}fzf${_RESET}"
     return 1
@@ -639,6 +711,410 @@ ocr_pdf() {
   ocrmypdf "$input_file" "$output_file"
   if [[ -f "$output_file" ]]; then
     _ok "OCR complete → $output_file"
+  else
+    _err "OCR failed"
+  fi
+}
+
+# ── Feature list ───────────────────────────────────────────────────────────────
+
+_pdf_manager_features() {
+  _header "pdf_manager — features"
+  echo ""
+  echo "${_GREY}Run with no flags for an interactive fzf menu, or use a flag below to${_RESET}"
+  echo "${_GREY}run a feature directly from the command line — no fzf required.${_RESET}"
+  echo ""
+
+  _label "--merge" "<file1.pdf> <file2.pdf> ... [-o output.pdf]"
+  _label "--separate" "<file.pdf> [-o basename]"
+  _label "--remove-pages" "<file.pdf> <pages> [-o output.pdf]"
+  _label "--to-images" "<file.pdf> [-f png|jpeg] [-r dpi]"
+  _label "--images-to-pdf" "<img1> <img2> ... [-o output.pdf]"
+  _label "--to-text" "<file.pdf> [-o output.txt] [--layout]"
+  _label "--to-pdf" "<file>  (docx/xlsx/pptx/odt/rtf/csv/html/...)"
+  _label "--rotate" "<file.pdf> <degrees> [-p pages] [-o output.pdf]"
+  _label "--encrypt" "<file.pdf> <password> [-o output.pdf]"
+  _label "--decrypt" "<file.pdf> <password> [-o output.pdf]"
+  _label "--extract-images" "<file.pdf> [-o prefix]"
+  _label "--ocr" "<file.pdf> [-o output.pdf]"
+  _label "--features" "show this list"
+
+  echo ""
+  echo "${_CYAN}${_BOLD}examples:${_RESET}"
+  echo "${_GREY}  pdf_manager --to-pdf report.docx${_RESET}"
+  echo "${_GREY}  pdf_manager --merge a.pdf b.pdf c.pdf -o combined.pdf${_RESET}"
+  echo "${_GREY}  pdf_manager --remove-pages report.pdf 2,5,7-9${_RESET}"
+  echo "${_GREY}  pdf_manager --rotate scan.pdf 90 -p 1-3${_RESET}"
+  echo ""
+  echo "${_GREY}Pages format: comma-separated, ranges with a dash — e.g. 2,5,7-9${_RESET}"
+}
+
+# ── CLI (flag-driven, non-interactive) variants ─────────────────────────────────
+
+_cli_merge() {
+  local output="merged.pdf"
+  local files=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *)
+      files+=("$1")
+      shift
+      ;;
+    esac
+  done
+  if [[ ${#files[@]} -lt 2 ]]; then
+    _err "Usage: pdf_manager --merge <file1.pdf> <file2.pdf> ... [-o output.pdf]"
+    return 1
+  fi
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+  _step "merging ${#files[@]} files..."
+  pdfunite "${files[@]}" "$output"
+  _ok "merged → $output"
+}
+
+_cli_separate() {
+  local input="$1"
+  shift
+  local base="page"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      base="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --separate <file.pdf> [-o basename]"
+    return 1
+  fi
+  _step "running pdfseparate..."
+  pdfseparate "$input" "${base}-%d.pdf"
+  _ok "separated → pattern: ${base}-%d.pdf"
+}
+
+_cli_remove_pages() {
+  local input="$1" pages_spec="$2"
+  shift 2 2>/dev/null
+  local output="${input:+${input%.*}_modified.pdf}"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" || -z "$pages_spec" ]]; then
+    _err "Usage: pdf_manager --remove-pages <file.pdf> <pages> [-o output.pdf]"
+    return 1
+  fi
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+
+  if ! command -v pdfinfo &>/dev/null; then
+    _err "'pdfinfo' is not installed. Install: ${_BOLD}${_WHITE}poppler${_RESET}"
+    return 1
+  fi
+  local total_pages=$(pdfinfo "$input" | grep "Pages:" | awk '{print $2}')
+
+  local pages_to_remove_array=()
+  local remove_parts=(${(s:,:)pages_spec})
+  for part in "${remove_parts[@]}"; do
+    part=$(echo "$part" | tr -d ' ')
+    if [[ "$part" == *-* ]]; then
+      local start=${part%-*}
+      local end=${part#*-}
+      for ((i = start; i <= end; i++)); do
+        pages_to_remove_array+=($i)
+      done
+    else
+      pages_to_remove_array+=($part)
+    fi
+  done
+
+  local temp_dir=$(mktemp -d)
+  _step "separating pages..."
+  pdfseparate "$input" "$temp_dir/temp_page-%d.pdf"
+
+  local pages_to_keep=()
+  for ((i = 1; i <= total_pages; i++)); do
+    local should_remove=false
+    for remove_page in "${pages_to_remove_array[@]}"; do
+      if [[ $i -eq $remove_page ]]; then
+        should_remove=true
+        break
+      fi
+    done
+    if [[ $should_remove == false ]] && [[ -f "$temp_dir/temp_page-$i.pdf" ]]; then
+      pages_to_keep+=("$temp_dir/temp_page-$i.pdf")
+    fi
+  done
+
+  if [[ ${#pages_to_keep[@]} -eq 0 ]]; then
+    _err "No pages would remain after removal"
+    rm -rf "$temp_dir"
+    return 1
+  fi
+
+  _step "merging remaining pages..."
+  pdfunite "${pages_to_keep[@]}" "$output"
+  rm -rf "$temp_dir"
+
+  _ok "done → $output"
+  _info "kept ${#pages_to_keep[@]} of $total_pages pages"
+}
+
+_cli_to_images() {
+  local input="$1"
+  shift
+  local fmt="png" dpi="150"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -f | --format)
+      fmt="$2"
+      shift 2
+      ;;
+    -r | --dpi)
+      dpi="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --to-images <file.pdf> [-f png|jpeg] [-r dpi]"
+    return 1
+  fi
+  _need pdftoppm poppler || return 1
+  local base="${input%.*}"
+  _step "running pdftoppm..."
+  pdftoppm "-${fmt}" -r "$dpi" "$input" "$base"
+  _ok "images written → ${base}-*.${fmt}"
+}
+
+_cli_images_to_pdf() {
+  local output="images.pdf"
+  local files=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *)
+      files+=("$1")
+      shift
+      ;;
+    esac
+  done
+  if [[ ${#files[@]} -eq 0 ]]; then
+    _err "Usage: pdf_manager --images-to-pdf <img1> <img2> ... [-o output.pdf]"
+    return 1
+  fi
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+
+  if command -v img2pdf &>/dev/null; then
+    _step "running img2pdf..."
+    img2pdf "${files[@]}" -o "$output"
+  elif command -v convert &>/dev/null; then
+    _step "running ImageMagick convert..."
+    convert "${files[@]}" "$output"
+  else
+    _err "Neither 'img2pdf' nor 'convert' (ImageMagick) is installed."
+    _step "Install: ${_BOLD}${_WHITE}img2pdf${_RESET}${_GREY} or ${_RESET}${_BOLD}${_WHITE}imagemagick${_RESET}"
+    return 1
+  fi
+  _ok "created → $output"
+}
+
+_cli_to_text() {
+  local input="$1"
+  shift
+  local output="${input:+${input%.*}.txt}"
+  local layout=false
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    --layout)
+      layout=true
+      shift
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --to-text <file.pdf> [-o output.txt] [--layout]"
+    return 1
+  fi
+  _need pdftotext poppler || return 1
+  _step "running pdftotext..."
+  if $layout; then
+    pdftotext -layout "$input" "$output"
+  else
+    pdftotext "$input" "$output"
+  fi
+  _ok "text extracted → $output"
+}
+
+_cli_to_pdf() {
+  local input="$1"
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --to-pdf <file>"
+    return 1
+  fi
+  local soffice_cmd=""
+  if command -v soffice &>/dev/null; then
+    soffice_cmd="soffice"
+  elif command -v libreoffice &>/dev/null; then
+    soffice_cmd="libreoffice"
+  else
+    _err "LibreOffice is not installed. Install: ${_BOLD}${_WHITE}libreoffice${_RESET}"
+    return 1
+  fi
+  _step "running $soffice_cmd --headless (this can take a few seconds)..."
+  "$soffice_cmd" --headless --convert-to pdf "$input" >/dev/null 2>&1
+  if [[ -f "${input%.*}.pdf" ]]; then
+    _ok "converted → ${input%.*}.pdf"
+  else
+    _err "conversion failed — try running $soffice_cmd manually to see the error"
+  fi
+}
+
+_cli_rotate() {
+  local input="$1" deg="$2"
+  shift 2 2>/dev/null
+  local pages="1-z" output="${input:+${input%.*}_rotated.pdf}"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -p | --pages)
+      pages="$2"
+      shift 2
+      ;;
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" || -z "$deg" ]]; then
+    _err "Usage: pdf_manager --rotate <file.pdf> <degrees> [-p pages] [-o output.pdf]"
+    return 1
+  fi
+  _need qpdf || return 1
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+  _step "running qpdf..."
+  qpdf "$input" "$output" --rotate="+${deg}:${pages}"
+  _ok "rotated → $output"
+}
+
+_cli_encrypt() {
+  local input="$1" pass="$2"
+  shift 2 2>/dev/null
+  local output="${input:+${input%.*}_encrypted.pdf}"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" || -z "$pass" ]]; then
+    _err "Usage: pdf_manager --encrypt <file.pdf> <password> [-o output.pdf]"
+    return 1
+  fi
+  _need qpdf || return 1
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+  _step "running qpdf..."
+  qpdf --encrypt "$pass" "$pass" 256 -- "$input" "$output"
+  _ok "encrypted → $output"
+}
+
+_cli_decrypt() {
+  local input="$1" pass="$2"
+  shift 2 2>/dev/null
+  local output="${input:+${input%.*}_decrypted.pdf}"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" || -z "$pass" ]]; then
+    _err "Usage: pdf_manager --decrypt <file.pdf> <password> [-o output.pdf]"
+    return 1
+  fi
+  _need qpdf || return 1
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+  _step "running qpdf..."
+  qpdf --password="$pass" --decrypt "$input" "$output"
+  if [[ -f "$output" ]]; then
+    _ok "decrypted → $output"
+  else
+    _err "decryption failed — check the password"
+  fi
+}
+
+_cli_extract_images() {
+  local input="$1"
+  shift
+  local prefix="img"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      prefix="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --extract-images <file.pdf> [-o prefix]"
+    return 1
+  fi
+  _need pdfimages poppler || return 1
+  _step "running pdfimages..."
+  pdfimages -all "$input" "$prefix"
+  _ok "images extracted → $(pwd)/${prefix}-*"
+}
+
+_cli_ocr() {
+  local input="$1"
+  shift
+  local output="${input:+${input%.*}_ocr.pdf}"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --ocr <file.pdf> [-o output.pdf]"
+    return 1
+  fi
+  _need ocrmypdf || return 1
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+  _step "running ocrmypdf (this may take a while)..."
+  ocrmypdf "$input" "$output"
+  if [[ -f "$output" ]]; then
+    _ok "OCR complete → $output"
   else
     _err "OCR failed"
   fi
