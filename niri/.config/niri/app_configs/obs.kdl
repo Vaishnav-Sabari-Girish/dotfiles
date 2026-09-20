@@ -40,4 +40,9 @@ binds {
     Mod+Alt+P hotkey-overlay-title="OBS: Pause/Resume Recording" {
         spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/obs-recording.sh toggle-pause"
     }
+
+    // Mute Audio Input Capture (PulseAudio)
+    Mod+Alt+A hotkey-overlay-title="OBS: Mute Audio Input device" {
+      spawn-sh "obs-cmd --websocket $(cat $HOME/dotfiles/niri/.config/niri/obs-websocket) audio toggle \"Audio Input Capture (PulseAudio)\""
+    }
 }
