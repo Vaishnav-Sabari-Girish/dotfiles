@@ -58,3 +58,6 @@ freetube/.config/FreeTube/'Trust Tokens'
 freetube/.config/FreeTube/'Trust Tokens-journal'
 freetube/.config/FreeTube/Singleton*
 freetube/.config/FreeTube/shared_proto_db/
+
+# Neovim
+me.lua

@@ -1,0 +1,19 @@
+snippet me "File header comment" b
+`!p
+import datetime
+name = vim.eval("get(g:, 'my_name', 'Name not set')")
+email = vim.eval("get(g:, 'my_email', '')")
+license = vim.eval("get(g:, 'my_license', 'MIT')")
+date = datetime.datetime.now().strftime("%B %d, %Y")
+
+snip.rv = (
+    " * # Created\n"
+    " * Author: {0} <{1}>\n"
+    " * Date: {2}\n"
+    " *\n"
+    " * # Contributors\n"
+    " * - {0} <{1}>\n"
+    " */"
+).format(name, email, date)
+`
+endsnippet

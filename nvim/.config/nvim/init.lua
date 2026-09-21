@@ -1,3 +1,4 @@
+pcall(require, "local.me")
 vim.g.loaded_python3_provider = nil
 vim.g.python3_host_prog = vim.fn.expand("~/.config/nvim/env/nvim-python/bin/python")
 -- bootstrap lazy.nvim, LazyVim and your plugins
