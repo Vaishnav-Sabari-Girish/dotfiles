@@ -268,3 +268,11 @@ govman_auto_switch
 
 # bun completions
 [ -s "/home/vaishnav/.bun/_bun" ] && source "/home/vaishnav/.bun/_bun"
+
+# pnpm
+export PNPM_HOME='/home/vaishnav/.local/share/pnpm'
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
