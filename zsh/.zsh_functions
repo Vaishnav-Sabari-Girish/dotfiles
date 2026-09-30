@@ -567,3 +567,14 @@ mdroll() {
 mkv2mp4() {
   ffmpeg -i "$1" -codec copy "${1%.*}.mp4"
 }
+
+# Waydroid stuff
+waydroid-start() {
+    sudo systemctl start waydroid-container
+    /usr/bin/python3 /usr/sbin/waydroid session start &
+}
+
+waydroid-stop() {
+    /usr/bin/python3 /usr/sbin/waydroid session stop
+    sudo systemctl stop waydroid-container
+}
