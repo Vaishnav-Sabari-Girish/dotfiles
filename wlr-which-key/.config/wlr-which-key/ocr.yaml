@@ -1,0 +1,35 @@
+font: JetBrainsMono Nerd Font 14
+background: "#2e3440dd"
+color: "#d8dee9"
+border: "#88c0d0"
+separator: " ➜ "
+border_width: 2
+corner_r: 10
+padding: 15
+anchor: center
+margin_top: 0
+
+menu:
+  - key: "e"
+    desc: English
+    cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh eng"
+
+  - key: "j"
+    desc: Japanese
+    submenu:
+      - key: "n"
+        desc: Normal (+ English)
+        cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh jpn+eng 6"
+      - key: "v"
+        desc: Vertical
+        cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh jpn_vert 5"
+
+  - key: "c"
+    desc: Chinese
+    submenu:
+      - key: "s"
+        desc: Simplified (+ English)
+        cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh chi_sim+eng 6"
+      - key: "t"
+        desc: Traditional (+ English)
+        cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh chi_tra+eng 6"

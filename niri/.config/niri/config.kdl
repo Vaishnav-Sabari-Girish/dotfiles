@@ -813,7 +813,7 @@ binds {
   Ctrl+Print  { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/screenshots.sh screen"; }
   Alt+Print   { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/screenshots.sh window"; }
   // OCR Script Bind
-  Shift+Print { spawn-sh "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh"; }
+  Shift+Print { spawn "wlr-which-key" "ocr"; }
 
 
 	// Applications such as remote-desktop clients and software KVM switches may
