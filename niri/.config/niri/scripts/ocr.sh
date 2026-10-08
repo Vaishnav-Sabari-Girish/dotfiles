@@ -53,9 +53,28 @@ if [ "$MODE" = "translate" ]; then
   # translate-shell: -b = brief (translation only), ":xx" = target language, source auto-detected
   TRANS_ONLY="${TRANS_PATH}.tmp"
   if trans -b ":$TARGET" -i "$TXT_PATH" >"$TRANS_ONLY" 2>/dev/null && [ -s "$TRANS_ONLY" ]; then
-    # Original text first, then the translation underneath
+    # Reading (romaji for Japanese, pinyin for Chinese) via translate-shell's phonetics
+    PHON=""
+    case "$LANGS" in
+    *jpn* | *chi*)
+      # The reading is printed as "(...)" under the original, so show the original,
+      # hide the rest, and keep only the parenthesised lines.
+      PHON="$(trans -no-ansi \
+        -show-original y -show-translation n \
+        -show-original-phonetics y -show-translation-phonetics n \
+        -show-prompt-message n -show-languages n \
+        -show-dictionary n -show-original-dictionary n -show-alternatives n \
+        ":$TARGET" -i "$TXT_PATH" 2>/dev/null |
+        grep '^(' | sed 's/^(//; s/)$//')"
+      ;;
+    esac
+
+    # Original text, then the reading (if any), then the translation
     {
       cat "$TXT_PATH"
+      if [ -n "$PHON" ]; then
+        printf '\n\n──────── reading ────────\n\n%s' "$PHON"
+      fi
       printf '\n\n──────── %s ────────\n\n' "$TARGET"
       cat "$TRANS_ONLY"
     } >"$TRANS_PATH"
