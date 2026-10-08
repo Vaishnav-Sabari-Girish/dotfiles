@@ -33,3 +33,24 @@ menu:
       - key: "t"
         desc: Traditional (+ English)
         cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh chi_tra+eng 6"
+  - key: "t"
+    desc: Translate
+    submenu:
+      - key: "j"
+        desc: Japanese
+        submenu:
+          - key: "n"
+            desc: Normal
+            cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh jpn+eng 6 translate"
+          - key: "v"
+            desc: Vertical
+            cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh jpn_vert 5 translate"
+      - key: "c"
+        desc: Chinese
+        submenu:
+          - key: "s"
+            desc: Simplified
+            cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh chi_sim+eng 6 translate"
+          - key: "t"
+            desc: Traditional
+            cmd: "$HOME/dotfiles/niri/.config/niri/scripts/ocr.sh chi_tra+eng 6 translate"
