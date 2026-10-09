@@ -1,0 +1,20 @@
+font: JetBrainsMono Nerd Font 14
+background: "#2e3440dd"
+color: "#d8dee9"
+border: "#88c0d0"
+separator: " ➜ "
+border_width: 2
+corner_r: 10
+padding: 15
+anchor: center
+margin_top: 0
+
+menu:
+  - key: "k"
+    desc: Start hibiki
+    cmd: "$HOME/.cargo/bin/hibiki"
+
+  - key: "K"
+    desc: Stop hibiki
+    cmd: "pkill hibiki"
+
