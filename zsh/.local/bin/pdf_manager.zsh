@@ -43,6 +43,73 @@ _pick_pdf() {
     fzf --reverse --prompt="$prompt > " --height=20 --cycle --border
 }
 
+# ── Compression helpers ───────────────────────────────────────────────────────
+
+# `gs` is aliased to `git status` here, so always call Ghostscript by full path
+_GS=/usr/sbin/gs
+
+_fsize() { wc -c <"$1" | tr -d ' '; }
+_human() { awk -v b="$1" 'BEGIN{ if (b>=1048576) printf "%.2f MB", b/1048576; else printf "%.1f KB", b/1024 }'; }
+
+# _gs_run <in> <out> <preset> [dpi] — one Ghostscript pass
+_gs_run() {
+  local input=$1 output=$2 preset=$3 dpi=$4
+  local args=(-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH
+              -dPDFSETTINGS=/$preset)
+  if [[ -n "$dpi" ]]; then
+    args+=(-dDownsampleColorImages=true -dColorImageResolution=$dpi
+           -dDownsampleGrayImages=true -dGrayImageResolution=$dpi
+           -dDownsampleMonoImages=true -dMonoImageResolution=$dpi)
+  fi
+  "$_GS" "${args[@]}" -sOutputFile="$output" "$input"
+}
+
+# _compress_core <in> <out> [preset] [target_mb]
+# With a target size, escalates ebook -> screen -> 60 dpi -> 40 dpi until it fits.
+_compress_core() {
+  local input=$1 output=$2 preset=${3:-ebook} target_mb=$4
+  _need "$_GS" ghostscript || return 1
+
+  local in_size=$(_fsize "$input")
+  local steps target_bytes=""
+  if [[ -n "$target_mb" ]]; then
+    steps=(ebook screen dpi:60 dpi:40)
+    target_bytes=$(awk -v m="$target_mb" 'BEGIN{printf "%d", m*1048576}')
+  else
+    steps=($preset)
+  fi
+
+  local step out_size=0 reached=false
+  for step in $steps; do
+    _step "ghostscript: $step..."
+    if [[ $step == dpi:* ]]; then
+      _gs_run "$input" "$output" screen "${step#dpi:}"
+    else
+      _gs_run "$input" "$output" "$step"
+    fi
+    if [[ $? -ne 0 || ! -f "$output" ]]; then
+      _err "ghostscript failed"
+      return 1
+    fi
+    out_size=$(_fsize "$output")
+    [[ -z "$target_bytes" ]] && break
+    if (( out_size <= target_bytes )); then reached=true; break; fi
+  done
+
+  if (( out_size >= in_size )); then
+    rm -f "$output"
+    _warn "result ($(_human $out_size)) is not smaller than the original ($(_human $in_size)) — nothing written"
+    return 1
+  fi
+
+  _label "before:" "$(_human $in_size)"
+  _label "after:" "$(_human $out_size)"
+  if [[ -n "$target_bytes" && $reached == false ]]; then
+    _warn "could not reach ${target_mb} MB — this is the smallest result Ghostscript produced"
+  fi
+  _ok "compressed → $output"
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 
 pdf_manager() {
@@ -111,6 +178,11 @@ pdf_manager() {
     _cli_ocr "$@"
     return $?
     ;;
+  --compress)
+    shift
+    _cli_compress "$@"
+    return $?
+    ;;
   -*)
     _err "Unknown flag: $1"
     _step "Run ${_BOLD}${_WHITE}pdf_manager --features${_RESET} to see everything it can do."
@@ -123,7 +195,7 @@ pdf_manager() {
     return 1
   fi
 
-  local action=$(printf "Merge PDFs\nSeparate PDF\nRemove Pages from PDF\nConvert PDF to Images\nConvert Images to PDF\nConvert PDF to Text\nConvert Office Doc to PDF\nRotate Pages\nEncrypt PDF\nDecrypt PDF\nExtract Embedded Images\nOCR Scanned PDF" |
+  local action=$(printf "Merge PDFs\nSeparate PDF\nRemove Pages from PDF\nConvert PDF to Images\nConvert Images to PDF\nConvert PDF to Text\nConvert Office Doc to PDF\nRotate Pages\nEncrypt PDF\nDecrypt PDF\nExtract Embedded Images\nOCR Scanned PDF\nCompress PDF" |
     fzf --reverse --prompt="PDF Manager > " --height=20 --cycle --border)
 
   case $action in
@@ -139,6 +211,7 @@ pdf_manager() {
   "Decrypt PDF") decrypt_pdf ;;
   "Extract Embedded Images") extract_images ;;
   "OCR Scanned PDF") ocr_pdf ;;
+  "Compress PDF") compress_pdf ;;
   *)
     _cancel
     return 0
@@ -716,6 +789,50 @@ ocr_pdf() {
   fi
 }
 
+compress_pdf() {
+  _header "Compress PDF"
+  _need "$_GS" ghostscript || return 1
+
+  local input_file=$(_pick_pdf "Select PDF") || return 1
+  [[ -z "$input_file" ]] && { _err "No file selected"; return 1; }
+  _info "$input_file — $(_human $(_fsize "$input_file"))"
+
+  local mode=$(printf "target  (auto-pick quality to hit a size)\nebook   (150 dpi, balanced)\nscreen  (72 dpi, smallest)\nprinter (300 dpi)\nprepress (300 dpi, highest quality)" |
+    fzf --reverse --prompt="Quality > " --height=12 --cycle --border)
+  [[ -z "$mode" ]] && { _cancel; return 0; }
+  mode="${mode%% *}"
+
+  local target=""
+  if [[ "$mode" == "target" ]]; then
+    printf "${_WHITE}${_BOLD}target size (MB)${_RESET}${_GREY} [2]:${_RESET} "
+    read target
+    target="${target:-2}"
+  fi
+
+  local default_out="${input_file%.*}_compressed.pdf"
+  printf "${_WHITE}${_BOLD}output filename${_RESET}${_GREY} [$default_out]:${_RESET} "
+  read output_file
+  output_file="${output_file:-$default_out}"
+  [[ "$output_file" != *.pdf ]] && output_file="${output_file}.pdf"
+
+  local mode_label="$mode"
+  [[ -n "$target" ]] && mode_label="target ${target} MB"
+
+  echo ""
+  _label "input:" "$input_file"
+  _label "mode:" "$mode_label"
+  _label "output:" "$output_file"
+  printf "${_WHITE}${_BOLD}proceed?${_RESET} ${_GREY}[y/N]:${_RESET} "
+  read confirm
+  [[ "${confirm:l}" != "y" ]] && { _cancel; return 0; }
+
+  if [[ -n "$target" ]]; then
+    _compress_core "$input_file" "$output_file" ebook "$target"
+  else
+    _compress_core "$input_file" "$output_file" "$mode"
+  fi
+}
+
 # ── Feature list ───────────────────────────────────────────────────────────────
 
 _pdf_manager_features() {
@@ -737,6 +854,7 @@ _pdf_manager_features() {
   _label "--decrypt" "<file.pdf> <password> [-o output.pdf]"
   _label "--extract-images" "<file.pdf> [-o prefix]"
   _label "--ocr" "<file.pdf> [-o output.pdf]"
+  _label "--compress" "<file.pdf> [-t target_MB] [-q screen|ebook|printer|prepress] [-o output.pdf]"
   _label "--features" "show this list"
 
   echo ""
@@ -745,6 +863,7 @@ _pdf_manager_features() {
   echo "${_GREY}  pdf_manager --merge a.pdf b.pdf c.pdf -o combined.pdf${_RESET}"
   echo "${_GREY}  pdf_manager --remove-pages report.pdf 2,5,7-9${_RESET}"
   echo "${_GREY}  pdf_manager --rotate scan.pdf 90 -p 1-3${_RESET}"
+  echo "${_GREY}  pdf_manager --compress big.pdf -t 2${_RESET}"
   echo ""
   echo "${_GREY}Pages format: comma-separated, ranges with a dash — e.g. 2,5,7-9${_RESET}"
 }
@@ -1118,4 +1237,40 @@ _cli_ocr() {
   else
     _err "OCR failed"
   fi
+}
+
+_cli_compress() {
+  local input="$1"
+  shift
+  local output="${input:+${input%.*}_compressed.pdf}" preset="ebook" target=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -o | --output)
+      output="$2"
+      shift 2
+      ;;
+    -q | --quality)
+      preset="$2"
+      shift 2
+      ;;
+    -t | --target)
+      target="$2"
+      shift 2
+      ;;
+    *) shift ;;
+    esac
+  done
+  if [[ -z "$input" ]]; then
+    _err "Usage: pdf_manager --compress <file.pdf> [-t target_MB] [-q screen|ebook|printer|prepress] [-o output.pdf]"
+    return 1
+  fi
+  case "$preset" in
+  screen | ebook | printer | prepress) ;;
+  *)
+    _err "Unknown quality '$preset' (use screen, ebook, printer or prepress)"
+    return 1
+    ;;
+  esac
+  [[ "$output" != *.pdf ]] && output="${output}.pdf"
+  _compress_core "$input" "$output" "$preset" "$target"
 }
