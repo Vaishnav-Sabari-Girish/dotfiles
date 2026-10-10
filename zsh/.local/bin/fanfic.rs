@@ -1,5 +1,5 @@
 #!/usr/bin/env rust-script
-//! fanfic — download fanfics via fichub-cli and open them with bookokrat
+//! fanfic — download fanfics via fichub-cli (or wattpdl for Wattpad) and open them with bookokrat
 //!
 //! ```cargo
 //! [dependencies]
@@ -13,7 +13,6 @@
 use colored::*;
 use inquire::Select;
 use regex::Regex;
-use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::io::Read;
@@ -26,6 +25,7 @@ use zip::ZipArchive;
 const FANFIC_DIR_NAME: &str = "fanfic";
 const READER: &str = "bookokrat";
 const DOWNLOADER: &str = "fichub_cli";
+const WATTPAD_DOWNLOADER: &str = "wattpdl";
 
 // ----------------------------------------------------------------------
 // Helper functions
@@ -59,11 +59,13 @@ fn usage() {
         "\
 Usage:
   fanfic i <url>    Download fanfic as EPUB to ~/fanfic/ and open with bookokrat
+                    (wattpad.com links are downloaded with wattpdl, others with fichub_cli)
   fanfic s <query>  Search fanfiction.net, select a story, download & open
   fanfic             Open interactive picker of downloaded fanfics in ~/fanfic/
 
 Examples:
   fanfic i \"https://archiveofourown.org/works/12345\"
+  fanfic i \"https://www.wattpad.com/story/123456789-story-title\"
   fanfic s \"Rise of the Solar God\"
   fanfic"
     );
@@ -87,6 +89,7 @@ fn require_cmd(cmd: &str) {
     let msg = format!("'{cmd}' is not installed or not in PATH.");
     match cmd {
         "fichub_cli" => eprintln!("  Install with: pip install -U fichub-cli"),
+        "wattpdl" => eprintln!("  Install with: pip install -U wattpdl  (https://github.com/nekonaru/wattpdl)"),
         "bookokrat" => {
             eprintln!("  Install from: https://github.com/bugzmanov/bookokrat");
             eprintln!("  (Homebrew: brew install bookokrat, or cargo install bookokrat)");
@@ -103,6 +106,11 @@ fn ensure_dir(dir: &Path) {
         }
         ok(&format!("Created {}", dir.display()));
     }
+}
+
+fn is_wattpad_url(url: &str) -> bool {
+    let re = Regex::new(r"^https?://([a-zA-Z0-9-]+\.)*wattpad\.com(/|$|\?)").unwrap();
+    re.is_match(url)
 }
 
 fn list_epubs(dir: &Path) -> Vec<PathBuf> {
@@ -127,18 +135,75 @@ fn list_epubs(dir: &Path) -> Vec<PathBuf> {
     out
 }
 
-fn find_newest_epub(dir: &Path) -> Option<PathBuf> {
+/// Newest EPUB in `dir`, optionally only those modified at or after `since`.
+fn find_newest_epub(dir: &Path, since: Option<SystemTime>) -> Option<PathBuf> {
     list_epubs(dir)
         .into_iter()
         .filter_map(|p| {
             let modified = fs::metadata(&p).ok()?.modified().ok()?;
+            if let Some(s) = since {
+                if modified < s {
+                    return None;
+                }
+            }
             Some((modified, p))
         })
         .max_by_key(|(t, _)| *t)
         .map(|(_, p)| p)
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+enum KeyPart {
+    Num(u64),
+    Text(String),
+}
+
+/// Sort key: case-insensitive, ignores punctuation/extra whitespace,
+/// and compares digit runs numerically ("Book 2" < "Book 10").
+fn sort_key(title: &str) -> Vec<KeyPart> {
+    let cleaned: String = title
+        .to_lowercase()
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { ' ' })
+        .collect();
+
+    let mut parts = Vec::new();
+    for word in cleaned.split_whitespace() {
+        let mut buf = String::new();
+        let mut in_digits = false;
+        let flush = |buf: &mut String, in_digits: bool, parts: &mut Vec<KeyPart>| {
+            if buf.is_empty() {
+                return;
+            }
+            if in_digits {
+                parts.push(KeyPart::Num(buf.parse().unwrap_or(u64::MAX)));
+            } else {
+                parts.push(KeyPart::Text(buf.clone()));
+            }
+            buf.clear();
+        };
+        for c in word.chars() {
+            let is_digit = c.is_ascii_digit();
+            if !buf.is_empty() && is_digit != in_digits {
+                flush(&mut buf, in_digits, &mut parts);
+            }
+            in_digits = is_digit;
+            buf.push(c);
+        }
+        flush(&mut buf, in_digits, &mut parts);
+    }
+    parts
+}
+
+fn collapse_ws(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 fn epub_title(path: &Path) -> String {
+    collapse_ws(&epub_title_raw(path))
+}
+
+fn epub_title_raw(path: &Path) -> String {
     if let Ok(file) = fs::File::open(path) {
         if let Ok(mut archive) = ZipArchive::new(file) {
             let opf_name = (0..archive.len()).find_map(|i| {
@@ -177,6 +242,37 @@ fn epub_title(path: &Path) -> String {
         .unwrap_or_else(|| path.display().to_string())
 }
 
+fn run_downloader(url: &str, dir: &Path) {
+    let (name, mut cmd) = if is_wattpad_url(url) {
+        require_cmd(WATTPAD_DOWNLOADER);
+        let mut c = Command::new(WATTPAD_DOWNLOADER);
+        // mode 1 = all chapters merged into a single file
+        c.args(["--id", url, "--mode", "1", "--format", "epub", "--output-dir"])
+            .arg(dir);
+        (WATTPAD_DOWNLOADER, c)
+    } else {
+        require_cmd(DOWNLOADER);
+        let mut c = Command::new(DOWNLOADER);
+        c.args(["-u", url, "-o"])
+            .arg(dir)
+            .args(["--format", "epub", "--force"]);
+        (DOWNLOADER, c)
+    };
+
+    match cmd.status() {
+        Ok(s) if s.success() => {}
+        Ok(s) => {
+            err(&format!(
+                "{name} failed (exit code {}).",
+                s.code().unwrap_or(-1)
+            ));
+        }
+        Err(e) => {
+            err(&format!("failed to run {name}: {e}"));
+        }
+    }
+}
+
 fn download_and_open(url: &str) {
     if url.is_empty() {
         err("No URL provided.");
@@ -185,58 +281,36 @@ fn download_and_open(url: &str) {
         err("URL must start with http:// or https://");
     }
 
-    require_cmd(DOWNLOADER);
     require_cmd(READER);
 
     let dir = fanfic_dir();
     ensure_dir(&dir);
 
-    let before: HashSet<PathBuf> = list_epubs(&dir).into_iter().collect();
+    // Small margin so filesystem timestamp granularity can't hide the new file.
+    let started = SystemTime::now() - std::time::Duration::from_secs(2);
 
     ok(&format!("Downloading to {} ...", dir.display()));
     println!("  URL: {url}");
 
-    let status = Command::new(DOWNLOADER)
-        .args(["-u", url, "-o"])
-        .arg(&dir)
-        .args(["--format", "epub", "--force"])
-        .status();
+    run_downloader(url, &dir);
 
-    match status {
-        Ok(s) if s.success() => {}
-        Ok(s) => {
-            err(&format!(
-                "fichub_cli failed (exit code {}).",
-                s.code().unwrap_or(-1)
+    // Pick the EPUB written/overwritten during this run (handles re-downloads
+    // that overwrite an existing file, too).
+    let epub = match find_newest_epub(&dir, Some(started)) {
+        Some(p) => p,
+        None => {
+            warn(&format!(
+                "Could not detect a freshly written file. Using most recent EPUB in {}",
+                dir.display()
             ));
-        }
-        Err(e) => {
-            err(&format!("failed to run {DOWNLOADER}: {e}"));
-        }
-    }
-
-    let after: HashSet<PathBuf> = list_epubs(&dir).into_iter().collect();
-    let mut new_files: Vec<PathBuf> = after.difference(&before).cloned().collect();
-
-    let epub = if !new_files.is_empty() {
-        new_files.sort_by_key(|p| {
-            fs::metadata(p)
-                .and_then(|m| m.modified())
-                .unwrap_or(SystemTime::UNIX_EPOCH)
-        });
-        new_files.pop().unwrap()
-    } else {
-        warn(&format!(
-            "Could not detect a brand-new file. Using most recent EPUB in {}",
-            dir.display()
-        ));
-        match find_newest_epub(&dir) {
-            Some(p) => p,
-            None => {
-                err(&format!(
-                    "Download appeared to succeed but no EPUB was found in {}",
-                    dir.display()
-                ));
+            match find_newest_epub(&dir, None) {
+                Some(p) => p,
+                None => {
+                    err(&format!(
+                        "Download appeared to succeed but no EPUB was found in {}",
+                        dir.display()
+                    ));
+                }
             }
         }
     };
@@ -267,7 +341,7 @@ fn browse_and_open() {
         .map(|p| (epub_title(&p), p))
         .collect();
 
-    items.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
+    items.sort_by_cached_key(|(title, _)| sort_key(title));
 
     let titles: Vec<String> = items.iter().map(|(t, _)| t.clone()).collect();
 
