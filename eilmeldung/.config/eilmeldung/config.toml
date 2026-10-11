@@ -1,5 +1,23 @@
-# eilmeldung config: ~/.config/eilmeldung/config.toml
-# Keep this file and feeds.opml together in your dotfiles repo.
-
-# Sync feeds every time eilmeldung starts
 startup_commands = ["sync"]
+
+[theme]
+# no base16_theme line, and delete the [theme.base16_dark] and
+# [theme.base16_themes.*] blocks
+
+[theme.color_palette]
+background = "reset"          # terminal default, so your blur shows through
+foreground = "#E5E9F0"
+muted = "#4C566A"
+highlight = "#EBCB8B"
+accent_primary = "#81A1C1"    # blue instead of green
+accent_secondary = "#88C0D0"
+accent_tertiary = "#B48EAD"
+accent_quaternary = "#EBCB8B"
+info = "#88C0D0"
+warning = "#EBCB8B"
+error = "#BF616A"
+
+[theme.style_set]
+# the status bar normally draws its text in the background colour, which is now
+# the terminal default, so pin it to Nord's dark background
+statusbar = { fg = "#2E3440", bg = "accent_primary" }
