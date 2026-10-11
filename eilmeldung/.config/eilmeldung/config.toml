@@ -1,0 +1,5 @@
+# eilmeldung config: ~/.config/eilmeldung/config.toml
+# Keep this file and feeds.opml together in your dotfiles repo.
+
+# Sync feeds every time eilmeldung starts
+startup_commands = ["sync"]

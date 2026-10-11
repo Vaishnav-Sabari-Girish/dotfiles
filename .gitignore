@@ -61,3 +61,8 @@ freetube/.config/FreeTube/shared_proto_db/
 
 # Neovim
 me.lua
+
+# Eilmeldung: RSS feed
+eilmeldung/.config/eilmeldung/*
+!eilmeldung/.config/eilmeldung/config.toml
+!eilmeldung/.config/eilmeldung/feeds.opml
