@@ -578,3 +578,11 @@ waydroid-stop() {
     /usr/bin/python3 /usr/sbin/waydroid session stop
     sudo systemctl stop waydroid-container
 }
+
+# RSS
+eilmeldung() {
+  command eilmeldung "$@"
+  local rc=$?
+  command eilmeldung --quiet --export-opml "$HOME/dotfiles/eilmeldung/.config/eilmeldung/feeds.opml"
+  return $rc
+}
