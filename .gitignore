@@ -66,3 +66,4 @@ me.lua
 eilmeldung/.config/eilmeldung/*
 !eilmeldung/.config/eilmeldung/config.toml
 !eilmeldung/.config/eilmeldung/feeds.opml
+nvim/.config/nvim/env/

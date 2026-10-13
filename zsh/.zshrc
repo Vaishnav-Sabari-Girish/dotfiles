@@ -12,7 +12,6 @@ path=(
   $HOME/.modular/bin
   $HOME/.nimble/bin
   $HOME/.basher/bin
-  $HOME/.asdf/shims
   $HOME/.zvm/bin
   $HOME/.zvm/self
   $HOME/.deno/bin
