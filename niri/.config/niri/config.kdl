@@ -562,6 +562,7 @@ binds {
   // miru
   Mod+Z hotkey-overlay-title="toggle miru" { spawn-sh "/home/vaishnav/Desktop/My_Projects/miru/build/miructl toggle >> /tmp/miructl.log 2>&1"; }
   Mod+Alt+Z hotkey-overlay-title="toggle miru loupe" { spawn-sh "/home/vaishnav/Desktop/My_Projects/miru/build/miructl loupe >> /tmp/miructl.log 2>&1"; }
+  Mod+Shift+Z hotkey-overlay-title="toggle miru spotlight" { spawn-sh "/home/vaishnav/Desktop/My_Projects/miru/build/miructl spotlight >> /tmp/miructl.log 2>&1"; }
 
   Mod+Alt+K hotkey-overlay-title="hibiki (Keystrokes)" { spawn "wlr-which-key" "hibiki"; }
   // Mod+Alt+Shift+K hotkey-overlay-title="Stop hibiki (Keystrokes)" { spawn-sh "pkill hibiki"; }
