@@ -1,0 +1,35 @@
+font: JetBrainsMono Nerd Font 14
+background: "#2e3440dd"
+color: "#d8dee9"
+border: "#88c0d0"
+separator: " ➜ "
+border_width: 2
+corner_r: 10
+padding: 15
+anchor: center
+margin_top: 0
+
+menu:
+  - key: "b"
+    desc: Balloons 
+    cmd: "$HOME/.cargo/bin/wl-party balloons"
+
+  - key: "c"
+    desc: Confetty
+    cmd: "$HOME/.cargo/bin/wl-party confetti"
+
+  - key: "s"
+    desc: Snow 
+    cmd: "$HOME/.cargo/bin/wl-party snow"
+
+  - key: "R"
+    desc: Random 
+    cmd: "$HOME/.cargo/bin/wl-party random"
+
+  - key: "r"
+    desc: Rain 
+    cmd: "$HOME/.cargo/bin/wl-party rain"
+
+  - key: "f"
+    desc: Fireworks 
+    cmd: "$HOME/.cargo/bin/wl-party fireworks"

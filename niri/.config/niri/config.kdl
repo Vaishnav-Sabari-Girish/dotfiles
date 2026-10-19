@@ -535,11 +535,8 @@ binds {
 	// Suggested binds for running programs: terminal, app launcher, screen locker.
 	Mod+T hotkey-overlay-title="Open a Terminal: Wezterm" { spawn "wezterm"; }
 	Mod+Return hotkey-overlay-title="Open a Terminal: Foot" { spawn "foot"; }
-	//Mod+A hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-	//Mod+A hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
   Mod+A hotkey-overlay-title="Run an Application: fsel" { spawn "foot" "--app-id=fsel-launcher" "-o" "initial-window-mode=windowed" "-o" "=0.8" "fsel" "-t" "-d" "--icon-position" "center"; }
-	// Mod+S opens STM32CubeIDE
-	Mod+S hotkey-overlay-title="Open STM32CubeIDE" { spawn "stm32cubeide"; }
+	Mod+S hotkey-overlay-title="Confetties and other stuff" { spawn "wlr-which-key" "wl-party"; }
   Super+L hotkey-overlay-title="Lock the Screen" {
     spawn-sh "swayidle -w timeout 20 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' & IDLE_PID=$!; WALL=$(jq -r '.wallpaperPath // .currentWallpaper // .wallpaper' ~/.local/state/DankMaterialShell/session.json | sed \"s|^~|$HOME|\"); swaylock -i \"$WALL\" --fade-in 0 --clock --indicator --effect-blur 7x5; kill $IDLE_PID"
   }
