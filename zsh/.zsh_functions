@@ -580,9 +580,20 @@ waydroid-stop() {
 }
 
 # RSS
-eilmeldung() {
+rss() {
   command eilmeldung "$@"
   local rc=$?
   command eilmeldung --quiet --export-opml "$HOME/dotfiles/eilmeldung/.config/eilmeldung/feeds.opml"
   return $rc
+}
+
+
+post () {
+  local script_path="$HOME/dotfiles/zsh/.local/bin/post.rs"
+  if [[ -x "$script_path" ]]; then
+    "$script_path" "$@"
+  else
+    echo "Error: Script not found or not executable at $script_path"
+    return 1
+  fi
 }
