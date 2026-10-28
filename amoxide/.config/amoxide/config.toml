@@ -11,6 +11,7 @@ ll = "eza -lah --icons --hyperlink always"
 localsend = "handlr open https://web.localsend.org/"
 ls = "eza --icons --hyperlink always"
 movie = "moviebox-tui"
+nchat_sig = "nchat -d ~/.config/nchat_sig"
 nchat_tg = "nchat -d ~/.config/nchat_tg"
 pdf = "papers"
 preview_md = "gh markdown-preview"
@@ -23,3 +24,6 @@ zephyr_venv = "source /home/vaishnav/zephyrproject/zephyr_venv/bin/activate"
 [shell]
 
 [logging]
+
+[update]
+check = true
