@@ -597,3 +597,13 @@ post () {
     return 1
   fi
 }
+
+aoc () {
+  local script_path="$HOME/dotfiles/zsh/.local/bin/aoc.rs"
+  if [[ -x "$script_path" ]]; then
+    "$script_path" "$@"
+  else
+    echo "Error: Script not found or not executable at $script_path"
+    return 1
+  fi
+}
