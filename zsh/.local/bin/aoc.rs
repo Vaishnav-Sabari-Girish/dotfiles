@@ -562,6 +562,68 @@ fn render_html(html: &str, width: usize) -> Vec<Line<'static>> {
     r.out
 }
 
+// ───────────────────────────── clipboard ─────────────────────────────
+
+/// Puzzle HTML as plain text: no borders, paragraphs on single lines, ready to paste.
+fn html_to_text(html: &str) -> String {
+    render_html(html, 100_000)
+        .iter()
+        .map(|l| l.spans.iter().map(|s| s.content.as_ref()).collect::<String>().trim_end().to_string())
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string()
+}
+
+fn b64(data: &[u8]) -> String {
+    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut o = String::with_capacity(data.len() * 4 / 3 + 4);
+    for c in data.chunks(3) {
+        let n = ((c[0] as u32) << 16)
+            | ((*c.get(1).unwrap_or(&0) as u32) << 8)
+            | (*c.get(2).unwrap_or(&0) as u32);
+        o.push(T[(n >> 18) as usize & 63] as char);
+        o.push(T[(n >> 12) as usize & 63] as char);
+        o.push(if c.len() > 1 { T[(n >> 6) as usize & 63] as char } else { '=' });
+        o.push(if c.len() > 2 { T[n as usize & 63] as char } else { '=' });
+    }
+    o
+}
+
+/// Tries the system clipboard tools first, then falls back to the terminal's OSC 52
+/// clipboard escape (which also works over SSH in most modern terminals).
+fn copy_to_clipboard(text: &str) -> Result<String, String> {
+    use std::io::Write;
+    let tools: [(&str, &[&str]); 5] = [
+        ("wl-copy", &[]),
+        ("xclip", &["-selection", "clipboard"]),
+        ("xsel", &["--clipboard", "--input"]),
+        ("pbcopy", &[]),
+        ("clip.exe", &[]),
+    ];
+    for (bin, args) in tools {
+        let Ok(mut child) = Command::new(bin)
+            .args(args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+        else {
+            continue;
+        };
+        if let Some(mut si) = child.stdin.take() {
+            let _ = si.write_all(text.as_bytes());
+        }
+        if child.wait().map(|s| s.success()).unwrap_or(false) {
+            return Ok(bin.to_string());
+        }
+    }
+    let mut out = io::stdout();
+    write!(out, "\x1b]52;c;{}\x07", b64(text.as_bytes())).map_err(|e| e.to_string())?;
+    out.flush().map_err(|e| e.to_string())?;
+    Ok("terminal OSC 52 — if the paste is empty, install wl-clipboard/xclip/xsel".into())
+}
+
 // ───────────────────────────── app ─────────────────────────────
 
 #[derive(PartialEq, Clone, Copy)]
@@ -1021,6 +1083,7 @@ impl App {
             KeyCode::Home | KeyCode::Char('g') => self.scroll(i64::MIN / 2),
             KeyCode::End | KeyCode::Char('G') => self.scroll(i64::MAX / 2),
             KeyCode::Char('e') => self.start_edit(),
+            KeyCode::Char('y') => self.copy_tab(),
             KeyCode::Char('L') => self.open_lang(),
             KeyCode::Char('r') => self.start_run(),
             KeyCode::Char('1') => self.start_submit(1),
@@ -1055,6 +1118,23 @@ impl App {
             }
             _ => {}
         }
+    }
+
+    /// Copies whatever tab is showing (puzzle text, input or output) to the clipboard.
+    fn copy_tab(&mut self) {
+        let picked = self.view.as_ref().and_then(|v| match v.tab {
+            Tab::Puzzle => v.desc.as_ref().map(|d| (html_to_text(d), "puzzle")),
+            Tab::Input => v.input.clone().map(|s| (s, "input")),
+            Tab::Output => v.output.clone().map(|s| (s, "output")),
+        });
+        let Some((text, what)) = picked else {
+            self.status = "Nothing to copy on this tab yet".into();
+            return;
+        };
+        self.status = match copy_to_clipboard(&text) {
+            Ok(how) => format!("Copied {what} to clipboard ({how})"),
+            Err(e) => format!("Couldn't copy: {e}"),
+        };
     }
 
     fn open_lang(&mut self) {
@@ -1218,7 +1298,7 @@ fn ui(f: &mut Frame, app: &mut App) {
     }
 
     let hints = if app.view.is_some() {
-        "q back · p/i/o tabs · j/k scroll · e edit · r run · 1/2 submit · R refresh · [ ] prev/next day · L language · S session"
+        "q back · p/i/o tabs · j/k scroll · e edit · y copy · r run · 1/2 submit · R refresh · [ ] prev/next day · L language · S session"
     } else {
         "↑↓ move · ←→/Tab switch pane · Enter open · L language · S session cookie · q quit"
     };
