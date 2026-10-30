@@ -207,7 +207,7 @@ fn epub_title_raw(path: &Path) -> String {
     if let Ok(file) = fs::File::open(path) {
         if let Ok(mut archive) = ZipArchive::new(file) {
             let opf_name = (0..archive.len()).find_map(|i| {
-                let name = archive.by_index(i).ok()?.name().to_string();
+                let name = archive.by_index(i).ok()?.name().ok()?.to_string();
                 if name.ends_with(".opf") {
                     Some(name)
                 } else {
