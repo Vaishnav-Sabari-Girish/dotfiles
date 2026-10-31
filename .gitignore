@@ -3,7 +3,6 @@ usage_data.json
 .cargo/git/
 checkouts/
 history.txt
-.gitconfig
 .mailsynclastrun
 auto-save-list/
 eln-cache/
