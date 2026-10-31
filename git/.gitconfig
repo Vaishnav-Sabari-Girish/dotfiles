@@ -1,5 +1,7 @@
-[include]
-	path = ~/.gitconfig.local
+[user]
+	name = Vaishnav Sabari Girish
+	email = vaishnav.sabari.girish@gmail.com
+	signingkey = 71922ABFB77026CC
 
 [init]
 	defaultBranch = main
@@ -18,8 +20,17 @@
 	helper =
 	helper = !/usr/bin/gh auth git-credential
 
+[credential "smtp://smtp.gmail.com:587"]
+	helper = libsecret
+
 [pull]
 	rebase = false
+
+[commit]
+	gpgsign = true
+
+[tag]
+	gpgSign = true
 
 [gpg]
 	program = gpg
@@ -28,13 +39,11 @@
 	smtpServer = smtp.gmail.com
 	smtpServerPort = 587
 	smtpEncryption = tls
-
-[credential "smtp://smtp.gmail.com:587"]
-	helper = libsecret
+	smtpUser = vaishnav.sabari.girish@gmail.com
+	from = vaishnav.sabari.girish@gmail.com
 
 [http]
 	sslBackend = openssl
-	version = HTTP/1.1
 
 [core]
 	pager = delta
@@ -46,7 +55,6 @@
 	navigate = true
 	dark = true
 
-# Note: this overrides core.pager for `git diff` only
 [pager]
 	diff = diffnav
 
