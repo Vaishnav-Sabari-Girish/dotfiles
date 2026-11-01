@@ -455,6 +455,13 @@ window-rule {
   block-out-from "screencast"
 }
 
+// Black out wezterm  when streaming
+window-rule {
+  match app-id="org.wezfurlong.wezterm"
+
+  block-out-from "screencast"
+}
+
 // Open the Firefox picture-in-picture player as floating by default.
 window-rule {
 	// This app-id regular expression will work for both:

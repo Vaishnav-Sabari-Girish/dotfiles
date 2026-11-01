@@ -154,6 +154,12 @@ if [[ -f "$HOME/dotfiles/zsh/.local/bin/boat_tracker.zsh" ]]; then
     source "$HOME/dotfiles/zsh/.local/bin/boat_tracker.zsh"
 fi
 
+# Miru systemctl stopper
+# Source the Miru systemd service auto-controller
+if [[ -f "$HOME/dotfiles/zsh/.local/bin/miru_service.zsh" ]]; then
+    source "$HOME/dotfiles/zsh/.local/bin/miru_service.zsh"
+fi
+
 # Daily Kanji Practice
 _run_daily_kanji_once() {
     # Run your custom app
