@@ -33,3 +33,7 @@ menu:
   - key: "f"
     desc: Fireworks 
     cmd: "$HOME/.cargo/bin/wl-party fireworks"
+
+  - key: "t"
+    desc: Text
+    cmd: "$HOME/dotfiles/zsh/.local/bin/wl-text.sh"
