@@ -627,3 +627,53 @@ trim () {
     return 1
   fi
 }
+
+gource-video() {
+    local out="gource.mp4" repo="$PWD" preview=1 spd=0.2 opt OPTIND=1
+
+    while getopts "o:s:n" opt; do
+        case $opt in
+            o) out=$OPTARG ;;
+            s) spd=$OPTARG ;;
+            n) preview=0 ;;
+            *) echo "usage: gource-video [-n] [-s seconds_per_day] [-o output.mp4] [path]" >&2; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    [ -n "$1" ] && repo=$1
+
+    if [ ! -d "$repo" ]; then
+        echo "gource-video: not a directory: $repo" >&2
+        return 1
+    fi
+
+    local common=(
+        --highlight-users
+        --key
+        -s "$spd"
+        -r 60
+        --stop-at-end
+        --date-format "%B %e, %Y"
+    )
+
+    if [ "$preview" -eq 1 ]; then
+        echo "Previewing (close the window or let it finish to start rendering)..."
+        gource "${common[@]}" -1280x720 "$repo" || return 1
+    fi
+
+    echo "Rendering $repo -> $out (${spd}s per day)"
+    xvfb-run -a -s "-screen 0 1920x1080x24" \
+        gource "${common[@]}" -1920x1080 -o - "$repo" |
+    ffmpeg -y \
+        -framerate 60 \
+        -f image2pipe \
+        -c:v ppm \
+        -i - \
+        -c:v libx264 \
+        -preset medium \
+        -pix_fmt yuv420p \
+        -crf 18 \
+        -threads 0 \
+        -bf 0 \
+        "$out"
+}

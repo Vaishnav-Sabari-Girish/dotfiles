@@ -1,6 +1,6 @@
 // Types out text in dots, letter by letter, then fades it (use "|" for a new line)
 
-const TEXT = "HAPPY|NEW|YEAR|2027";
+const TEXT = "HAPPY NEW|YEAR|2027";
 const TYPE_DELAY = 0.15;  // seconds between letters
 const HOLD = 4.0;         // seconds each dot stays once it appears
 const COLORS = ["#ff4d6d", "#ffb347", "#ffe066", "#5ce1e6", "#7b61ff", "#3ddc84", "#ff7ac8"];
