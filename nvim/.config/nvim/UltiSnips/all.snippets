@@ -17,3 +17,10 @@ snip.rv = (
 ).format(name, email, date)
 `
 endsnippet
+
+snippet nichi "Date and author signature" b
+`!p
+import datetime
+snip.rv = datetime.date.today().strftime("%a %b %d %Y")
+`  Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com>
+endsnippet
