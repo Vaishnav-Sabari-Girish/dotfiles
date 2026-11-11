@@ -16,3 +16,7 @@ hash = "544d8b59cbb34097d9e1aee1ff5817c72ed595619d3a8277d33504ad6e083e27"
 [[trusted]]
 path = "/home/vaishnav/intership_report/.aliases"
 hash = "c4f5682a7d88f1322c5883869e9a91848134f0c697aae938080f69454944e582"
+
+[[trusted]]
+path = "/home/vaishnav/Desktop/My_Projects/my_pkgbuilds/.aliases"
+hash = "37010053fc6f7cadf46a0498b2299b389a9c12f2558a5ee4faa3a18e5be8217c"
