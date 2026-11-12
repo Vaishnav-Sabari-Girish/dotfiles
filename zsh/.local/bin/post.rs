@@ -1,5 +1,5 @@
 #!/usr/bin/env rust-script
-//! Post to multiple Mastodon / Bluesky accounts from the command line.
+//! Post to multiple Mastodon / Bluesky / Twitter(X) accounts from the command line.
 //!
 //! ```cargo
 //! [package]
@@ -26,12 +26,14 @@
 //!
 //!   post account add mas1 --kind mastodon --instance hachyderm.io   # opens browser to authorize
 //!   post account add sky  --kind bluesky  --handle me.bsky.social    # opens app-password page
+//!   post account add tw   --kind twitter                             # uses your browser's x.com login
+//!   post account add tw2  --kind twitter --browser firefox           # ...from a specific browser
 //!   post account list
-//!   post account login mas1      # re-authorize
+//!   post account login mas1      # re-authorize (for twitter: store auth_token + ct0 explicitly)
 //!   post account logout mas1     # forget the stored login
 //!   post account remove mas1
 //!
-//!   post "hello world" --to mas1,sky
+//!   post "hello world" --to mas1,sky,tw
 //!   post --file msg.md --to mas2,mas3
 //!   post "look at this" --media a.png --alt "a cat" --media b.png --to mas1,sky
 //!   echo "from stdin" | post - --to mas1
@@ -56,6 +58,16 @@
 //! Bluesky:  atproto OAuth needs DPoP/PAR, so this uses an *app password*
 //!           instead: the app-passwords page opens in your browser and you paste
 //!           the password into the terminal (hidden). Never use your main password.
+//! Twitter:  posts through the unofficial `twitter-cli`
+//!           (https://github.com/public-clis/twitter-cli; `uv tool install twitter-cli`),
+//!           which uses your x.com web session instead of the paid API.
+//!           - By default it reads the cookies of a browser you're logged in to
+//!             (`--browser`, and `--profile "Profile 2"` for Chrome profiles).
+//!           - Or store `auth_token` and `ct0` with `post account login`; the secret is
+//!             `AUTH_TOKEN:CT0` (`--secret-env`/`--secret-cmd` must print that too).
+//!           Unofficial: automating the web client can get an account rate-limited or
+//!           suspended, and it can break when X changes things. Up to 4 images, no alt
+//!           text. Set POST_TWITTER_BIN if the executable isn't called `twitter`.
 
 use anyhow::{anyhow, bail, Context, Result};
 use clap::{Args, Parser, Subcommand, ValueEnum};
@@ -77,13 +89,17 @@ const BSKY_MAX_GRAPHEMES: usize = 300;
 const BSKY_MAX_IMAGES: usize = 4;
 const BSKY_MAX_IMAGE_BYTES: usize = 1_000_000;
 
+const TWITTER_SOFT_LIMIT: usize = 280;
+const TWITTER_MAX_IMAGES: usize = 4;
+const TWITTER_IMAGE_MIMES: [&str; 4] = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
 // ───────────────────────────── CLI ─────────────────────────────
 
 #[derive(Parser)]
 #[command(
     name = "post",
     version,
-    about = "Post to Mastodon and Bluesky accounts",
+    about = "Post to Mastodon, Bluesky and Twitter/X accounts",
     args_conflicts_with_subcommands = true,
     subcommand_negates_reqs = true
 )]
@@ -115,7 +131,7 @@ struct PostArgs {
     #[arg(short, long)]
     alt: Vec<String>,
 
-    /// Mastodon post visibility (ignored for Bluesky)
+    /// Mastodon post visibility (ignored for Bluesky and Twitter)
     #[arg(long, value_enum, default_value = "public")]
     visibility: Visibility,
 
@@ -182,6 +198,12 @@ struct AddArgs {
     /// Bluesky service URL (default https://bsky.social)
     #[arg(long)]
     service: Option<String>,
+    /// Twitter: Chrome profile name to read cookies from, e.g. "Profile 2"
+    #[arg(long)]
+    profile: Option<String>,
+    /// Twitter: browser to read x.com cookies from (arc, chrome, edge, firefox, brave)
+    #[arg(long)]
+    browser: Option<String>,
     /// Name of the env var holding the token / app password
     #[arg(long, conflicts_with = "secret_cmd")]
     secret_env: Option<String>,
@@ -200,6 +222,7 @@ struct AddArgs {
 enum Kind {
     Mastodon,
     Bluesky,
+    Twitter,
 }
 
 impl Kind {
@@ -207,6 +230,7 @@ impl Kind {
         match self {
             Kind::Mastodon => "mastodon",
             Kind::Bluesky => "bluesky",
+            Kind::Twitter => "twitter",
         }
     }
 }
@@ -220,6 +244,10 @@ struct Account {
     handle: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     service: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    browser: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    profile: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     secret_env: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -335,8 +363,9 @@ fn default_secret_env(name: &str) -> String {
     )
 }
 
-/// Look up the secret at run time. Never stored anywhere.
-fn resolve_secret(name: &str, acc: &Account) -> Result<String> {
+/// Look up the secret at run time. Never stored anywhere except the private
+/// credentials file. Returns Ok(None) if there simply isn't one.
+fn lookup_secret(name: &str, acc: &Account) -> Result<Option<String>> {
     if let Some(cmd) = &acc.secret_cmd {
         let out = Command::new("sh")
             .arg("-c")
@@ -353,18 +382,25 @@ fn resolve_secret(name: &str, acc: &Account) -> Result<String> {
         if s.is_empty() {
             bail!("secret command for '{name}' printed nothing");
         }
-        return Ok(s);
+        return Ok(Some(s));
     }
     let var = acc.secret_env.clone().unwrap_or_else(|| default_secret_env(name));
     if let Ok(s) = std::env::var(&var) {
         if !s.trim().is_empty() {
-            return Ok(s.trim().to_string());
+            return Ok(Some(s.trim().to_string()));
         }
     }
-    if let Some(s) = load_creds()?.secrets.get(name) {
-        return Ok(s.clone());
+    Ok(load_creds()?.secrets.get(name).cloned())
+}
+
+fn resolve_secret(name: &str, acc: &Account) -> Result<String> {
+    match lookup_secret(name, acc)? {
+        Some(s) => Ok(s),
+        None => {
+            let var = acc.secret_env.clone().unwrap_or_else(|| default_secret_env(name));
+            bail!("no login for '{name}': run `post account login {name}` (or set ${var})")
+        }
     }
-    bail!("no login for '{name}': run `post account login {name}` (or set ${var})")
 }
 
 // ───────────────────────────── Login flows ─────────────────────────────
@@ -527,6 +563,7 @@ fn login(name: &str, acc: &Account) -> Result<()> {
     let secret = match acc.kind {
         Kind::Mastodon => login_mastodon(&http, acc)?,
         Kind::Bluesky => login_bluesky(&http, acc)?,
+        Kind::Twitter => login_twitter(acc)?,
     };
     let mut c = load_creds()?;
     c.secrets.insert(name.to_string(), secret);
@@ -560,6 +597,8 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                 instance: None,
                 handle: None,
                 service: None,
+                browser: None,
+                profile: None,
                 secret_env: a.secret_env,
                 secret_cmd: a.secret_cmd,
             };
@@ -574,11 +613,21 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                     acc.handle = Some(h.trim_start_matches('@').to_string());
                     acc.service = a.service.map(|s| s.trim_end_matches('/').to_string());
                 }
+                Kind::Twitter => {
+                    acc.browser = a.browser;
+                    acc.profile = a.profile;
+                }
             }
             let existed = cfg.accounts.insert(a.name.clone(), acc.clone()).is_some();
             save_config(&cfg)?;
             println!("{} account '{}'", if existed { "Updated" } else { "Added" }, a.name);
-            if acc.secret_cmd.is_none() && acc.secret_env.is_none() {
+            if acc.kind == Kind::Twitter {
+                println!(
+                    "twitter-cli will use the x.com cookies of your logged-in browser. \
+                     To store auth_token/ct0 instead, run `post account login {}`.",
+                    a.name
+                );
+            } else if acc.secret_cmd.is_none() && acc.secret_env.is_none() {
                 if a.no_login {
                     println!("Run `post account login {}` to authorize it.", a.name);
                 } else {
@@ -610,6 +659,17 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                         a.handle.clone().unwrap_or_default(),
                         a.service.clone().unwrap_or_else(|| BSKY_DEFAULT_SERVICE.into())
                     ),
+                    Kind::Twitter => {
+                        let mut t = String::from("x.com (twitter-cli");
+                        if let Some(b) = &a.browser {
+                            t.push_str(&format!(", browser: {b}"));
+                        }
+                        if let Some(p) = &a.profile {
+                            t.push_str(&format!(", profile: {p}"));
+                        }
+                        t.push(')');
+                        t
+                    }
                 };
                 let secret = if let Some(c) = &a.secret_cmd {
                     format!("cmd: {c}")
@@ -621,6 +681,8 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                         format!("env: ${var}")
                     } else if stored {
                         "stored login".to_string()
+                    } else if a.kind == Kind::Twitter {
+                        "browser cookies".to_string()
                     } else {
                         format!("NOT LOGGED IN: run `post account login {name}`")
                     }
@@ -658,6 +720,7 @@ fn json_ok(resp: Response) -> Result<(u16, Value)> {
 
 struct Media {
     name: String,
+    path: PathBuf,
     mime: String,
     alt: Option<String>,
     bytes: Vec<u8>,
@@ -877,7 +940,166 @@ fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media:
     Ok(format!("https://bsky.app/profile/{handle}/post/{rkey}"))
 }
 
+// ───────────────────────────── Twitter / X (via twitter-cli, unofficial) ─────────────────────────────
+
+/// Depth-first search for the first non-empty string / number under any of `keys`.
+fn find_key(v: &Value, keys: &[&str]) -> Option<String> {
+    match v {
+        Value::Object(m) => {
+            for k in keys {
+                match m.get(*k) {
+                    Some(Value::String(s)) if !s.is_empty() => return Some(s.clone()),
+                    Some(Value::Number(n)) => return Some(n.to_string()),
+                    _ => {}
+                }
+            }
+            m.values().find_map(|x| find_key(x, keys))
+        }
+        Value::Array(a) => a.iter().find_map(|x| find_key(x, keys)),
+        _ => None,
+    }
+}
+
+/// Run `twitter <args>` and return its parsed `--json` envelope
+/// (`{ok, data}` / `{ok:false, error:{code,message}}`).
+/// With a secret ("AUTH_TOKEN:CT0") the cookies are passed via the environment;
+/// without one, twitter-cli reads them from a logged-in browser.
+fn run_twitter(acc: &Account, secret: Option<&str>, args: &[&str]) -> Result<Value> {
+    let bin = std::env::var("POST_TWITTER_BIN").unwrap_or_else(|_| "twitter".into());
+    let mut cmd = Command::new(&bin);
+    cmd.args(args).stdin(std::process::Stdio::null());
+    if let Some(s) = secret {
+        let (auth, ct0) = s
+            .split_once(':')
+            .ok_or_else(|| anyhow!("twitter secret must look like AUTH_TOKEN:CT0"))?;
+        cmd.env("TWITTER_AUTH_TOKEN", auth.trim()).env("TWITTER_CT0", ct0.trim());
+    }
+    if let Some(b) = &acc.browser {
+        cmd.env("TWITTER_BROWSER", b);
+    }
+    if let Some(p) = &acc.profile {
+        cmd.env("TWITTER_CHROME_PROFILE", p);
+    }
+    let out = cmd.output().map_err(|e| {
+        if e.kind() == std::io::ErrorKind::NotFound {
+            anyhow!("`{bin}` not found: install twitter-cli with `uv tool install twitter-cli` (or set POST_TWITTER_BIN)")
+        } else {
+            anyhow!("running `{bin}`: {e}")
+        }
+    })?;
+
+    let stdout = String::from_utf8_lossy(&out.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&out.stderr).into_owned();
+    // Be tolerant of any banner text before the JSON.
+    let parsed: Option<Value> = stdout
+        .find('{')
+        .and_then(|i| serde_json::from_str(stdout[i..].trim()).ok());
+
+    if let Some(v) = &parsed {
+        if v["ok"].as_bool() == Some(false) {
+            let msg = v["error"]["message"].as_str().unwrap_or("unknown error");
+            let hint = if msg.contains("Failed to create tweet") {
+                " (X returned no tweet: often transient or the text was rejected; retry, or try `twitter post` directly)"
+            } else {
+                ""
+            };
+            bail!(
+                "twitter-cli: {}: {msg}{hint}",
+                v["error"]["code"].as_str().unwrap_or("error")
+            );
+        }
+    }
+    if !out.status.success() {
+        let msg = if stderr.trim().is_empty() { stdout.trim() } else { stderr.trim() };
+        let snippet: String = msg.chars().take(300).collect();
+        bail!("twitter-cli exited with {}: {}", out.status, snippet);
+    }
+    parsed.ok_or_else(|| {
+        let snippet: String = stdout.chars().take(300).collect();
+        anyhow!("unexpected output from twitter-cli: {snippet}")
+    })
+}
+
+/// Optionally store explicit x.com session cookies (twitter-cli can also read
+/// them straight from a logged-in browser).
+fn login_twitter(acc: &Account) -> Result<String> {
+    println!(
+        "twitter-cli can reuse the cookies of a browser that's logged in to x.com, so this step\n\
+         is optional. To store explicit cookies instead (e.g. for a second account), log in to\n\
+         x.com, open DevTools -> Application/Storage -> Cookies -> https://x.com, and copy the\n\
+         values of `auth_token` and `ct0`.\n"
+    );
+    open_browser("https://x.com/home");
+    let auth = rpassword::prompt_password("auth_token (input hidden): ")?.trim().to_string();
+    let ct0 = rpassword::prompt_password("ct0 (input hidden): ")?.trim().to_string();
+    if auth.is_empty() || ct0.is_empty() {
+        bail!("both auth_token and ct0 are required");
+    }
+    let secret = format!("{auth}:{ct0}");
+    let v = run_twitter(acc, Some(&secret), &["whoami", "--json"])
+        .context("login failed: check the cookies (and that twitter-cli is installed)")?;
+    let who = find_key(&v["data"], &["screenName", "screen_name", "username"]).unwrap_or_else(|| "?".into());
+    println!("Authorized as @{who}");
+    Ok(secret)
+}
+
+fn post_twitter(acc: &Account, secret: Option<&str>, text: &str, media: &[Media]) -> Result<String> {
+    if text.trim().is_empty() {
+        bail!("twitter-cli needs some text to go with the post");
+    }
+    let n = text.graphemes(true).count();
+    if n > TWITTER_SOFT_LIMIT {
+        eprintln!("warning: text is {n} characters; X's limit is {TWITTER_SOFT_LIMIT} unless the account is Premium");
+    }
+    if media.len() > TWITTER_MAX_IMAGES {
+        bail!("twitter-cli supports at most {TWITTER_MAX_IMAGES} images per post");
+    }
+    for m in media {
+        if !TWITTER_IMAGE_MIMES.contains(&m.mime.as_str()) {
+            bail!("{}: twitter-cli only supports JPEG/PNG/GIF/WebP images (got {})", m.name, m.mime);
+        }
+        if m.alt.is_some() {
+            eprintln!("warning: twitter-cli can't set alt text; ignoring alt for {}", m.name);
+        }
+    }
+
+    let mut args: Vec<String> = vec!["post".into(), "--json".into()];
+    for m in media {
+        args.push("-i".into());
+        args.push(m.path.to_string_lossy().into_owned());
+    }
+    args.push("--".into()); // so text starting with '-' isn't read as a flag
+    args.push(text.to_string());
+    let refs: Vec<&str> = args.iter().map(String::as_str).collect();
+
+    let v = run_twitter(acc, secret, &refs)?;
+    let data = &v["data"];
+    if let Some(url) = find_key(data, &["url"]).filter(|u| u.starts_with("http")) {
+        return Ok(url);
+    }
+    Ok(match find_key(data, &["id", "rest_id", "tweet_id", "tweetId"]) {
+        Some(id) => format!("https://x.com/i/status/{id}"),
+        None => "(posted)".to_string(),
+    })
+}
+
 // ───────────────────────────── Main flow ─────────────────────────────
+
+fn post_one(
+    http: &Client,
+    name: &str,
+    acc: &Account,
+    text: &str,
+    media: &[Media],
+    vis: Visibility,
+) -> Result<String> {
+    match acc.kind {
+        Kind::Mastodon => post_mastodon(http, acc, &resolve_secret(name, acc)?, text, media, vis),
+        Kind::Bluesky => post_bluesky(http, acc, &resolve_secret(name, acc)?, text, media),
+        // Cookies are optional: without a stored secret, twitter-cli uses the browser's.
+        Kind::Twitter => post_twitter(acc, lookup_secret(name, acc)?.as_deref(), text, media),
+    }
+}
 
 fn run_post(args: PostArgs) -> Result<()> {
     // Body: --file, stdin ("-"), or the positional words.
@@ -919,6 +1141,7 @@ fn run_post(args: PostArgs) -> Result<()> {
         let bytes = std::fs::read(p).with_context(|| format!("reading {}", p.display()))?;
         media.push(Media {
             name: p.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_else(|| "file".into()),
+            path: p.clone(),
             mime: mime_guess::from_path(p).first_or_octet_stream().to_string(),
             alt: args.alt.get(i).cloned(),
             bytes,
@@ -940,11 +1163,7 @@ fn run_post(args: PostArgs) -> Result<()> {
 
     let mut failures = 0;
     for (name, acc) in &targets {
-        let result = resolve_secret(name, acc).and_then(|secret| match acc.kind {
-            Kind::Mastodon => post_mastodon(&http, acc, &secret, &body, &media, args.visibility),
-            Kind::Bluesky => post_bluesky(&http, acc, &secret, &body, &media),
-        });
-        match result {
+        match post_one(&http, name, acc, &body, &media, args.visibility) {
             Ok(url) => println!("✓ {name}: {url}"),
             Err(e) => {
                 failures += 1;
