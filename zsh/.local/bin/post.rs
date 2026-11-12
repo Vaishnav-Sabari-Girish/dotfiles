@@ -1,5 +1,5 @@
 #!/usr/bin/env rust-script
-//! Post to multiple Mastodon / Bluesky / Twitter(X) accounts from the command line.
+//! Post to multiple Mastodon / Bluesky / Twitter(X) / dev-null accounts from the command line.
 //!
 //! ```cargo
 //! [package]
@@ -18,6 +18,7 @@
 //! rpassword = "*"
 //! serde = { version = "*", features = ["derive"] }
 //! serde_json = "*"
+//! sha2 = "*"
 //! toml = "*"
 //! unicode-segmentation = "*"
 //! ```
@@ -28,14 +29,17 @@
 //!   post account add sky  --kind bluesky  --handle me.bsky.social    # opens app-password page
 //!   post account add tw   --kind twitter                             # uses your browser's x.com login
 //!   post account add tw2  --kind twitter --browser firefox           # ...from a specific browser
+//!   post account add dn   --kind devnull                             # signs with an SSH key on your GitHub account
+//!   post account add dn2  --kind devnull --key ~/.ssh/id_dn          # ...a specific key (or a .pub held by ssh-agent)
 //!   post account list
 //!   post account login mas1      # re-authorize (for twitter: store auth_token + ct0 explicitly)
 //!   post account logout mas1     # forget the stored login
 //!   post account remove mas1
 //!
-//!   post "hello world" --to mas1,sky,tw
+//!   post "hello world" --to mas1,sky,tw,dn
 //!   post --file msg.md --to mas2,mas3
-//!   post "look at this" --media a.png --alt "a cat" --media b.png --to mas1,sky
+//!   post "look at this" --media a.png --alt "a cat" --media b.png --to mas1,sky,dn
+//!   post "agreed" --to dn --reply-to 0be0130     # dev-null: reply to a commit
 //!   echo "from stdin" | post - --to mas1
 //!
 //! # Secrets
@@ -68,38 +72,47 @@
 //!           Unofficial: automating the web client can get an account rate-limited or
 //!           suspended, and it can break when X changes things. Up to 4 images, no alt
 //!           text. Set POST_TWITTER_BIN if the executable isn't called `twitter`.
-
+//! dev-null: https://dev-null.sh. No token or login: each commit is signed locally with
+//!           `ssh-keygen -Y sign` (OpenSSH 8.1+) using an SSH key on your GitHub account;
+//!           /dev/null is asked which of your local keys (ssh-agent, ~/.ssh/*.pub) that is.
+//!           `--key` skips that lookup and signs with the given key (a private key file, or
+//!           a `.pub` whose private half is in ssh-agent). `--instance` points at a
+//!           self-hosted server. `--reply-to` replies to a commit. Up to 3 images
+//!           (JPEG/PNG/WebP, 10 MB each), no alt text.
 use anyhow::{anyhow, bail, Context, Result};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use regex::Regex;
 use reqwest::blocking::{multipart, Client, Response};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use unicode_segmentation::UnicodeSegmentation;
-
 const BSKY_DEFAULT_SERVICE: &str = "https://bsky.social";
 const BSKY_MAX_GRAPHEMES: usize = 300;
 const BSKY_MAX_IMAGES: usize = 4;
 const BSKY_MAX_IMAGE_BYTES: usize = 1_000_000;
-
 const TWITTER_SOFT_LIMIT: usize = 280;
 const TWITTER_MAX_IMAGES: usize = 4;
 const TWITTER_IMAGE_MIMES: [&str; 4] = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-
+const DEVNULL_DEFAULT_URL: &str = "https://dev-null.sh";
+const DEVNULL_NAMESPACE: &str = "devnull-commit";
+const DEVNULL_IMAGES_NAMESPACE: &str = "devnull-commit-images";
+const DEVNULL_MAX_IMAGES: usize = 3;
+const DEVNULL_MAX_IMAGE_BYTES: usize = 10_240_000;
+const DEVNULL_IMAGE_MIMES: [&str; 3] = ["image/jpeg", "image/png", "image/webp"];
 // ───────────────────────────── CLI ─────────────────────────────
-
 #[derive(Parser)]
 #[command(
     name = "post",
     version,
-    about = "Post to Mastodon, Bluesky and Twitter/X accounts",
+    about = "Post to Mastodon, Bluesky, Twitter/X and dev-null accounts",
     args_conflicts_with_subcommands = true,
     subcommand_negates_reqs = true
 )]
@@ -109,37 +122,32 @@ struct Cli {
     #[command(flatten)]
     post: PostArgs,
 }
-
 #[derive(Args)]
 struct PostArgs {
     /// Text to post (use `-` to read from stdin)
     body: Vec<String>,
-
     /// Read the post text from a file
     #[arg(short, long, conflicts_with = "body")]
     file: Option<PathBuf>,
-
     /// Comma-separated account names to post to
     #[arg(short, long, value_delimiter = ',', required = true)]
     to: Vec<String>,
-
     /// Attach a media file (repeatable)
     #[arg(short, long)]
     media: Vec<PathBuf>,
-
     /// Alt text for the media, in the same order as --media (repeatable)
     #[arg(short, long)]
     alt: Vec<String>,
-
-    /// Mastodon post visibility (ignored for Bluesky and Twitter)
+    /// Mastodon post visibility (ignored for Bluesky, Twitter and dev-null)
     #[arg(long, value_enum, default_value = "public")]
     visibility: Visibility,
-
+    /// dev-null: short hash, UUID or link of the commit to reply to
+    #[arg(long)]
+    reply_to: Option<String>,
     /// Show what would be posted without posting
     #[arg(short = 'n', long)]
     dry_run: bool,
 }
-
 #[derive(Clone, Copy, ValueEnum)]
 enum Visibility {
     Public,
@@ -147,7 +155,6 @@ enum Visibility {
     Private,
     Direct,
 }
-
 impl Visibility {
     fn as_str(&self) -> &'static str {
         match self {
@@ -158,7 +165,6 @@ impl Visibility {
         }
     }
 }
-
 #[derive(Subcommand)]
 enum Cmd {
     /// Manage saved accounts
@@ -168,7 +174,6 @@ enum Cmd {
         action: AccountCmd,
     },
 }
-
 #[derive(Subcommand)]
 enum AccountCmd {
     /// Add or update an account (no secrets are stored)
@@ -182,14 +187,13 @@ enum AccountCmd {
     /// Forget the stored login for an account
     Logout { name: String },
 }
-
 #[derive(Args)]
 struct AddArgs {
     /// Name you'll use with --to (e.g. mas1)
     name: String,
     #[arg(long, value_enum)]
     kind: Kind,
-    /// Mastodon instance URL, e.g. https://hachyderm.io
+    /// Mastodon instance URL (e.g. https://hachyderm.io), or a self-hosted dev-null URL
     #[arg(long)]
     instance: Option<String>,
     /// Bluesky handle, e.g. me.bsky.social
@@ -204,6 +208,9 @@ struct AddArgs {
     /// Twitter: browser to read x.com cookies from (arc, chrome, edge, firefox, brave)
     #[arg(long)]
     browser: Option<String>,
+    /// dev-null: SSH key to sign with (private key file, or a .pub held by ssh-agent)
+    #[arg(long)]
+    key: Option<String>,
     /// Name of the env var holding the token / app password
     #[arg(long, conflicts_with = "secret_cmd")]
     secret_env: Option<String>,
@@ -214,27 +221,25 @@ struct AddArgs {
     #[arg(long)]
     no_login: bool,
 }
-
 // ──────────────────────────── Config ────────────────────────────
-
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
 #[serde(rename_all = "lowercase")]
 enum Kind {
     Mastodon,
     Bluesky,
     Twitter,
+    Devnull,
 }
-
 impl Kind {
     fn as_str(&self) -> &'static str {
         match self {
             Kind::Mastodon => "mastodon",
             Kind::Bluesky => "bluesky",
             Kind::Twitter => "twitter",
+            Kind::Devnull => "devnull",
         }
     }
 }
-
 #[derive(Clone, Serialize, Deserialize)]
 struct Account {
     kind: Kind,
@@ -249,17 +254,17 @@ struct Account {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     profile: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    key: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     secret_env: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     secret_cmd: Option<String>,
 }
-
 #[derive(Default, Serialize, Deserialize)]
 struct Config {
     #[serde(default)]
     accounts: BTreeMap<String, Account>,
 }
-
 fn config_path() -> Result<PathBuf> {
     if let Ok(p) = std::env::var("POST_CONFIG") {
         return Ok(p.into());
@@ -272,7 +277,6 @@ fn config_path() -> Result<PathBuf> {
     };
     Ok(base.join("post").join("accounts.toml"))
 }
-
 fn load_config() -> Result<Config> {
     let path = config_path()?;
     if !path.exists() {
@@ -281,7 +285,6 @@ fn load_config() -> Result<Config> {
     let s = std::fs::read_to_string(&path).with_context(|| format!("reading {}", path.display()))?;
     toml::from_str(&s).with_context(|| format!("parsing {}", path.display()))
 }
-
 fn save_config(cfg: &Config) -> Result<()> {
     let path = config_path()?;
     if let Some(dir) = path.parent() {
@@ -290,15 +293,12 @@ fn save_config(cfg: &Config) -> Result<()> {
     std::fs::write(&path, toml::to_string_pretty(cfg)?)
         .with_context(|| format!("writing {}", path.display()))
 }
-
 // Stored logins live in a separate, private file (NOT meant for dotfiles).
-
 #[derive(Default, Serialize, Deserialize)]
 struct Creds {
     #[serde(default)]
     secrets: BTreeMap<String, String>,
 }
-
 fn creds_path() -> Result<PathBuf> {
     if let Ok(p) = std::env::var("POST_CREDENTIALS") {
         return Ok(p.into());
@@ -312,7 +312,6 @@ fn creds_path() -> Result<PathBuf> {
     };
     Ok(base.join("post").join("credentials.toml"))
 }
-
 fn load_creds() -> Result<Creds> {
     let path = creds_path()?;
     if !path.exists() {
@@ -321,7 +320,6 @@ fn load_creds() -> Result<Creds> {
     let s = std::fs::read_to_string(&path).with_context(|| format!("reading {}", path.display()))?;
     toml::from_str(&s).with_context(|| format!("parsing {}", path.display()))
 }
-
 fn write_private(path: &Path, data: &str) -> Result<()> {
     let mut o = std::fs::OpenOptions::new();
     o.write(true).create(true).truncate(true);
@@ -339,7 +337,6 @@ fn write_private(path: &Path, data: &str) -> Result<()> {
     f.write_all(data.as_bytes())?;
     Ok(())
 }
-
 fn save_creds(c: &Creds) -> Result<()> {
     let path = creds_path()?;
     if let Some(dir) = path.parent() {
@@ -348,21 +345,18 @@ fn save_creds(c: &Creds) -> Result<()> {
     write_private(&path, &toml::to_string_pretty(c)?)
         .with_context(|| format!("writing {}", path.display()))
 }
-
 fn http_client(timeout_secs: u64) -> Result<Client> {
     Ok(Client::builder()
         .timeout(Duration::from_secs(timeout_secs))
         .user_agent(concat!("post-script/", env!("CARGO_PKG_VERSION")))
         .build()?)
 }
-
 fn default_secret_env(name: &str) -> String {
     format!(
         "POST_{}_SECRET",
         name.to_uppercase().replace(|c: char| !c.is_ascii_alphanumeric(), "_")
     )
 }
-
 /// Look up the secret at run time. Never stored anywhere except the private
 /// credentials file. Returns Ok(None) if there simply isn't one.
 fn lookup_secret(name: &str, acc: &Account) -> Result<Option<String>> {
@@ -392,7 +386,6 @@ fn lookup_secret(name: &str, acc: &Account) -> Result<Option<String>> {
     }
     Ok(load_creds()?.secrets.get(name).cloned())
 }
-
 fn resolve_secret(name: &str, acc: &Account) -> Result<String> {
     match lookup_secret(name, acc)? {
         Some(s) => Ok(s),
@@ -402,9 +395,7 @@ fn resolve_secret(name: &str, acc: &Account) -> Result<String> {
         }
     }
 }
-
 // ───────────────────────────── Login flows ─────────────────────────────
-
 fn respond(stream: &mut TcpStream, status: &str, body: &str) {
     let page = format!(
         "<!doctype html><meta charset=utf-8><title>post</title>\
@@ -416,7 +407,6 @@ fn respond(stream: &mut TcpStream, status: &str, body: &str) {
         page.len()
     );
 }
-
 /// Wait for the browser to hit http://127.0.0.1:PORT/callback?code=...
 fn wait_for_code(listener: &TcpListener, state: &str) -> Result<String> {
     listener.set_nonblocking(true)?;
@@ -466,12 +456,10 @@ fn wait_for_code(listener: &TcpListener, state: &str) -> Result<String> {
         respond(&mut stream, "400 Bad Request", "Missing code");
     }
 }
-
 fn open_browser(url: &str) {
     println!("Opening your browser. If it doesn't open, visit:\n  {url}\n");
     let _ = open::that(url);
 }
-
 fn login_mastodon(http: &Client, acc: &Account) -> Result<String> {
     let base = acc
         .instance
@@ -479,11 +467,9 @@ fn login_mastodon(http: &Client, acc: &Account) -> Result<String> {
         .ok_or_else(|| anyhow!("account has no instance"))?
         .trim_end_matches('/');
     let scopes = "write:statuses write:media";
-
     let listener = TcpListener::bind("127.0.0.1:0")?;
     let port = listener.local_addr()?.port();
     let redirect = format!("http://127.0.0.1:{port}/callback");
-
     // Register a client on the instance (standard for CLI apps).
     let (_, app) = json_ok(
         http.post(format!("{base}/api/v1/apps"))
@@ -497,7 +483,6 @@ fn login_mastodon(http: &Client, acc: &Account) -> Result<String> {
     .context("registering app with the instance")?;
     let client_id = app["client_id"].as_str().ok_or_else(|| anyhow!("no client_id returned"))?;
     let client_secret = app["client_secret"].as_str().ok_or_else(|| anyhow!("no client_secret returned"))?;
-
     let state = format!("{:016x}", rand::random::<u64>());
     let auth = reqwest::Url::parse_with_params(
         &format!("{base}/oauth/authorize"),
@@ -512,7 +497,6 @@ fn login_mastodon(http: &Client, acc: &Account) -> Result<String> {
     open_browser(auth.as_str());
     println!("Waiting for you to authorize...");
     let code = wait_for_code(&listener, &state)?;
-
     let (_, tok) = json_ok(
         http.post(format!("{base}/oauth/token"))
             .form(&[
@@ -530,7 +514,6 @@ fn login_mastodon(http: &Client, acc: &Account) -> Result<String> {
         .as_str()
         .ok_or_else(|| anyhow!("no access_token returned"))?
         .to_string();
-
     if let Ok(r) = http
         .get(format!("{base}/api/v1/accounts/verify_credentials"))
         .bearer_auth(&token)
@@ -542,7 +525,6 @@ fn login_mastodon(http: &Client, acc: &Account) -> Result<String> {
     }
     Ok(token)
 }
-
 fn login_bluesky(http: &Client, acc: &Account) -> Result<String> {
     let service = acc.service.as_deref().unwrap_or(BSKY_DEFAULT_SERVICE).trim_end_matches('/');
     let handle = acc.handle.as_deref().ok_or_else(|| anyhow!("account has no handle"))?;
@@ -557,13 +539,16 @@ fn login_bluesky(http: &Client, acc: &Account) -> Result<String> {
     println!("Authorized as @{handle}");
     Ok(pw)
 }
-
 fn login(name: &str, acc: &Account) -> Result<()> {
     let http = http_client(30)?;
     let secret = match acc.kind {
         Kind::Mastodon => login_mastodon(&http, acc)?,
         Kind::Bluesky => login_bluesky(&http, acc)?,
         Kind::Twitter => login_twitter(acc)?,
+        Kind::Devnull => {
+            println!("dev-null has no login: commits are signed with an SSH key on your GitHub account.");
+            return Ok(());
+        }
     };
     let mut c = load_creds()?;
     c.secrets.insert(name.to_string(), secret);
@@ -571,7 +556,6 @@ fn login(name: &str, acc: &Account) -> Result<()> {
     println!("Saved login for '{name}' to {}", creds_path()?.display());
     Ok(())
 }
-
 fn bsky_session(http: &Client, service: &str, handle: &str, password: &str) -> Result<Value> {
     let (_, sess) = json_ok(
         http.post(format!("{service}/xrpc/com.atproto.server.createSession"))
@@ -580,9 +564,7 @@ fn bsky_session(http: &Client, service: &str, handle: &str, password: &str) -> R
     )?;
     Ok(sess)
 }
-
 // ───────────────────────── Account commands ─────────────────────────
-
 fn account_cmd(action: AccountCmd) -> Result<()> {
     let mut cfg = load_config()?;
     match action {
@@ -599,6 +581,7 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                 service: None,
                 browser: None,
                 profile: None,
+                key: None,
                 secret_env: a.secret_env,
                 secret_cmd: a.secret_cmd,
             };
@@ -617,6 +600,13 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                     acc.browser = a.browser;
                     acc.profile = a.profile;
                 }
+                Kind::Devnull => {
+                    acc.instance = a.instance.map(|i| {
+                        let i = if i.contains("://") { i } else { format!("https://{i}") };
+                        i.trim_end_matches('/').to_string()
+                    });
+                    acc.key = a.key;
+                }
             }
             let existed = cfg.accounts.insert(a.name.clone(), acc.clone()).is_some();
             save_config(&cfg)?;
@@ -627,6 +617,8 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                      To store auth_token/ct0 instead, run `post account login {}`.",
                     a.name
                 );
+            } else if acc.kind == Kind::Devnull {
+                println!("dev-null signs with an SSH key on your GitHub account; no login needed.");
             } else if acc.secret_cmd.is_none() && acc.secret_env.is_none() {
                 if a.no_login {
                     println!("Run `post account login {}` to authorize it.", a.name);
@@ -670,8 +662,14 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
                         t.push(')');
                         t
                     }
+                    Kind::Devnull => a.instance.clone().unwrap_or_else(|| DEVNULL_DEFAULT_URL.into()),
                 };
-                let secret = if let Some(c) = &a.secret_cmd {
+                let secret = if a.kind == Kind::Devnull {
+                    match &a.key {
+                        Some(k) => format!("ssh key: {k}"),
+                        None => "ssh key: auto (agent / ~/.ssh)".to_string(),
+                    }
+                } else if let Some(c) = &a.secret_cmd {
                     format!("cmd: {c}")
                 } else {
                     let var = a.secret_env.clone().unwrap_or_else(|| default_secret_env(name));
@@ -704,9 +702,7 @@ fn account_cmd(action: AccountCmd) -> Result<()> {
     }
     Ok(())
 }
-
 // ───────────────────────────── HTTP helpers ─────────────────────────────
-
 fn json_ok(resp: Response) -> Result<(u16, Value)> {
     let status = resp.status();
     let text = resp.text()?;
@@ -717,7 +713,6 @@ fn json_ok(resp: Response) -> Result<(u16, Value)> {
     let v = if text.trim().is_empty() { Value::Null } else { serde_json::from_str(&text)? };
     Ok((status.as_u16(), v))
 }
-
 struct Media {
     name: String,
     path: PathBuf,
@@ -725,9 +720,7 @@ struct Media {
     alt: Option<String>,
     bytes: Vec<u8>,
 }
-
 // ───────────────────────────── Mastodon ─────────────────────────────
-
 fn post_mastodon(
     http: &Client,
     acc: &Account,
@@ -741,7 +734,6 @@ fn post_mastodon(
         .as_deref()
         .ok_or_else(|| anyhow!("account has no instance"))?
         .trim_end_matches('/');
-
     let mut ids: Vec<String> = Vec::new();
     for m in media {
         let part = multipart::Part::bytes(m.bytes.clone())
@@ -759,7 +751,6 @@ fn post_mastodon(
             .with_context(|| format!("uploading {}", m.name))?;
         let (code, v) = json_ok(resp).with_context(|| format!("uploading {}", m.name))?;
         let id = v["id"].as_str().ok_or_else(|| anyhow!("media upload returned no id"))?.to_string();
-
         // 202 = still processing (video, large images); poll until ready.
         if code == 202 {
             let mut ready = false;
@@ -784,7 +775,6 @@ fn post_mastodon(
         }
         ids.push(id);
     }
-
     let body = json!({
         "status": text,
         "visibility": vis.as_str(),
@@ -798,21 +788,17 @@ fn post_mastodon(
     let (_, v) = json_ok(resp)?;
     Ok(v["url"].as_str().unwrap_or("(posted)").to_string())
 }
-
 // ───────────────────────────── Bluesky ─────────────────────────────
-
 fn facet(start: usize, end: usize, feature: Value) -> Value {
     json!({
         "index": { "byteStart": start, "byteEnd": end },
         "features": [feature],
     })
 }
-
 /// Bluesky doesn't auto-link anything; links, #tags and @mentions need facets
 /// with UTF-8 byte offsets.
 fn build_facets(http: &Client, service: &str, text: &str) -> Vec<Value> {
     let mut out = Vec::new();
-
     let url_re = Regex::new(r"https?://[^\s]+").unwrap();
     for m in url_re.find_iter(text) {
         let url = m.as_str().trim_end_matches(|c: char| ".,;:!?)]}'\"".contains(c));
@@ -825,7 +811,6 @@ fn build_facets(http: &Client, service: &str, text: &str) -> Vec<Value> {
             json!({ "$type": "app.bsky.richtext.facet#link", "uri": url }),
         ));
     }
-
     let tag_re = Regex::new(r"(?:^|\s)#([\p{L}\p{N}_]+)").unwrap();
     for c in tag_re.captures_iter(text) {
         let g = c.get(1).unwrap();
@@ -838,7 +823,6 @@ fn build_facets(http: &Client, service: &str, text: &str) -> Vec<Value> {
             json!({ "$type": "app.bsky.richtext.facet#tag", "tag": g.as_str() }),
         ));
     }
-
     let men_re = Regex::new(r"(?:^|\s)@([a-zA-Z0-9][a-zA-Z0-9.-]*)").unwrap();
     for c in men_re.captures_iter(text) {
         let g = c.get(1).unwrap();
@@ -864,7 +848,6 @@ fn build_facets(http: &Client, service: &str, text: &str) -> Vec<Value> {
     }
     out
 }
-
 fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media: &[Media]) -> Result<String> {
     let service = acc
         .service
@@ -872,7 +855,6 @@ fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media:
         .unwrap_or(BSKY_DEFAULT_SERVICE)
         .trim_end_matches('/');
     let handle = acc.handle.as_deref().ok_or_else(|| anyhow!("account has no handle"))?;
-
     let graphemes = text.graphemes(true).count();
     if graphemes > BSKY_MAX_GRAPHEMES {
         bail!("text is {graphemes} characters; Bluesky's limit is {BSKY_MAX_GRAPHEMES}");
@@ -893,12 +875,10 @@ fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media:
             );
         }
     }
-
     let sess = bsky_session(http, service, handle, password)
         .context("bluesky login failed (use an app password; try `post account login`)")?;
     let jwt = sess["accessJwt"].as_str().ok_or_else(|| anyhow!("no accessJwt in session"))?;
     let did = sess["did"].as_str().ok_or_else(|| anyhow!("no did in session"))?;
-
     let mut images = Vec::new();
     for m in media {
         let (_, v) = json_ok(
@@ -911,7 +891,6 @@ fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media:
         .with_context(|| format!("uploading {}", m.name))?;
         images.push(json!({ "alt": m.alt.clone().unwrap_or_default(), "image": v["blob"] }));
     }
-
     let mut record = json!({
         "$type": "app.bsky.feed.post",
         "text": text,
@@ -924,7 +903,6 @@ fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media:
     if !images.is_empty() {
         record["embed"] = json!({ "$type": "app.bsky.embed.images", "images": images });
     }
-
     let (_, v) = json_ok(
         http.post(format!("{service}/xrpc/com.atproto.repo.createRecord"))
             .bearer_auth(jwt)
@@ -939,9 +917,7 @@ fn post_bluesky(http: &Client, acc: &Account, password: &str, text: &str, media:
     let rkey = uri.rsplit('/').next().unwrap_or_default();
     Ok(format!("https://bsky.app/profile/{handle}/post/{rkey}"))
 }
-
 // ───────────────────────────── Twitter / X (via twitter-cli, unofficial) ─────────────────────────────
-
 /// Depth-first search for the first non-empty string / number under any of `keys`.
 fn find_key(v: &Value, keys: &[&str]) -> Option<String> {
     match v {
@@ -959,7 +935,6 @@ fn find_key(v: &Value, keys: &[&str]) -> Option<String> {
         _ => None,
     }
 }
-
 /// Run `twitter <args>` and return its parsed `--json` envelope
 /// (`{ok, data}` / `{ok:false, error:{code,message}}`).
 /// With a secret ("AUTH_TOKEN:CT0") the cookies are passed via the environment;
@@ -967,7 +942,7 @@ fn find_key(v: &Value, keys: &[&str]) -> Option<String> {
 fn run_twitter(acc: &Account, secret: Option<&str>, args: &[&str]) -> Result<Value> {
     let bin = std::env::var("POST_TWITTER_BIN").unwrap_or_else(|_| "twitter".into());
     let mut cmd = Command::new(&bin);
-    cmd.args(args).stdin(std::process::Stdio::null());
+    cmd.args(args).stdin(Stdio::null());
     if let Some(s) = secret {
         let (auth, ct0) = s
             .split_once(':')
@@ -987,14 +962,12 @@ fn run_twitter(acc: &Account, secret: Option<&str>, args: &[&str]) -> Result<Val
             anyhow!("running `{bin}`: {e}")
         }
     })?;
-
     let stdout = String::from_utf8_lossy(&out.stdout).into_owned();
     let stderr = String::from_utf8_lossy(&out.stderr).into_owned();
     // Be tolerant of any banner text before the JSON.
     let parsed: Option<Value> = stdout
         .find('{')
         .and_then(|i| serde_json::from_str(stdout[i..].trim()).ok());
-
     if let Some(v) = &parsed {
         if v["ok"].as_bool() == Some(false) {
             let msg = v["error"]["message"].as_str().unwrap_or("unknown error");
@@ -1019,7 +992,6 @@ fn run_twitter(acc: &Account, secret: Option<&str>, args: &[&str]) -> Result<Val
         anyhow!("unexpected output from twitter-cli: {snippet}")
     })
 }
-
 /// Optionally store explicit x.com session cookies (twitter-cli can also read
 /// them straight from a logged-in browser).
 fn login_twitter(acc: &Account) -> Result<String> {
@@ -1042,7 +1014,6 @@ fn login_twitter(acc: &Account) -> Result<String> {
     println!("Authorized as @{who}");
     Ok(secret)
 }
-
 fn post_twitter(acc: &Account, secret: Option<&str>, text: &str, media: &[Media]) -> Result<String> {
     if text.trim().is_empty() {
         bail!("twitter-cli needs some text to go with the post");
@@ -1062,7 +1033,6 @@ fn post_twitter(acc: &Account, secret: Option<&str>, text: &str, media: &[Media]
             eprintln!("warning: twitter-cli can't set alt text; ignoring alt for {}", m.name);
         }
     }
-
     let mut args: Vec<String> = vec!["post".into(), "--json".into()];
     for m in media {
         args.push("-i".into());
@@ -1071,7 +1041,6 @@ fn post_twitter(acc: &Account, secret: Option<&str>, text: &str, media: &[Media]
     args.push("--".into()); // so text starting with '-' isn't read as a flag
     args.push(text.to_string());
     let refs: Vec<&str> = args.iter().map(String::as_str).collect();
-
     let v = run_twitter(acc, secret, &refs)?;
     let data = &v["data"];
     if let Some(url) = find_key(data, &["url"]).filter(|u| u.starts_with("http")) {
@@ -1082,9 +1051,246 @@ fn post_twitter(acc: &Account, secret: Option<&str>, text: &str, media: &[Media]
         None => "(posted)".to_string(),
     })
 }
+// ───────────────────────────── dev-null.sh ─────────────────────────────
+fn expand_tilde(p: &str) -> String {
+    match (p.strip_prefix("~/"), dirs::home_dir()) {
+        (Some(rest), Some(h)) => h.join(rest).to_string_lossy().into_owned(),
+        _ => p.to_string(),
+    }
+}
+/// Removes control characters (such as terminal escape sequences) from text we print.
+fn sanitize(s: &str) -> String {
+    s.chars().filter(|c| !matches!(*c as u32, 0..=8 | 0x0b..=0x1f | 0x7f)).collect()
+}
+/// A private (0700) temp directory, removed when dropped.
+struct TmpDir(PathBuf);
+impl TmpDir {
+    fn new() -> Result<Self> {
+        let dir = std::env::temp_dir().join(format!("devnull.{:016x}", rand::random::<u64>()));
+        let mut b = std::fs::DirBuilder::new();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            b.mode(0o700);
+        }
+        b.create(&dir).with_context(|| format!("creating {}", dir.display()))?;
+        Ok(TmpDir(dir))
+    }
+}
+impl Drop for TmpDir {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+fn is_supported_key(line: &str) -> bool {
+    line.starts_with("ssh-ed25519 ") || line.starts_with("ssh-rsa ")
+}
+/// "<type> <base64>", without the comment.
+fn key_id(line: &str) -> String {
+    line.split_whitespace().take(2).collect::<Vec<_>>().join(" ")
+}
+fn agent_keys() -> Vec<String> {
+    Command::new("ssh-add")
+        .arg("-L")
+        .stdin(Stdio::null())
+        .stderr(Stdio::null())
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+        .map(|o| {
+            String::from_utf8_lossy(&o.stdout)
+                .lines()
+                .filter(|l| is_supported_key(l))
+                .map(key_id)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+/// (key id, private key path) for each ~/.ssh/*.pub that has a private key next to it.
+fn ssh_dir_keys() -> Vec<(String, PathBuf)> {
+    let Some(home) = dirs::home_dir() else { return vec![] };
+    let Ok(rd) = std::fs::read_dir(home.join(".ssh")) else { return vec![] };
+    let mut pubs: Vec<PathBuf> = rd
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| p.extension().map_or(false, |x| x == "pub"))
+        .collect();
+    pubs.sort();
+    let mut out = Vec::new();
+    for p in pubs {
+        let private = p.with_extension("");
+        if !private.is_file() {
+            continue;
+        }
+        if let Ok(s) = std::fs::read_to_string(&p) {
+            if let Some(l) = s.lines().next() {
+                if is_supported_key(l) {
+                    out.push((key_id(l), private));
+                }
+            }
+        }
+    }
+    out
+}
+fn sha256_hex(b: &[u8]) -> String {
+    Sha256::digest(b).iter().map(|x| format!("{:02x}", x)).collect()
+}
+/// Send a request to dev-null; its answers are plain text.
+fn devnull_request(req: reqwest::blocking::RequestBuilder) -> Result<String> {
+    let resp = req.send().context("could not reach dev-null")?;
+    let status = resp.status();
+    let body = sanitize(&resp.text()?);
+    if !status.is_success() {
+        let b = body.trim();
+        if b.is_empty() {
+            bail!("unexpected answer from dev-null (HTTP {})", status.as_u16());
+        }
+        bail!("{b}");
+    }
+    Ok(body)
+}
+/// `ssh-keygen -Y sign` on a file in `dir`; returns the bare base64 of the armored signature.
+fn ssh_sign(dir: &Path, signing_key: &Path, namespace: &str, data: &str) -> Result<String> {
+    let commit = dir.join("commit");
+    std::fs::write(&commit, data)?;
+    let out = Command::new("ssh-keygen")
+        .args(["-Y", "sign", "-n", namespace, "-f"])
+        .arg(signing_key)
+        .arg(&commit)
+        .stdin(Stdio::null()) // passphrase prompts go to /dev/tty
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .output()
+        .map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                anyhow!("`ssh-keygen` not found (OpenSSH 8.1+ is needed to sign)")
+            } else {
+                anyhow!("running ssh-keygen: {e}")
+            }
+        })?;
+    if !out.status.success() {
+        bail!(
+            "could not sign with {}: {}",
+            signing_key.display(),
+            sanitize(String::from_utf8_lossy(&out.stderr).trim())
+        );
+    }
+    let armored = std::fs::read_to_string(dir.join("commit.sig")).context("reading signature")?;
+    let sig: String = armored.lines().filter(|l| !l.contains("-----")).collect::<Vec<_>>().concat();
+    if sig.is_empty() || !sig.chars().all(|c| c.is_ascii_alphanumeric() || "+/=".contains(c)) {
+        bail!("ssh-keygen produced an unexpected signature");
+    }
+    Ok(sig)
+}
+fn post_devnull(
+    _http: &Client,
+    acc: &Account,
+    text: &str,
+    media: &[Media],
+    reply_to: Option<&str>,
+) -> Result<String> {
+    let base = acc.instance.as_deref().unwrap_or(DEVNULL_DEFAULT_URL).trim_end_matches('/');
+    let host_is = |h: &str| base == h || base.starts_with(&format!("{h}:"));
+    if !base.starts_with("https://") && !host_is("http://localhost") && !host_is("http://127.0.0.1") {
+        bail!("refusing to send your commit to {base}: it is not an https:// URL");
+    }
+    if text.trim().is_empty() {
+        bail!("aborting commit due to empty commit message");
+    }
+    if let Some(r) = reply_to {
+        if r.is_empty() || r.chars().any(|c| !(c.is_ascii_alphanumeric() || ":/._@-".contains(c))) {
+            bail!("--reply-to takes the hash of a commit or its link");
+        }
+    }
+    if media.len() > DEVNULL_MAX_IMAGES {
+        bail!("a dev-null commit can carry up to {DEVNULL_MAX_IMAGES} images");
+    }
+    for m in media {
+        if !DEVNULL_IMAGE_MIMES.contains(&m.mime.as_str()) {
+            bail!("{}: dev-null only takes JPEG, PNG or WebP images (got {})", m.name, m.mime);
+        }
+        if m.bytes.len() > DEVNULL_MAX_IMAGE_BYTES {
+            bail!("{}: larger than 10 MB", m.name);
+        }
+        if m.alt.is_some() {
+            eprintln!("warning: dev-null has no alt text; ignoring alt for {}", m.name);
+        }
+    }
+    // Never follow redirects with a signed request.
+    let http = Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .timeout(Duration::from_secs(30))
+        .user_agent(concat!("post-script/", env!("CARGO_PKG_VERSION")))
+        .build()?;
+    let tmp = TmpDir::new()?;
 
+    // 1. Which key signs: --key, or whichever local key /dev/null finds on your GitHub account.
+    let signing_key: PathBuf = if let Some(k) = &acc.key {
+        PathBuf::from(expand_tilde(k))
+    } else {
+        let agent = agent_keys();
+        let disk = ssh_dir_keys();
+        let mut candidates: Vec<String> = Vec::new();
+        for k in agent.iter().cloned().chain(disk.iter().map(|(id, _)| id.clone())) {
+            if !candidates.contains(&k) {
+                candidates.push(k);
+            }
+        }
+        if candidates.is_empty() {
+            bail!("no Ed25519 or RSA SSH key found in your SSH agent or in ~/.ssh");
+        }
+        let list = candidates.join("\n") + "\n";
+        let answer = devnull_request(
+            http.post(format!("{base}/api/cli/key-lookups"))
+                .header(reqwest::header::CONTENT_TYPE, "text/plain; charset=utf-8")
+                .body(list),
+        )?;
+        let key = key_id(answer.lines().next().unwrap_or(""));
+        // Only ever sign with one of our own keys, whatever the server answers.
+        if !candidates.contains(&key) {
+            bail!("unexpected answer from {base}");
+        }
+        if agent.contains(&key) {
+            let p = tmp.0.join("key.pub");
+            std::fs::write(&p, format!("{key}\n"))?;
+            p
+        } else if let Some((_, private)) = disk.iter().find(|(id, _)| *id == key) {
+            private.clone()
+        } else {
+            bail!("could not find the private key of {key}");
+        }
+    };
+
+    // 2. Sign: <timestamp>\n<nonce>\n<reply to or empty>\n[<image hashes>\n]<message>
+    let ts = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+    let nonce = format!("{:032x}", rand::random::<u128>());
+    let reply = reply_to.unwrap_or("");
+    let (payload, namespace) = if media.is_empty() {
+        (format!("{ts}\n{nonce}\n{reply}\n{text}"), DEVNULL_NAMESPACE)
+    } else {
+        let hashes = media.iter().map(|m| sha256_hex(&m.bytes)).collect::<Vec<_>>().join(",");
+        (format!("{ts}\n{nonce}\n{reply}\n{hashes}\n{text}"), DEVNULL_IMAGES_NAMESPACE)
+    };
+    let sig = ssh_sign(&tmp.0, &signing_key, namespace, &payload)?;
+
+    // 3. Commit: the raw payload, or a multipart form of the payload and the images.
+    let req = http.post(format!("{base}/api/cli/commits")).header("X-SSH-Signature", sig);
+    let req = if media.is_empty() {
+        req.header(reqwest::header::CONTENT_TYPE, "text/plain; charset=utf-8").body(payload)
+    } else {
+        let part = |name: String, bytes: Vec<u8>| -> Result<multipart::Part> {
+            Ok(multipart::Part::bytes(bytes).file_name(name).mime_str("application/octet-stream")?)
+        };
+        let mut form = multipart::Form::new().part("payload", part("commit".into(), payload.into_bytes())?);
+        for (i, m) in media.iter().enumerate() {
+            form = form.part("images[]", part(format!("image-{}", i + 1), m.bytes.clone())?);
+        }
+        req.multipart(form).timeout(Duration::from_secs(600))
+    };
+    let answer = devnull_request(req)?;
+    let answer = answer.trim();
+    Ok(if answer.is_empty() { "(posted)".to_string() } else { answer.to_string() })
+}
 // ───────────────────────────── Main flow ─────────────────────────────
-
 fn post_one(
     http: &Client,
     name: &str,
@@ -1092,15 +1298,17 @@ fn post_one(
     text: &str,
     media: &[Media],
     vis: Visibility,
+    reply_to: Option<&str>,
 ) -> Result<String> {
     match acc.kind {
         Kind::Mastodon => post_mastodon(http, acc, &resolve_secret(name, acc)?, text, media, vis),
         Kind::Bluesky => post_bluesky(http, acc, &resolve_secret(name, acc)?, text, media),
         // Cookies are optional: without a stored secret, twitter-cli uses the browser's.
         Kind::Twitter => post_twitter(acc, lookup_secret(name, acc)?.as_deref(), text, media),
+        // Signed locally with an SSH key; no stored secret.
+        Kind::Devnull => post_devnull(http, acc, text, media, reply_to),
     }
 }
-
 fn run_post(args: PostArgs) -> Result<()> {
     // Body: --file, stdin ("-"), or the positional words.
     let mut body = if let Some(f) = &args.file {
@@ -1119,7 +1327,6 @@ fn run_post(args: PostArgs) -> Result<()> {
     if args.alt.len() > args.media.len() {
         bail!("more --alt values ({}) than --media files ({})", args.alt.len(), args.media.len());
     }
-
     // Resolve targets before doing anything, so typos fail fast.
     let cfg = load_config()?;
     let mut targets: Vec<(String, Account)> = Vec::new();
@@ -1134,7 +1341,6 @@ fn run_post(args: PostArgs) -> Result<()> {
         })?;
         targets.push((name.to_string(), acc.clone()));
     }
-
     // Load media once.
     let mut media = Vec::new();
     for (i, p) in args.media.iter().enumerate() {
@@ -1147,7 +1353,6 @@ fn run_post(args: PostArgs) -> Result<()> {
             bytes,
         });
     }
-
     if args.dry_run {
         println!("--- text ({} chars) ---\n{}\n---", body.graphemes(true).count(), body);
         for m in &media {
@@ -1158,12 +1363,10 @@ fn run_post(args: PostArgs) -> Result<()> {
         }
         return Ok(());
     }
-
     let http = http_client(120)?;
-
     let mut failures = 0;
     for (name, acc) in &targets {
-        match post_one(&http, name, acc, &body, &media, args.visibility) {
+        match post_one(&http, name, acc, &body, &media, args.visibility, args.reply_to.as_deref()) {
             Ok(url) => println!("✓ {name}: {url}"),
             Err(e) => {
                 failures += 1;
@@ -1176,7 +1379,6 @@ fn run_post(args: PostArgs) -> Result<()> {
     }
     Ok(())
 }
-
 fn main() {
     let cli = Cli::parse();
     let result = match cli.cmd {
