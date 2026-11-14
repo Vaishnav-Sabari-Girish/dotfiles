@@ -20,6 +20,7 @@ fn main() {
         "Python",
         "Go",
         "Zig",
+        "Odin",
         "ESP32-Std",
         "STM32-Embassy",
         "RP2040-HAL",
@@ -43,6 +44,7 @@ fn main() {
         "Python" => create_python(),
         "Go" => create_go(),
         "Zig" => create_zig(),
+        "Odin" => create_odin(),
         "ESP32-Std" => create_esp32_std(),
         "STM32-Embassy" => create_stm32_embassy(),
         "RP2040-HAL" => create_rp2040_hal(),
@@ -63,6 +65,20 @@ fn prompt_project_name() -> String {
             println!("Aborted.");
             exit(0);
         })
+}
+
+fn prompt_grimoire() -> bool {
+    let choices = vec!["Yes", "No"];
+    match Select::new("Create Grimoire.toml?", choices)
+        .with_page_size(5)
+        .prompt()
+    {
+        Ok(choice) => choice == "Yes",
+        Err(_) => {
+            println!("Aborted.");
+            exit(0);
+        }
+    }
 }
 
 fn create_dir_and_cd(name: &str) {
@@ -110,9 +126,10 @@ int main() {
 }
 "#,
     );
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [ingredients]
 c_compiler = "gcc"
 cflags = "-Wall -Wextra -O2"
@@ -143,7 +160,8 @@ language = "shell"
 silent = true
 run = "rm -f {{out}}"
 "#,
-    );
+        );
+    }
     println!("✅ Simple C project '{}' created!", project_name);
 }
 
@@ -172,7 +190,17 @@ int main(void)
 
 project({} C)
 
-set(CMAKE_C_STANDARD 11)
+if("c_std_23" IN_LIST CMAKE_C_COMPILE_FEATURES)
+  set(CMAKE_C_STANDARD 23)
+  message(STATUS "C standard: C23 (compiler supports c_std_23)")
+elseif("c_std_11" IN_LIST CMAKE_C_COMPILE_FEATURES)
+  set(CMAKE_C_STANDARD 11)
+  message(STATUS "C standard: C11 (C23 not available; falling back)")
+else()
+  message(FATAL_ERROR "Compiler does not report C11 or C23 support "
+                      "(CMAKE_C_COMPILER=${{CMAKE_C_COMPILER}}). Need at least C11"
+  )
+endif()
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -1119,10 +1147,12 @@ misc:
     );
 
     // Grimoire.toml with CMake commands
-    write_file(
-        "Grimoire.toml",
-        &format!(
-            r#"version = "1"
+    let with_grimoire = prompt_grimoire();
+    if with_grimoire {
+        write_file(
+            "Grimoire.toml",
+            &format!(
+                r#"version = "1"
 
 [ingredients]
 project = "{}"
@@ -1187,9 +1217,10 @@ language = "shell"
 silent = false
 run = "cmake-format -i CMakeLists.txt"
 "#,
-            project_name
-        ),
-    );
+                project_name
+            ),
+        );
+    }
 
     // Optional: symlink compile_commands.json for clangd
     // (user can run configure first)
@@ -1201,14 +1232,16 @@ run = "cmake-format -i CMakeLists.txt"
     println!("   .clang-format");
     println!("   .clang-tidy");
     println!("   .cmake-format.yaml");
-    println!("   Grimoire.toml");
-    println!();
-    println!("🔨 Typical workflow:");
-    println!("   grimoire configure   # or just grimoire build");
-    println!("   grimoire build");
-    println!("   grimoire run");
-    println!("   grimoire fmt");
-    println!("   grimoire tidy");
+    if with_grimoire {
+        println!("   Grimoire.toml");
+        println!();
+        println!("🔨 Typical workflow:");
+        println!("   grimoire configure   # or just grimoire build");
+        println!("   grimoire build");
+        println!("   grimoire run");
+        println!("   grimoire fmt");
+        println!("   grimoire tidy");
+    }
 }
 
 // ==================== Rust ====================
@@ -1268,9 +1301,10 @@ func main() {
 }
 "#,
     );
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.run]
 description = "Run the Go project"
 language = "shell"
@@ -1287,7 +1321,8 @@ language = "shell"
 silent = true
 run = "rm -f main"
 "#,
-    );
+        );
+    }
     println!("✅ Go project '{}' created!", project_name);
 }
 
@@ -1303,9 +1338,10 @@ fn create_zig() {
     if !status.success() {
         exit(1);
     }
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.run]
 description = "Run the Zig project"
 language = "shell"
@@ -1322,7 +1358,8 @@ language = "shell"
 silent = true
 run = "rm -rf zig-out .zig-cache"
 "#,
-    );
+        );
+    }
     println!("✅ Zig project '{}' created!", project_name);
 }
 
@@ -1490,10 +1527,11 @@ echo ""
         perms.set_mode(0o755);
         fs::set_permissions("build-size.sh", perms).ok();
     }
-    println!("📝 Writing Grimoire.toml...");
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        println!("📝 Writing Grimoire.toml...");
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.sz]
 description = "Show binary size"
 language = "shell"
@@ -1508,7 +1546,8 @@ run = '''
 cargo run --release
 '''
 "#,
-    );
+        );
+    }
     println!("✅ ESP32 project '{}' created with memory profiling tools!", project_name);
 }
 
@@ -1610,9 +1649,10 @@ async fn main(_spawner: Spawner) {
 }
 "#,
     );
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.run]
 description = "Build and flash"
 language = "shell"
@@ -1629,11 +1669,12 @@ language = "shell"
 silent = true
 run = "cargo clean"
 "#,
-    );
+        );
+        println!("🔨 Run 'grimoire run' to flash.");
+    }
     println!("✅ STM32 project '{}' created!", project_name);
     println!("📝 Hardware: STM32F103C8 (Blue Pill)");
     println!("🔌 Wiring: Connect PA9 (TX) to FTDI RX");
-    println!("🔨 Run 'grimoire run' to flash.");
 }
 
 // ==================== RP2040-HAL ====================
@@ -1940,9 +1981,10 @@ echo ""
         perms.set_mode(0o755);
         fs::set_permissions("build-size.sh", perms).ok();
     }
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.build]
 description = "Release build"
 language = "shell"
@@ -1993,11 +2035,12 @@ cargo clean
 rm -f flash.uf2
 '''
 "#,
-    );
+        );
+        println!("🔨 Run 'grimoire run' to flash.");
+    }
     println!("✅ RP2040 project '{}' created with memory profiling!", project_name);
     println!("📝 Hardware: Waveshare RP2040 Zero");
     println!("🔌 NeoPixel on GP16");
-    println!("🔨 Run 'grimoire run' to flash.");
 }
 
 // ==================== nRF52-Embassy ====================
@@ -2132,9 +2175,10 @@ async fn main(_spawner: Spawner) {
 }
 "#,
     );
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.run]
 description = "Build and flash with defmt"
 language = "shell"
@@ -2164,9 +2208,12 @@ language = "shell"
 silent = true
 run = "cargo clean"
 "#,
-    );
+        );
+        println!("🔌 Connect your nRF52840-DK and run 'grimoire run' to compile, flash, and view defmt logs.");
+    } else {
+        println!("🔌 Connect your nRF52840-DK and run 'cargo run' to compile, flash, and view defmt logs.");
+    }
     println!("✅ nRF52840 Embassy project '{}' created!", project_name);
-    println!("🔌 Connect your nRF52840-DK and run 'grimoire run' to compile, flash, and view defmt logs.");
 }
 
 // ==================== Zephyr ====================
@@ -2227,8 +2274,9 @@ int main(void)
 }
 "#,
     );
-    // Write Grimoire.toml
-    if board == "rp2040_zero" {
+    // Write Grimoire.toml (optional)
+    let with_grimoire = prompt_grimoire();
+    if with_grimoire && board == "rp2040_zero" {
         write_file(
             &format!("{}/Grimoire.toml", project_name),
             r#"version = "1"
@@ -2299,7 +2347,7 @@ silent = true
 run = "rm -rf build compile_commands.json"
 "#,
         );
-    } else {
+    } else if with_grimoire {
         let mut grimoire = format!(
             r#"version = "1"
 [sigil.build]
@@ -2416,9 +2464,10 @@ fn create_arduino() {
     let _ = Command::new("arduino-cli")
         .args(["board", "attach", "-b", &fqbn])
         .status();
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.build]
 description = "Compile the sketch"
 language = "shell"
@@ -2446,7 +2495,8 @@ language = "shell"
 silent = true
 run = "rm -rf build"
 "#,
-    );
+        );
+    }
     println!("✅ Arduino project '{}' created for '{}'!", project_name, fqbn);
 }
 
@@ -2497,9 +2547,10 @@ gnatprove/
 *.spark
 "#,
     );
-    write_file(
-        "Grimoire.toml",
-        r#"version = "1"
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
 [sigil.build]
 description = "Build with Alire"
 language = "shell"
@@ -2524,7 +2575,8 @@ alr clean
 rm -rf obj/ bin/
 '''
 "#,
-    );
+        );
+    }
     println!("✅ Ada SPARK project '{}' created!", project_name);
 }
 
@@ -2561,4 +2613,47 @@ void main() {{
     }
     println!("✅ D-simple project '{}' created!", project_name);
     println!("🚀 You can run it directly using: ./{}.d", project_name);
+}
+
+// ==================== Odin ====================
+fn create_odin() {
+    println!("🌀 Creating Odin project...");
+    let project_name = prompt_project_name();
+    create_dir_and_cd(&project_name);
+    write_file(
+        &format!("{}.odin", project_name),
+        r#"package main;
+
+import "core:fmt";
+
+println :: fmt.println();
+
+main :: proc() {
+
+}
+"#,
+    );
+    if prompt_grimoire() {
+        write_file(
+            "Grimoire.toml",
+            r#"version = "1"
+[sigil.run]
+description = "Run the Odin project"
+language = "shell"
+silent = true
+run = "odin run ."
+[sigil.build]
+description = "Build the binary"
+language = "shell"
+silent = true
+run = "odin build . -out:main"
+[sigil.clean]
+description = "Remove the binary"
+language = "shell"
+silent = true
+run = "rm -f main"
+"#,
+        );
+    }
+    println!("✅ Odin project '{}' created!", project_name);
 }
