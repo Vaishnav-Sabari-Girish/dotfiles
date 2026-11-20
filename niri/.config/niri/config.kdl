@@ -10,6 +10,8 @@
 include "app_configs/obs.kdl"
 include "app_configs/emoji-picker.kdl"
 include "app_configs/emacs.kdl"
+include "app_configs/termfilechooser.kdl"
+include "app_configs/ripdrag.kdl"
 
 environment {
     DISPLAY ":0"
@@ -558,8 +560,8 @@ binds {
   }
   // Starting soon
   Mod+Shift+S hotkey-overlay-title="Starting Soon GIF" { spawn "mpv" "--fs=yes" "--osc=no" "/home/vaishnav/Desktop/My_Projects/starting_soon.gif" "--loop"; }
-  Mod+Alt+S hotkey-overlay-title="Silicon Sundays Banner" { 
-    spawn-sh "name=$(zenity --entry --title='Silicon Sundays' --text='Enter Speaker Name:'); if [ -n \"$name\" ]; then cd /home/vaishnav/Desktop/My_Projects/SiliconSundaysOrg/silicon_sundays/ && rm -rf output/*.png && cargo run --release -- --speaker \"$name\" && ls output/*.png 2>/dev/null | sort | tail -n +241 | xargs -r rm; fi" 
+  Mod+Alt+S hotkey-overlay-title="Silicon Sundays Banner" {
+    spawn-sh "name=$(zenity --entry --title='Silicon Sundays' --text='Enter Speaker Name (optional):') || exit 0; cd /home/vaishnav/Desktop/My_Projects/SiliconSundaysOrg/silicon_sundays && BEVY_ASSET_ROOT=\"$PWD\" exec ./target/release/silicon_sundays --speaker \"$name\"";
   }
 
   // miru

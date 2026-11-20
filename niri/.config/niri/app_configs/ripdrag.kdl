@@ -1,0 +1,14 @@
+// ~/dotfiles/niri/.config/niri/app_configs/ripdrag.kdl
+// Small floating drag-source window, tucked in a corner, without stealing focus
+window-rule {
+    match app-id="^ripdrag$"
+
+    open-floating false
+    open-focused false
+
+    default-column-width { fixed 300; }
+    default-window-height { fixed 200; }
+
+    // Bottom-right corner, 32px in from the edges
+    default-floating-position x=32 y=32 relative-to="bottom-right"
+}

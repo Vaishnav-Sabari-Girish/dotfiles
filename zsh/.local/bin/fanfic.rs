@@ -61,12 +61,15 @@ Usage:
   fanfic i <url>    Download fanfic as EPUB to ~/fanfic/ and open with bookokrat
                     (wattpad.com links are downloaded with wattpdl, others with fichub_cli)
   fanfic s <query>  Search fanfiction.net, select a story, download & open
+  fanfic w <query>  Search Wattpad (wattpdl --search), pick stories, download & open
+                    (also: fanfic wattpad <query>; requires wattpdl >= 1.8.0)
   fanfic             Open interactive picker of downloaded fanfics in ~/fanfic/
 
 Examples:
   fanfic i \"https://archiveofourown.org/works/12345\"
   fanfic i \"https://www.wattpad.com/story/123456789-story-title\"
   fanfic s \"Rise of the Solar God\"
+  fanfic w \"Railgun in Fairy Tail\"
   fanfic"
     );
 }
@@ -133,6 +136,19 @@ fn list_epubs(dir: &Path) -> Vec<PathBuf> {
     }
     walk(dir, &mut out);
     out
+}
+
+/// All EPUBs in `dir` modified at or after `since`.
+fn list_epubs_since(dir: &Path, since: SystemTime) -> Vec<PathBuf> {
+    list_epubs(dir)
+        .into_iter()
+        .filter(|p| {
+            fs::metadata(p)
+                .and_then(|m| m.modified())
+                .map(|t| t >= since)
+                .unwrap_or(false)
+        })
+        .collect()
 }
 
 /// Newest EPUB in `dir`, optionally only those modified at or after `since`.
@@ -242,6 +258,55 @@ fn epub_title_raw(path: &Path) -> String {
         .unwrap_or_else(|| path.display().to_string())
 }
 
+/// Replace this process with the reader opening `path`.
+fn open_epub(path: &Path) -> ! {
+    println!("Opening with {READER} ...");
+    let e = Command::new(READER).arg(path).exec();
+    err(&format!("failed to exec {READER}: {e}"));
+}
+
+/// Show a picker over `epubs` (sorted by title) and return the chosen path.
+/// Exits 0 on cancel.
+fn pick_epub(epubs: Vec<PathBuf>) -> PathBuf {
+    let mut items: Vec<(String, PathBuf)> = epubs
+        .into_iter()
+        .map(|p| (epub_title(&p), p))
+        .collect();
+
+    items.sort_by_cached_key(|(title, _)| sort_key(title));
+
+    let titles: Vec<String> = items.iter().map(|(t, _)| t.clone()).collect();
+
+    let selected_title = match Select::new("Select a fanfic:", titles)
+        .with_page_size(15)
+        .with_vim_mode(true)
+        .without_help_message()
+        .prompt()
+    {
+        Ok(choice) => choice,
+        Err(_) => {
+            println!("Cancelled.");
+            std::process::exit(0);
+        }
+    };
+
+    let fullpath = items
+        .into_iter()
+        .find(|(title, _)| title == &selected_title)
+        .map(|(_, path)| path)
+        .expect("selected title should always match an item");
+
+    if !fullpath.is_file() {
+        err(&format!(
+            "Selected file no longer exists: {}",
+            fullpath.display()
+        ));
+    }
+
+    ok(&format!("Opening: {selected_title}"));
+    fullpath
+}
+
 fn run_downloader(url: &str, dir: &Path) {
     let (name, mut cmd) = if is_wattpad_url(url) {
         require_cmd(WATTPAD_DOWNLOADER);
@@ -319,10 +384,7 @@ fn download_and_open(url: &str) {
         "Downloaded: {}",
         epub.file_name().unwrap_or_default().to_string_lossy()
     ));
-    println!("Opening with {READER} ...");
-
-    let e = Command::new(READER).arg(&epub).exec();
-    err(&format!("failed to exec {READER}: {e}"));
+    open_epub(&epub);
 }
 
 fn browse_and_open() {
@@ -336,44 +398,67 @@ fn browse_and_open() {
         err(&format!("No EPUB files found in {}", dir.display()));
     }
 
-    let mut items: Vec<(String, PathBuf)> = epubs
-        .into_iter()
-        .map(|p| (epub_title(&p), p))
-        .collect();
+    let path = pick_epub(epubs);
+    open_epub(&path);
+}
 
-    items.sort_by_cached_key(|(title, _)| sort_key(title));
+// ----------------------------------------------------------------------
+// Wattpad search (wattpdl --search, v1.8.0+)
+// ----------------------------------------------------------------------
 
-    let titles: Vec<String> = items.iter().map(|(t, _)| t.clone()).collect();
-
-    let selected_title = match Select::new("Select a fanfic:", titles)
-        .with_page_size(15)
-        .with_vim_mode(true)
-        .without_help_message()
-        .prompt()
-    {
-        Ok(choice) => choice,
-        Err(_) => {
-            println!("Cancelled.");
-            std::process::exit(0);
-        }
-    };
-
-    let fullpath = items
-        .into_iter()
-        .find(|(title, _)| title == &selected_title)
-        .map(|(_, path)| path)
-        .expect("selected title should always match an item");
-
-    if !fullpath.is_file() {
-        err(&format!(
-            "Selected file no longer exists: {}",
-            fullpath.display()
-        ));
+/// `wattpdl --search` lists matches by index and asks which to download
+/// (e.g. `1-8,10` or `all`). We hand it the terminal so that prompt works
+/// as-is, force merged-EPUB output into ~/fanfic/, then open whatever new
+/// EPUB(s) it wrote (with a picker if several were downloaded).
+fn wattpad_search(query: &str) {
+    if query.is_empty() {
+        err("Please provide a search query.\nExample: fanfic w \"Railgun in Fairy Tail\"");
     }
 
-    ok(&format!("Opening: {selected_title}"));
-    let e = Command::new(READER).arg(&fullpath).exec();
-    err(&format!("failed to exec {READER}: {e}"));
+    require_cmd(WATTPAD_DOWNLOADER);
+    require_cmd(READER);
+
+    let dir = fanfic_dir();
+    ensure_dir(&dir);
+
+    let started = SystemTime::now() - std::time::Duration::from_secs(2);
+
+    ok(&format!("Searching Wattpad for: {query}"));
+
+    let status = Command::new(WATTPAD_DOWNLOADER)
+        .args(["--search", query, "--mode", "1", "--format", "epub", "--output-dir"])
+        .arg(&dir)
+        .status();
+
+    match status {
+        Ok(s) if s.success() => {}
+        Ok(s) => err(&format!(
+            "{WATTPAD_DOWNLOADER} failed (exit code {}). Is it >= 1.8.0? (pip install -U wattpdl)",
+            s.code().unwrap_or(-1)
+        )),
+        Err(e) => err(&format!("failed to run {WATTPAD_DOWNLOADER}: {e}")),
+    }
+
+    let new_epubs = list_epubs_since(&dir, started);
+    match new_epubs.len() {
+        0 => {
+            warn("No new EPUB was written (nothing selected?).");
+            std::process::exit(0);
+        }
+        1 => {
+            let epub = &new_epubs[0];
+            ok(&format!(
+                "Downloaded: {}",
+                epub.file_name().unwrap_or_default().to_string_lossy()
+            ));
+            open_epub(epub);
+        }
+        n => {
+            ok(&format!("Downloaded {n} stories."));
+            let path = pick_epub(new_epubs);
+            open_epub(&path);
+        }
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -491,6 +576,11 @@ fn main() {
                 err("Please provide a search query.\nExample: fanfic s \"Rise of the Solar God\"");
             }
             search_and_select(&query);
+        }
+        Some("w") | Some("wattpad") => {
+            args.remove(0);
+            let query = args.join(" ");
+            wattpad_search(&query);
         }
         Some("-h") | Some("--help") | Some("help") => {
             usage();

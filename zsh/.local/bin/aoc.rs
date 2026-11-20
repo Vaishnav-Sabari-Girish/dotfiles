@@ -11,12 +11,22 @@
 //!
 //! Usage:   rust-script aoc.rs        (or chmod +x aoc.rs && ./aoc.rs)
 //!
-//! Settings live in the app, press S for your session cookie and L to pick your language.
-//! Both are saved under the data directory, so there are no env vars to export.
-//! Optional: AOC_DIR sets where puzzles/inputs/solutions live (default: ~/aoc).
+//! Press S in the app for your session cookie and L to pick your language.
 //!
-//! Languages: D (default, run with `dub`), C, C++, Rust, Python, or Others (your own
-//! file extension and run command; {file} stands for the solution file).
+//! Data directory (config, .session, .lang, templates, puzzles, inputs, solutions):
+//!   Linux/macOS: $XDG_CONFIG_HOME/aoc, falling back to ~/.config/aoc
+//!   Windows:     %USERPROFILE%\aoc
+//!   AOC_DIR overrides both.
+//!
+//! Languages live in <data dir>/config (created with defaults on first run):
+//!
+//!   [Zig]
+//!   ext = zig
+//!   cmd = zig build-exe {file} -femit-bin=sol_bin && ./sol_bin
+//!
+//! `cmd` runs via `sh -c` in the day folder with input.txt on stdin; {file} is the
+//! solution file name (appended if missing). Optional starter code goes in
+//! <data dir>/templates/template.<ext>. Press L to reload the config and pick a language.
 //!
 //! Your solution reads the puzzle input from stdin and prints the part 1 answer on the
 //! first line and the part 2 answer on the second line.
@@ -46,82 +56,174 @@ const UA: &str = "aoc-tui (rust-script) personal use";
 
 // ───────────────────────────── config ─────────────────────────────
 
-struct Preset {
-    name: &'static str,
-    ext: &'static str,
-    cmd: &'static str,
-    tpl: &'static str,
-}
-
-const PRESETS: [Preset; 5] = [
-    Preset { name: "D", ext: "d", cmd: "dub run --single --quiet {file}", tpl: TPL_D },
-    Preset { name: "C", ext: "c", cmd: "gcc -O2 -o sol_bin {file} -lm && ./sol_bin", tpl: TPL_C },
-    Preset { name: "C++", ext: "cpp", cmd: "g++ -O2 -std=c++20 -o sol_bin {file} && ./sol_bin", tpl: TPL_CPP },
-    Preset { name: "Rust", ext: "rs", cmd: "rust-script {file}", tpl: TPL_RS },
-    Preset { name: "Python", ext: "py", cmd: "python3 {file}", tpl: TPL_PY },
-];
-
-struct Config {
-    root: PathBuf,
-    lang: String,
+#[derive(Clone)]
+struct Lang {
+    name: String,
     ext: String,
     cmd: String,
 }
 
-impl Config {
-    fn load() -> Self {
-        let root = std::env::var("AOC_DIR").map(PathBuf::from).unwrap_or_else(|_| {
-            PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".into())).join("aoc")
-        });
-        let mut cfg = Config {
-            root,
-            lang: PRESETS[0].name.into(),
-            ext: PRESETS[0].ext.into(),
-            cmd: PRESETS[0].cmd.into(),
-        };
-        if let Ok(s) = fs::read_to_string(cfg.config_file()) {
-            for line in s.lines() {
-                if let Some((k, v)) = line.split_once('=') {
-                    let v = v.trim().to_string();
-                    match k.trim() {
-                        "lang" => cfg.lang = v,
-                        "ext" => cfg.ext = v,
-                        "cmd" => cfg.cmd = v,
-                        _ => {}
-                    }
-                }
+struct Config {
+    root: PathBuf,
+    langs: Vec<Lang>,
+    cur: usize,
+    warn: Option<String>,
+}
+
+const DEFAULT_CONFIG: &str = r##"# aoc-tui languages
+# One [Name] section per language; they appear in the L menu in this order.
+#   ext = solution file extension (no dot)
+#   cmd = shell command, run inside the day folder with input.txt on stdin.
+#         {file} is the solution file name. Chain build + run with &&.
+# Optional starter code: <data dir>/templates/template.<ext>
+
+[D]
+ext = d
+cmd = dub run --single --quiet {file}
+
+[C]
+ext = c
+cmd = gcc -O2 -o sol_bin {file} -lm && ./sol_bin
+
+[C++]
+ext = cpp
+cmd = g++ -O2 -std=c++20 -o sol_bin {file} && ./sol_bin
+
+[Rust]
+ext = rs
+cmd = rust-script {file}
+
+[Python]
+ext = py
+cmd = python3 {file}
+
+# [Go]
+# ext = go
+# cmd = go run {file}
+"##;
+
+/// Linux/macOS: $XDG_CONFIG_HOME/aoc or ~/.config/aoc. Windows: ~/aoc.
+fn default_root() -> PathBuf {
+    if cfg!(windows) {
+        let home = std::env::var("USERPROFILE")
+            .or_else(|_| std::env::var("HOME"))
+            .unwrap_or_else(|_| ".".into());
+        return PathBuf::from(home).join("aoc");
+    }
+    if let Ok(x) = std::env::var("XDG_CONFIG_HOME") {
+        if !x.trim().is_empty() {
+            return PathBuf::from(x).join("aoc");
+        }
+    }
+    PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".into()))
+        .join(".config")
+        .join("aoc")
+}
+
+fn finish(l: Option<Lang>, langs: &mut Vec<Lang>, warns: &mut Vec<String>) {
+    let Some(mut l) = l else { return };
+    l.ext = l.ext.trim_start_matches('.').to_string();
+    if l.ext.is_empty() || l.cmd.is_empty() {
+        warns.push(format!("[{}] needs both ext and cmd", l.name));
+        return;
+    }
+    if !l.cmd.contains("{file}") {
+        l.cmd.push_str(" {file}");
+    }
+    langs.push(l);
+}
+
+fn parse(s: &str) -> (Vec<Lang>, Vec<String>) {
+    let mut langs = vec![];
+    let mut warns = vec![];
+    let mut cur: Option<Lang> = None;
+    for line in s.lines() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') || line.starts_with(';') {
+            continue;
+        }
+        if let Some(name) = line.strip_prefix('[').and_then(|r| r.strip_suffix(']')) {
+            finish(cur.take(), &mut langs, &mut warns);
+            cur = Some(Lang {
+                name: name.trim().to_string(),
+                ext: String::new(),
+                cmd: String::new(),
+            });
+        } else if let (Some(l), Some((k, v))) = (cur.as_mut(), line.split_once('=')) {
+            let v = v.trim().to_string();
+            match k.trim() {
+                "ext" => l.ext = v,
+                "cmd" => l.cmd = v,
+                _ => {}
             }
         }
+    }
+    finish(cur.take(), &mut langs, &mut warns);
+    (langs, warns)
+}
+
+impl Config {
+    fn load() -> Self {
+        let root = std::env::var("AOC_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| default_root());
+        let mut cfg = Config { root, langs: vec![], cur: 0, warn: None };
+        cfg.reload();
         cfg
     }
+
+    /// Re-reads the config file, keeping the current language if it still exists.
+    fn reload(&mut self) {
+        let keep = self
+            .langs
+            .get(self.cur)
+            .map(|l| l.name.clone())
+            .or_else(|| fs::read_to_string(self.lang_file()).ok().map(|s| s.trim().to_string()));
+        let path = self.config_file();
+        if !path.exists() {
+            let _ = fs::create_dir_all(&self.root);
+            let _ = fs::write(&path, DEFAULT_CONFIG);
+        }
+        let text = fs::read_to_string(&path).unwrap_or_else(|_| DEFAULT_CONFIG.into());
+        let (mut langs, warns) = parse(&text);
+        self.warn = None;
+        if langs.is_empty() {
+            langs = parse(DEFAULT_CONFIG).0;
+            self.warn = Some(format!(
+                "No valid [Language] sections in {} — using built-in defaults",
+                path.display()
+            ));
+        } else if !warns.is_empty() {
+            self.warn = Some(warns.join("; "));
+        }
+        self.cur = keep
+            .and_then(|n| langs.iter().position(|l| l.name == n))
+            .unwrap_or(0);
+        self.langs = langs;
+    }
+
+    fn cur(&self) -> &Lang {
+        &self.langs[self.cur]
+    }
+
+    fn select(&mut self, i: usize) {
+        if i < self.langs.len() {
+            self.cur = i;
+            let _ = fs::create_dir_all(&self.root);
+            let _ = fs::write(self.lang_file(), &self.langs[i].name);
+        }
+    }
+
     fn config_file(&self) -> PathBuf {
         self.root.join("config")
     }
-    fn save(&self) {
-        let _ = fs::create_dir_all(&self.root);
-        let _ = fs::write(
-            self.config_file(),
-            format!("lang={}\next={}\ncmd={}\n", self.lang, self.ext, self.cmd),
-        );
+    fn lang_file(&self) -> PathBuf {
+        self.root.join(".lang")
     }
-    fn set_preset(&mut self, i: usize) {
-        let p = &PRESETS[i];
-        self.lang = p.name.into();
-        self.ext = p.ext.into();
-        self.cmd = p.cmd.into();
-        self.save();
-    }
-    fn set_custom(&mut self, ext: String, mut cmd: String) {
-        if !cmd.contains("{file}") {
-            cmd.push_str(" {file}");
-        }
-        self.lang = "Others".into();
-        self.ext = ext;
-        self.cmd = cmd;
-        self.save();
-    }
-    fn template(&self) -> &'static str {
-        PRESETS.iter().find(|p| p.name == self.lang).map(|p| p.tpl).unwrap_or("")
+    fn template(&self) -> String {
+        let ext = &self.cur().ext;
+        fs::read_to_string(self.root.join("templates").join(format!("template.{ext}")))
+            .unwrap_or_else(|_| builtin_template(ext).to_string())
     }
     fn day_dir(&self, year: i32, day: u32) -> PathBuf {
         self.root.join(year.to_string()).join(format!("day{day:02}"))
@@ -136,6 +238,17 @@ impl Config {
             }
         }
         fs::read_to_string(self.session_file()).map(|s| s.trim().to_string()).unwrap_or_default()
+    }
+}
+
+fn builtin_template(ext: &str) -> &'static str {
+    match ext {
+        "py" => TPL_PY,
+        "rs" => TPL_RS,
+        "d" => TPL_D,
+        "c" => TPL_C,
+        "cpp" => TPL_CPP,
+        _ => "",
     }
 }
 
@@ -651,8 +764,6 @@ fn tab_from(i: usize) -> Tab {
 enum Prompt {
     Session,
     Submit(u8),
-    CustomExt,
-    CustomCmd(String),
 }
 
 enum Mode {
@@ -753,7 +864,9 @@ impl App {
         let d = if in_season { now.2.min(days_in(now.0)) } else { 1 };
         day_state.select(Some(d as usize - 1));
         let session = cfg.load_session();
-        let status = if session.is_empty() {
+        let status = if let Some(w) = &cfg.warn {
+            w.clone()
+        } else if session.is_empty() {
             "No session cookie — press S to paste yours (or export AOC_SESSION)".into()
         } else {
             "Ready".into()
@@ -975,14 +1088,16 @@ impl App {
         if let Mode::Lang(i) = &mut self.mode {
             match k.code {
                 KeyCode::Up | KeyCode::Char('k') => *i = i.saturating_sub(1),
-                KeyCode::Down | KeyCode::Char('j') => *i = (*i + 1).min(PRESETS.len()),
+                KeyCode::Down | KeyCode::Char('j') => {
+                    *i = (*i + 1).min(self.cfg.langs.len().saturating_sub(1))
+                }
                 KeyCode::Esc | KeyCode::Char('q') => self.mode = Mode::Normal,
                 KeyCode::Enter => {
                     let sel = *i;
                     self.mode = Mode::Normal;
                     self.choose_lang(sel);
                 }
-                KeyCode::Char(c @ '1'..='6') => {
+                KeyCode::Char(c @ '1'..='9') => {
                     self.mode = Mode::Normal;
                     self.choose_lang(c as usize - '1' as usize);
                 }
@@ -1138,24 +1253,27 @@ impl App {
     }
 
     fn open_lang(&mut self) {
-        let i = PRESETS.iter().position(|p| p.name == self.cfg.lang).unwrap_or(PRESETS.len());
-        self.mode = Mode::Lang(i);
+        self.cfg.reload();
+        if let Some(w) = &self.cfg.warn {
+            self.status = w.clone();
+        }
+        self.mode = Mode::Lang(self.cfg.cur);
     }
 
     fn choose_lang(&mut self, i: usize) {
-        if i < PRESETS.len() {
-            self.cfg.set_preset(i);
-            self.status = format!("Language set to {} (saved) — solutions use .{}", self.cfg.lang, self.cfg.ext);
-        } else {
-            self.mode = Mode::Prompt { kind: Prompt::CustomExt, buf: String::new() };
+        if i >= self.cfg.langs.len() {
+            return;
         }
+        self.cfg.select(i);
+        let l = self.cfg.cur();
+        self.status = format!("Language set to {} (.{}) — saved", l.name, l.ext);
     }
 
     fn start_edit(&mut self) {
         let Some(v) = &self.view else { return };
         let dir = self.cfg.day_dir(v.year, v.day);
         let _ = fs::create_dir_all(&dir);
-        let p = dir.join(format!("solution.{}", self.cfg.ext));
+        let p = dir.join(format!("solution.{}", self.cfg.cur().ext));
         if !p.exists() {
             let _ = fs::write(&p, self.cfg.template());
         }
@@ -1168,14 +1286,10 @@ impl App {
         }
         let Some(v) = &self.view else { return };
         let dir = self.cfg.day_dir(v.year, v.day);
-        let sol = format!("solution.{}", self.cfg.ext);
+        let sol = format!("solution.{}", self.cfg.cur().ext);
         let input = dir.join("input.txt");
         if !dir.join(&sol).exists() {
             self.status = "No solution file yet — press e to create and edit one".into();
-            return;
-        }
-        if self.cfg.cmd.is_empty() {
-            self.status = "No run command set — press L to choose a language".into();
             return;
         }
         if !input.exists() {
@@ -1185,7 +1299,7 @@ impl App {
         self.running = true;
         self.status = "Running…".into();
         let tx = self.tx.clone();
-        let cmd = self.cfg.cmd.replace("{file}", &sol);
+        let cmd = self.cfg.cur().cmd.replace("{file}", &sol);
         thread::spawn(move || {
             let t = Instant::now();
             let res = (|| -> Result<RunResult, String> {
@@ -1233,20 +1347,6 @@ impl App {
                 self.ensure_stars();
                 self.status = "Session saved".into();
             }
-            Prompt::CustomExt => {
-                let ext = buf.trim_start_matches('.').to_string();
-                if ext.is_empty() {
-                    return;
-                }
-                self.mode = Mode::Prompt { kind: Prompt::CustomCmd(ext), buf: String::new() };
-            }
-            Prompt::CustomCmd(ext) => {
-                if buf.is_empty() {
-                    return;
-                }
-                self.cfg.set_custom(ext, buf);
-                self.status = format!("Language set to Others (.{}) — saved", self.cfg.ext);
-            }
             Prompt::Submit(level) => {
                 if buf.is_empty() {
                     return;
@@ -1280,7 +1380,7 @@ fn ui(f: &mut Frame, app: &mut App) {
         Paragraph::new(Line::from(vec![
             Span::styled(" ★ Advent of Code ", Style::new().fg(Color::Green).add_modifier(Modifier::BOLD)),
             Span::styled(
-                format!(" lang: {} (.{}) ", app.cfg.lang, app.cfg.ext),
+                format!(" lang: {} (.{}) ", app.cfg.cur().name, app.cfg.cur().ext),
                 Style::new().fg(Color::Magenta),
             ),
             Span::styled(
@@ -1314,34 +1414,28 @@ fn ui(f: &mut Frame, app: &mut App) {
         Mode::Normal => {}
         Mode::Lang(sel) => {
             let a = f.area();
-            let w = 78.min(a.width);
-            let h = 10.min(a.height);
+            let w = 90.min(a.width);
+            let h = (app.cfg.langs.len() as u16 + 2).min(a.height);
             let r = Rect::new(a.x + (a.width - w) / 2, a.y + (a.height - h) / 2, w, h);
-            let mut items: Vec<ListItem> = PRESETS
+            let items: Vec<ListItem> = app
+                .cfg
+                .langs
                 .iter()
                 .enumerate()
-                .map(|(i, p)| {
-                    let cur = if p.name == app.cfg.lang { " ✔" } else { "" };
-                    let def = if i == 0 { " (Default)" } else { "" };
-                    ListItem::new(format!("{}. {}{}{}   {}", i + 1, p.name, def, cur, p.cmd))
+                .map(|(i, l)| {
+                    let cur = if i == app.cfg.cur { " ✔" } else { "" };
+                    ListItem::new(format!("{}. {}{}   .{}   {}", i + 1, l.name, cur, l.ext, l.cmd))
                 })
                 .collect();
-            let cur = if app.cfg.lang == "Others" { " ✔" } else { "" };
-            items.push(ListItem::new(format!(
-                "{}. Others{}   (your own file extension + run command)",
-                PRESETS.len() + 1,
-                cur
-            )));
             let mut st = ListState::default();
             st.select(Some(*sel));
             f.render_widget(Clear, r);
             f.render_stateful_widget(
                 List::new(items)
-                    .block(
-                        Block::default()
-                            .borders(Borders::ALL)
-                            .title(" Language — Enter/1-6 to choose, Esc to cancel "),
-                    )
+                    .block(Block::default().borders(Borders::ALL).title(format!(
+                        " Language — Enter/1-9 choose, Esc cancel · edit {} ",
+                        app.cfg.config_file().display()
+                    )))
                     .highlight_style(Style::new().add_modifier(Modifier::REVERSED))
                     .highlight_symbol("▶ "),
                 r,
@@ -1362,8 +1456,6 @@ fn ui(f: &mut Frame, app: &mut App) {
             let title = match kind {
                 Prompt::Session => " Paste your adventofcode.com session cookie (Enter to save, Esc to cancel) ".to_string(),
                 Prompt::Submit(l) => format!(" Submit answer for part {l} (Enter to send, Esc to cancel) "),
-                Prompt::CustomExt => " File extension for your language, e.g. go, zig, kt (Enter) ".to_string(),
-                Prompt::CustomCmd(ext) => format!(" Command to run solution.{ext}, use {{file}} for the file, e.g. go run {{file}} (Enter) "),
             };
             let r = centered(f.area(), 80, 10);
             let r = Rect { height: 3, ..r };
@@ -1474,7 +1566,11 @@ fn draw_day(f: &mut Frame, app: &mut App, area: Rect) {
             .divider("│"),
         tabs_a,
     );
-    let block = Block::default().borders(Borders::ALL).title(format!(" {year} · Day {day} "));
+    let block = Block::default().borders(Borders::ALL).title(format!(
+        " {year} · Day {day} · {} (.{}) ",
+        app.cfg.cur().name,
+        app.cfg.cur().ext
+    ));
     let inner = block.inner(body_a);
     let (w, h) = (inner.width as usize, inner.height as usize);
     app.page = h;

@@ -2626,7 +2626,7 @@ fn create_odin() {
 
 import "core:fmt";
 
-println :: fmt.println();
+println :: fmt.println;
 
 main :: proc() {
 
