@@ -335,6 +335,13 @@ window-rule {
 }
 
 window-rule {
+    match app-id="^yazi-files$"
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
+}
+
+window-rule {
     match app-id="zenity"
     match title="AniList Checker"
     open-maximized true
@@ -549,7 +556,7 @@ binds {
   Super+L hotkey-overlay-title="Lock the Screen" {
     spawn-sh "swayidle -w timeout 20 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' & IDLE_PID=$!; WALL=$(jq -r '.wallpaperPath // .currentWallpaper // .wallpaper' ~/.local/state/DankMaterialShell/session.json | sed \"s|^~|$HOME|\"); swaylock -i \"$WALL\" --fade-in 0 --clock --indicator --effect-blur 7x5; kill $IDLE_PID"
   }
-  Mod+E hotkey-overlay-title="Open files" { spawn "nautilus"; }
+  Mod+E hotkey-overlay-title="Open files: yazi" { spawn "foot" "--app-id=yazi-files" "yazi"; }
 	Super+F hotkey-overlay-title="Open Firefox: firefox" { spawn "firefox"; }
   Super+D hotkey-overlay-title="Define Word" { spawn-sh "foot --app-id=define-word -o initial-window-mode=windowed -o colors-dark.alpha=0.8 $HOME/dotfiles/niri/.config/niri/scripts/define.sh"; }
   Super+C hotkey-overlay-title="Google Calendar TUI" { 

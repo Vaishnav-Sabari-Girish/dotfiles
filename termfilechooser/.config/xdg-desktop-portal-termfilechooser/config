@@ -1,0 +1,6 @@
+[filechooser]
+cmd=yazi-wrapper.sh
+default_dir=$HOME
+env=TERMCMD='foot --app-id=termfilechooser-floating -o initial-window-mode=windowed -o colors-dark.alpha=0.8 -T "terminal filechooser"'
+open_mode=suggested
+save_mode=last
