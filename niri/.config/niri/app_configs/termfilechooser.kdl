@@ -1,7 +1,10 @@
 window-rule {
     match app-id="^termfilechooser-floating$"
 
-    default-column-width { proportion 0.5; }
+    open-floating true
+
+    default-column-width { fixed 900; }
+    default-window-height { fixed 600; }
 
     background-effect {
         blur true

@@ -20,6 +20,7 @@ environment {
     GTK_THEME "Adwaita:dark"
     EDITOR "nvim"
     VISUAL "nvim"
+    QT_QPA_PLATFORMTHEME "xdgdesktopportal"
 }
 
 input {

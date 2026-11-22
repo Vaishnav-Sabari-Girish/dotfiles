@@ -27,6 +27,12 @@ end
 vim.opt.relativenumber = false -- Disable relative line numbers
 vim.opt.number = true -- Keep absolute line numbers enabled
 
+vim.filetype.add({
+  extension = {
+    plt = "gnuplot",
+  },
+})
+
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = { "*.v" },
   callback = function()
